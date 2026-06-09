@@ -28,3 +28,4 @@ npm-debug.log*
 # Temporary files
 create-repo.json
 nul
+repo-config.json
