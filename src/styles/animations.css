@@ -1,0 +1,528 @@
+/* ============================================
+   砂金粉丝应援官网 - 华丽动画效果样式库
+   ============================================ */
+
+/* ============ 1. 页面加载动画 ============ */
+
+/* 开场遮罩 */
+.opening-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(ellipse at center, #1a1a2e 0%, #121212 70%);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: overlayFadeOut 0.8s ease-out 2.5s forwards;
+}
+
+@keyframes overlayFadeOut {
+  to {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+/* Logo旋转入场 */
+.opening-logo {
+  font-size: 4rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #d4b878, #f2e8d0, #b0a0d8, #d4b878);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: logoReveal 2s ease-out forwards, shimmer 3s ease-in-out infinite;
+  opacity: 0;
+  transform: scale(0.5) rotate(-10deg);
+}
+
+@keyframes logoReveal {
+  0% {
+    opacity: 0;
+    transform: scale(0.5) rotate(-10deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1) rotate(5deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* 加载进度条 */
+.opening-progress {
+  position: absolute;
+  bottom: 30%;
+  width: 200px;
+  height: 2px;
+  background: rgba(212, 184, 120, 0.2);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.opening-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #d4b878, #f2e8d0, #b0a0d8);
+  border-radius: 2px;
+  animation: progressLoad 2s ease-out forwards;
+}
+
+@keyframes progressLoad {
+  0% { width: 0%; }
+  100% { width: 100%; }
+}
+
+
+/* ============ 2. 滚动动画 ============ */
+
+/* 基础滚动动画类 */
+.scroll-fade-in {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.scroll-fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.scroll-slide-left {
+  opacity: 0;
+  transform: translateX(-50px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.scroll-slide-left.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.scroll-slide-right {
+  opacity: 0;
+  transform: translateX(50px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.scroll-slide-right.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.scroll-scale-in {
+  opacity: 0;
+  transform: scale(0.8);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.scroll-scale-in.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* 延迟动画 */
+.delay-100 { transition-delay: 0.1s; }
+.delay-200 { transition-delay: 0.2s; }
+.delay-300 { transition-delay: 0.3s; }
+.delay-400 { transition-delay: 0.4s; }
+.delay-500 { transition-delay: 0.5s; }
+
+
+/* ============ 3. 卡片交互动画 ============ */
+
+/* 3D卡片效果 */
+.card-3d {
+  transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), 
+              box-shadow 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+
+.card-3d:hover {
+  transform: rotateY(5deg) rotateX(-5deg) translateZ(20px);
+  box-shadow: 
+    0 20px 60px rgba(212, 184, 120, 0.3),
+    0 0 40px rgba(124, 92, 191, 0.2),
+    inset 0 0 20px rgba(212, 184, 120, 0.1);
+}
+
+/* 卡片悬浮动画 */
+.card-float {
+  animation: cardFloat 4s ease-in-out infinite;
+}
+
+@keyframes cardFloat {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+/* 光泽扫过效果 */
+.card-shine {
+  position: relative;
+  overflow: hidden;
+}
+
+.card-shine::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  transition: left 0.6s ease-out;
+  z-index: 1;
+}
+
+.card-shine:hover::before {
+  left: 100%;
+}
+
+/* 卡片脉冲光效 */
+.card-glow {
+  position: relative;
+}
+
+.card-glow::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, #d4b878, #b0a0d8, #d4b878);
+  border-radius: inherit;
+  opacity: 0;
+  z-index: -1;
+  transition: opacity 0.4s ease-out;
+  filter: blur(10px);
+}
+
+.card-glow:hover::after {
+  opacity: 0.5;
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}
+
+
+/* ============ 4. 按钮动画 ============ */
+
+/* 按钮波纹效果 */
+.btn-ripple {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-ripple::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s ease-out, height 0.6s ease-out;
+}
+
+.btn-ripple:active::before {
+  width: 300px;
+  height: 300px;
+}
+
+/* 按钮悬停光效 */
+.btn-glow-hover {
+  transition: all 0.4s ease-out;
+  position: relative;
+  z-index: 1;
+}
+
+.btn-glow-hover::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(212, 184, 120, 0.3), rgba(176, 160, 216, 0.3));
+  opacity: 0;
+  transition: opacity 0.4s ease-out;
+  z-index: -1;
+  border-radius: inherit;
+}
+
+.btn-glow-hover:hover::before {
+  opacity: 1;
+}
+
+.btn-glow-hover:hover {
+  box-shadow: 
+    0 0 20px rgba(212, 184, 120, 0.5),
+    0 0 40px rgba(176, 160, 216, 0.3);
+  transform: translateY(-2px);
+}
+
+
+/* ============ 5. 粒子背景 ============ */
+
+.particles-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: radial-gradient(circle, #d4b878, transparent);
+  border-radius: 50%;
+  animation: particleFloat linear infinite;
+  opacity: 0;
+}
+
+@keyframes particleFloat {
+  0% {
+    opacity: 0;
+    transform: translateY(100vh) rotate(0deg);
+  }
+  10% {
+    opacity: 0.8;
+  }
+  90% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-100vh) rotate(720deg);
+  }
+}
+
+
+/* ============ 6. 页面切换动画 ============ */
+
+/* 页面淡入淡出 */
+.page-transition {
+  animation: pageEnter 0.6s ease-out forwards;
+}
+
+@keyframes pageEnter {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 页面退出 */
+.page-exit {
+  animation: pageExit 0.4s ease-in forwards;
+}
+
+@keyframes pageExit {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+}
+
+
+/* ============ 7. 导航栏动画 ============ */
+
+/* 导航栏滚动效果 */
+.navbar-scrolled {
+  background: rgba(18, 18, 18, 0.95) !important;
+  backdrop-filter: blur(20px) !important;
+  box-shadow: 0 4px 30px rgba(212, 184, 120, 0.15) !important;
+  animation: navbarSlideDown 0.4s ease-out forwards;
+}
+
+@keyframes navbarSlideDown {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+/* 导航项悬停效果 */
+.nav-item {
+  position: relative;
+  transition: color 0.3s ease-out;
+}
+
+.nav-item::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #d4b878, #b0a0d8);
+  transition: width 0.3s ease-out, left 0.3s ease-out;
+}
+
+.nav-item:hover::after,
+.nav-item.active::after {
+  width: 100%;
+  left: 0;
+}
+
+.nav-item:hover {
+  text-shadow: 0 0 10px rgba(212, 184, 120, 0.5);
+}
+
+
+/* ============ 8. 文字动画 ============ */
+
+/* 打字机效果 */
+.typewriter {
+  overflow: hidden;
+  border-right: 2px solid #d4b878;
+  white-space: nowrap;
+  animation: typing 3s steps(40) forwards, blink 0.8s step-end infinite;
+}
+
+@keyframes typing {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+@keyframes blink {
+  50% { border-color: transparent; }
+}
+
+/* 文字发光效果 */
+.text-glow {
+  animation: textGlow 2s ease-in-out infinite;
+}
+
+@keyframes textGlow {
+  0%, 100% {
+    text-shadow: 0 0 10px rgba(212, 184, 120, 0.5);
+  }
+  50% {
+    text-shadow: 
+      0 0 20px rgba(212, 184, 120, 0.8),
+      0 0 40px rgba(176, 160, 216, 0.5);
+  }
+}
+
+
+/* ============ 9. 创意UI元素 ============ */
+
+/* 钻石装饰 */
+.diamond-decoration {
+  width: 20px;
+  height: 20px;
+  background: linear-gradient(135deg, #d4b878, #f2e8d0);
+  transform: rotate(45deg);
+  animation: diamondSpin 10s linear infinite;
+}
+
+@keyframes diamondSpin {
+  from { transform: rotate(45deg); }
+  to { transform: rotate(405deg); }
+}
+
+/* 分隔线动画 */
+.divider-animated {
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #d4b878, #b0a0d8, #d4b878, transparent);
+  background-size: 200% 100%;
+  animation: dividerShimmer 3s linear infinite;
+}
+
+@keyframes dividerShimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* 图标旋转动画 */
+.icon-spin-slow {
+  animation: spinSlow 8s linear infinite;
+}
+
+@keyframes spinSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+
+/* ============ 10. 响应式优化 ============ */
+
+@media (max-width: 768px) {
+  .opening-logo {
+    font-size: 2.5rem;
+  }
+  
+  .card-3d:hover {
+    transform: none;
+  }
+  
+  .scroll-fade-in,
+  .scroll-slide-left,
+  .scroll-slide-right,
+  .scroll-scale-in {
+    transition-duration: 0.6s;
+  }
+}
+
+
+/* ============ 11. 工具类 ============ */
+
+/* 指针事件无 */
+.pointer-events-none {
+  pointer-events: none;
+}
+
+/* 用户选择无 */
+.user-select-none {
+  user-select: none;
+}
+
+/* 硬件加速 */
+.gpu-accelerated {
+  transform: translateZ(0);
+  will-change: transform, opacity;
+}
+
+/* 平滑过渡 */
+.smooth-transition {
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
