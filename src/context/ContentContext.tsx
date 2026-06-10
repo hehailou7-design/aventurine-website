@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import type { ReactNode } from 'react'
+import type { PageBuilderData } from '../types/pageBuilder'
 
 export interface BannerSlide {
   tagline: string;
@@ -282,6 +283,7 @@ export type SiteContent = {
     fontSize: 'small' | 'medium' | 'large';
     borderRadius: number;
   };
+  pageBuilder?: PageBuilderData;
 }
 
 const defaultContent: SiteContent = {

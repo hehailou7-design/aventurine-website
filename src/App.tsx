@@ -12,6 +12,7 @@ import BlessingsPage from './pages/BlessingsPage'
 import SupportRecordPage from './pages/SupportRecordPage'
 import FeedbackPage from './pages/FeedbackPage'
 import SponsorshipPage from './pages/SponsorshipPage'
+import CustomPage from './pages/CustomPage'
 import AdminPage from './pages/AdminPage'
 import LoginPage from './pages/LoginPage'
 import ParticleBackground from './components/ParticleBackground'
@@ -31,6 +32,7 @@ export type PageType =
   | 'feedback'
   | 'sponsorship'
   | 'blessings'
+  | 'custom'
 
 function AppContent() {
   const [currentPage, setCurrentPage] = useState<PageType>('home')
@@ -126,6 +128,7 @@ function AppContent() {
         case 'feedback': return <FeedbackPage />
         case 'sponsorship': return <SponsorshipPage />
         case 'blessings': return <BlessingsPage />
+        case 'custom': return <CustomPage />
         default: return <HomePage onNavigate={setCurrentPage} />
       }
     })()

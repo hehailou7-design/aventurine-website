@@ -8,6 +8,7 @@ import SponsorshipReview from '../components/SponsorshipReview'
 import ContentUpdateReview from '../components/ContentUpdateReview'
 import BlackMudReview from '../components/BlackMudReview'
 import SupportRecordEditor from '../components/SupportRecordEditor'
+import PageBuilder from '../components/pageBuilder/PageBuilder'
 
 // —— 类型 ———
 type PageSection =
@@ -16,6 +17,7 @@ type PageSection =
   | 'profile' | 'blessings' | 'images' | 'admins'
   | 'feedbackReview' | 'sponsorshipReview' | 'blackMudReview' | 'contentUpdateReview'
   | 'supportRecord' | 'theme'
+  | 'pageBuilder'
 
 // —— 通用组件 ———
 export function FormGroup({ label, children }: { label: string; children: React.ReactNode }) {
@@ -170,6 +172,8 @@ export default function AdminPage({ onLogout }: { onLogout?: () => void }) {
     { key: 'blackMudReview', label: '黑泥区审核', icon: '🔒' },
     // 应援记录
     { key: 'supportRecord', label: '应援记录', icon: '📼' },
+    // 页面构建器
+    { key: 'pageBuilder', label: '页面构建器', icon: '🎨' },
   ]
 
   const section = (() => {
@@ -190,6 +194,34 @@ export default function AdminPage({ onLogout }: { onLogout?: () => void }) {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
           <h1 style={{ color: '#d4b878', fontSize: '20px', fontWeight: 700 }}>后台管理</h1>
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <button 
+              onClick={() => {
+                // 返回前台网站
+                if (onLogout) onLogout()
+                else window.location.href = '/'
+              }}
+              style={{ 
+                background: 'rgba(212,184,120,0.15)', 
+                border: '1px solid rgba(212,184,120,0.3)', 
+                borderRadius: '6px', 
+                color: '#d4b878', 
+                fontSize: '12px', 
+                padding: '6px 16px', 
+                cursor: 'pointer',
+                fontWeight: 600,
+                transition: 'all 0.3s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)'
+                e.currentTarget.style.background = 'rgba(212,184,120,0.25)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.background = 'rgba(212,184,120,0.15)'
+              }}
+            >
+              ← 返回网站
+            </button>
             <button 
               onClick={() => {
                 // 手动触发保存（实际上ContentContext已经自动保存）
@@ -255,6 +287,18 @@ export default function AdminPage({ onLogout }: { onLogout?: () => void }) {
             {activeSection === 'contentUpdateReview' && <ContentUpdateReview />}
             {activeSection === 'blackMudReview' && <BlackMudReview />}
             {activeSection === 'supportRecord' && <SupportRecordEditor content={content.supportRecord} onUpdate={handleUpdate} />}
+            {activeSection === 'pageBuilder' && (
+              <PageBuilder 
+                pageId="custom-page"
+                pageName="自定义页面"
+                onSave={(data) => {
+                  updateContent('pageBuilder', data)
+                  setSaved(true)
+                  setTimeout(() => setSaved(false), 2000)
+                }}
+                initialData={content.pageBuilder || null}
+              />
+            )}
           </div>
         </div>
       </div>
