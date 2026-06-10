@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { useContent } from '../context/ContentContext'
 import type { MaterialItem, CalendarEvent } from '../context/ContentContext'
 
@@ -263,6 +263,73 @@ export default function MaterialsPage() {
   const [selectedItem, setSelectedItem] = useState<MaterialItem | null>(null)
   const [viewMode, setViewMode] = useState<'cards' | 'table' | 'calendar'>('cards')
 
+  // —— 自动同步：表格视图自动合并 materialTable + official + offline ——
+  const combinedTableData = useMemo(() => {
+    const result: Record<string, any[]> = {}
+    // 1. 先加入 materialTable 已有的数据
+    if (materialTable) {
+      for (const y of ['2024', '2025', '2026']) {
+        result[y] = [...(materialTable[`year${y}`] || [])]
+      }
+    }
+    // 2. 自动将 official 和 offline 中有日期的项同步到对应年份
+    const syncItems = (source: MaterialItem[]) => {
+      source.forEach(item => {
+        if (!item.title) return
+        // 从日期中提取年份（支持 YYYY.MM.DD 或 YYYY-MM-DD 格式）
+        const yearMatch = item.date ? item.date.match(/^(\d{4})/) : null
+        if (!yearMatch) return
+        const year = yearMatch[1]
+        if (!result[year]) result[year] = []
+        // 避免重复（按 title 去重）
+        const exists = result[year].some((r: any) => r.title === item.title)
+        if (!exists) {
+          result[year].push({
+            date: item.date || '',
+            title: item.title,
+            image: item.image || '',
+            link: item.link || '',
+            tag: item.tag || '',
+          })
+        }
+      })
+    }
+    syncItems(official)
+    syncItems(offline)
+    return result
+  }, [materialTable, official, offline])
+
+  // —— 自动同步：日历视图自动合并 calendar.events + official + offline ——
+  const combinedCalendarEvents = useMemo(() => {
+    const events: CalendarEvent[] = [...(calendarEvents || [])]
+    const existingKeys = new Set(events.map(e => `${e.date}_${e.title}`))
+    const syncToCalendar = (source: MaterialItem[]) => {
+      source.forEach(item => {
+        if (!item.date || !item.title) return
+        // 将 YYYY.MM.DD 或 YYYY-MM-DD 转换为 MM-DD
+        let mmdd = ''
+        const parts = item.date.split(/[.\-]/)
+        if (parts.length >= 3) {
+          mmdd = `${parts[1].padStart(2, '0')}-${parts[2].padStart(2, '0')}`
+        }
+        if (!mmdd) return
+        const key = `${mmdd}_${item.title}`
+        if (existingKeys.has(key)) return
+        events.push({
+          id: `auto_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+          date: mmdd,
+          title: item.title,
+          desc: item.desc || '',
+          sticker: item.tag ? '◆' : '🌸',
+        })
+        existingKeys.add(key)
+      })
+    }
+    syncToCalendar(official)
+    syncToCalendar(offline)
+    return events
+  }, [calendarEvents, official, offline])
+
   return (
     <div style={{ padding: '40px 0 100px', minHeight: '100vh' }}>
       <div className="max-w-screen-2xl mx-auto px-4 md:px-8">
@@ -288,20 +355,19 @@ export default function MaterialsPage() {
         {viewMode === 'calendar' && (
           <div style={{ marginBottom: '40px' }}>
             <h2 className="section-title">📅 砂金大事历</h2>
-            <MaterialsCalendar events={calendarEvents} />
+            <MaterialsCalendar events={combinedCalendarEvents} />
           </div>
         )}
 
         {/* Table View */}
-        {viewMode === 'table' && materialTable && (
+        {viewMode === 'table' && (
           <div style={{ marginBottom: '40px' }}>
-            {(['year2024', 'year2025', 'year2026'] as const).map(yearKey => {
-              const items = materialTable[yearKey] || []
-              const year = yearKey.replace('year', '')
+            {(['2024', '2025', '2026'] as const).map(year => {
+              const items = combinedTableData[year] || []
               const yearColors: Record<string, string> = { '2024': '#88c8d8', '2025': '#d4b878', '2026': '#e898b8' }
               if (items.length === 0) return null
               return (
-                <div key={yearKey} style={{ marginBottom: '30px' }}>
+                <div key={year} style={{ marginBottom: '30px' }}>
                   <h3 style={{ color: yearColors[year], fontSize: '16px', fontWeight: 700, marginBottom: '12px', borderLeft: '3px solid ' + yearColors[year], paddingLeft: '12px' }}>
                     {year} 年
                   </h3>

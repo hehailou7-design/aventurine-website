@@ -158,6 +158,32 @@ export default function SupportRecordPage() {
   const [searchCity, setSearchCity] = useState('')
   const [selectedRecord, setSelectedRecord] = useState<any>(null)
   const [showMap, setShowMap] = useState(false)
+  const [offlineFeedback, setOfflineFeedback] = useState<any[]>(() => {
+    try { return JSON.parse(localStorage.getItem('aventurine_offline_feedback') || '[]') }
+    catch { return [] }
+  })
+  const [feedbackModalOpen, setFeedbackModalOpen] = useState(false)
+  const [feedbackForm, setFeedbackForm] = useState({ nickname: '', imageUrl: '', desc: '' })
+  const [feedbackSubmitting, setFeedbackSubmitting] = useState(false)
+  const [feedbackSubmitMsg, setFeedbackSubmitMsg] = useState('')
+
+  const handleFeedbackSubmit = () => {
+    if (!feedbackForm.imageUrl.trim()) return
+    setFeedbackSubmitting(true)
+    try {
+      const next = [
+        { id: 'fb_' + Date.now().toString(36), ...feedbackForm, submittedAt: new Date().toISOString() },
+        ...offlineFeedback,
+      ]
+      localStorage.setItem('aventurine_offline_feedback', JSON.stringify(next))
+      setOfflineFeedback(next)
+      setFeedbackSubmitMsg('✅ 提交成功！感谢你的返图～')
+      setTimeout(() => { setFeedbackModalOpen(false); setFeedbackSubmitMsg(''); setFeedbackForm({ nickname: '', imageUrl: '', desc: '' }) }, 1500)
+    } catch {
+      setFeedbackSubmitMsg('❌ 提交失败，请重试')
+    }
+    setFeedbackSubmitting(false)
+  }
 
   const yearMap: Record<string, any> = { '2024': mapMarkers2024, '2025': mapMarkers2025, '2026': mapMarkers2026 }
   const yearSummaries: Record<string, string> = {
@@ -297,6 +323,90 @@ export default function SupportRecordPage() {
                   ))}
                 </tbody>
               </table>
+            </div>
+          </div>
+        )}
+        {/* 线下返图板块 */}
+        <div style={{ marginBottom: '28px' }}>
+          <h3 style={{ color: '#e898b8', fontSize: '15px', fontWeight: 700, marginBottom: '12px', textAlign: 'center' }}>
+            📸 线下返图
+          </h3>
+          <p style={{ color: 'rgba(248,246,240,0.4)', fontSize: '12px', textAlign: 'center', marginBottom: '16px' }}>
+            上传你在砂金应援现场的实拍截图，让更多人看到我们的热爱 ✨
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '12px' }}>
+            {/* 上传按钮 */}
+            <div onClick={() => { setFeedbackModalOpen(true); setFeedbackForm({ nickname: '', imageUrl: '', desc: '' }) }}
+              style={{
+                border: '2px dashed rgba(232,152,184,0.25)', borderRadius: '12px', padding: '32px 16px',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer', transition: 'all 0.2s', minHeight: '160px',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(232,152,184,0.5)'; e.currentTarget.style.background = 'rgba(232,152,184,0.05)' }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(232,152,184,0.25)'; e.currentTarget.style.background = 'transparent' }}
+            >
+              <div style={{ fontSize: '32px', marginBottom: '8px', color: 'rgba(232,152,184,0.5)' }}>+</div>
+              <div style={{ color: 'rgba(232,152,184,0.6)', fontSize: '12px' }}>上传返图</div>
+            </div>
+            {/* 已上传的返图 */}
+            {offlineFeedback.map((item: any, idx: number) => (
+              <div key={item.id || idx} className="card-glass" style={{ borderRadius: '12px', overflow: 'hidden', padding: 0 }}>
+                {item.imageUrl && (
+                  <div style={{ height: '140px', overflow: 'hidden' }}>
+                    <img src={item.imageUrl} alt={item.desc || '返图'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  </div>
+                )}
+                <div style={{ padding: '10px 12px' }}>
+                  <div style={{ color: 'rgba(248,246,240,0.5)', fontSize: '11px', marginBottom: '4px' }}>{item.nickname || '匿名'}</div>
+                  {item.desc && <div style={{ color: 'rgba(248,246,240,0.65)', fontSize: '12px', lineHeight: 1.5 }}>{item.desc}</div>}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* 返图上传弹窗 */}
+        {feedbackModalOpen && (
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
+            onClick={e => { if (e.target === e.currentTarget) setFeedbackModalOpen(false) }}
+          >
+            <div className="card-glass" style={{ padding: '28px', borderRadius: '16px', maxWidth: '440px', width: '100%', position: 'relative' }}>
+              <button onClick={() => setFeedbackModalOpen(false)} style={{ position: 'absolute', top: '12px', right: '12px', background: 'rgba(255,255,255,0.05)', border: 'none', borderRadius: '50%', width: '28px', height: '28px', color: 'rgba(248,246,240,0.4)', fontSize: '14px', cursor: 'pointer', fontFamily: 'inherit' }}>✕</button>
+              <h3 style={{ color: '#e898b8', fontSize: '16px', fontWeight: 700, marginBottom: '6px' }}>📸 上传线下返图</h3>
+              <p style={{ color: 'rgba(248,246,240,0.4)', fontSize: '12px', marginBottom: '20px' }}>你的每一张返图，都是应援的记忆</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                <div>
+                  <label style={{ color: 'rgba(232,152,184,0.8)', fontSize: '12px', display: 'block', marginBottom: '6px' }}>称呼（选填）</label>
+                  <input type="text" value={feedbackForm.nickname} onChange={e => setFeedbackForm(f => ({ ...f, nickname: e.target.value }))} placeholder="怎么称呼你？"
+                    style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', background: 'rgba(14,14,14,0.8)', border: '1px solid rgba(232,152,184,0.25)', color: '#f2e8d0', fontSize: '13px', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ color: 'rgba(232,152,184,0.8)', fontSize: '12px', display: 'block', marginBottom: '6px' }}>图片链接 *</label>
+                  <input type="text" value={feedbackForm.imageUrl} onChange={e => setFeedbackForm(f => ({ ...f, imageUrl: e.target.value }))} placeholder="粘贴图片链接（建议使用图床）"
+                    style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', background: 'rgba(14,14,14,0.8)', border: '1px solid ' + (feedbackForm.imageUrl.trim() ? 'rgba(232,152,184,0.3)' : 'rgba(224,96,96,0.3)'), color: '#f2e8d0', fontSize: '13px', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }}
+                  />
+                  <div style={{ color: 'rgba(248,246,240,0.25)', fontSize: '10px', marginTop: '4px' }}>💡 可使用图床（如 postimg.cc）上传后获取链接</div>
+                </div>
+                <div>
+                  <label style={{ color: 'rgba(232,152,184,0.8)', fontSize: '12px', display: 'block', marginBottom: '6px' }}>描述（选填）</label>
+                  <textarea value={feedbackForm.desc} onChange={e => setFeedbackForm(f => ({ ...f, desc: e.target.value }))} placeholder="简单描述一下这张返图..."
+                    style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', background: 'rgba(14,14,14,0.8)', border: '1px solid rgba(232,152,184,0.25)', color: '#f2e8d0', fontSize: '13px', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box', minHeight: '60px', resize: 'vertical' }}
+                  />
+                </div>
+                {feedbackSubmitMsg && (
+                  <div style={{ color: feedbackSubmitMsg.includes('成功') ? '#8cba6a' : '#e06060', fontSize: '12px', textAlign: 'center' }}>{feedbackSubmitMsg}</div>
+                )}
+                <button onClick={handleFeedbackSubmit}
+                  disabled={!feedbackForm.imageUrl.trim() || feedbackSubmitting}
+                  style={{
+                    width: '100%', padding: '11px', borderRadius: '10px', border: 'none',
+                    background: feedbackForm.imageUrl.trim() && !feedbackSubmitting ? 'linear-gradient(135deg, #e898b8, #d070a0)' : 'rgba(255,255,255,0.05)',
+                    color: feedbackForm.imageUrl.trim() && !feedbackSubmitting ? '#121212' : 'rgba(248,246,240,0.3)',
+                    fontSize: '14px', fontWeight: 700, cursor: feedbackForm.imageUrl.trim() && !feedbackSubmitting ? 'pointer' : 'default', fontFamily: 'inherit', transition: 'all 0.2s',
+                  }}
+                >{feedbackSubmitting ? '提交中...' : '提交返图'}</button>
+              </div>
             </div>
           </div>
         )}

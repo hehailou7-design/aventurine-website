@@ -21,7 +21,7 @@ type PageSection =
   | 'profile' | 'blessings' | 'images' | 'admins'
   | 'feedbackReview' | 'sponsorshipReview' | 'blackMudReview' | 'contentUpdateReview'
   | 'joinReview' | 'submitReview'
-  | 'supportRecord' | 'theme'
+  | 'supportRecord' | 'offlineFeedback' | 'theme'
   | 'siteConfig'
   | 'pageBuilder'
   | 'calendar' | 'sashaSay' | 'materialTable' | 'countdown'
@@ -632,6 +632,7 @@ export default function AdminPage({ onLogout }: { onLogout?: () => void }) {
     { key: 'submitReview', label: '动态投稿审核', icon: '📰' },
     // 应援记录
     { key: 'supportRecord', label: '生贺应援', icon: '📼' },
+    { key: 'offlineFeedback', label: '线下返图', icon: '📸' },
     // 更多内容
     { key: 'materialTable', label: '物料表格', icon: '📊' },
     { key: 'calendar', label: '砂金日历', icon: '📅' },
@@ -640,6 +641,56 @@ export default function AdminPage({ onLogout }: { onLogout?: () => void }) {
     // 页面构建器
     { key: 'pageBuilder', label: '页面构建器', icon: '🎨' },
   ]
+  // ============ 线下返图管理 ============
+  function OfflineFeedbackEditor() {
+    const [items, setItems] = useState<any[]>(() => {
+      try { return JSON.parse(localStorage.getItem('aventurine_offline_feedback') || '[]') }
+      catch { return [] }
+    })
+    const handleDelete = (id: string) => {
+      const next = items.filter(i => i.id !== id)
+      setItems(next)
+      localStorage.setItem('aventurine_offline_feedback', JSON.stringify(next))
+    }
+    return (
+      <div>
+        <p style={{ color: 'rgba(248,246,240,0.4)', fontSize: '12px', marginBottom: '16px', lineHeight: '1.6' }}>
+          管理用户上传的线下返图。删除后不可恢复。<br/>
+          <span style={{ color: '#e898b8' }}>提示：</span>用户从应援页「线下返图」板块上传的截图会显示在这里。
+        </p>
+        {items.length === 0 ? (
+          <div className="card-glass" style={{ padding: '32px 20px', borderRadius: '10px', textAlign: 'center' }}>
+            <div style={{ fontSize: '32px', marginBottom: '8px' }}>📸</div>
+            <div style={{ color: 'rgba(248,246,240,0.4)', fontSize: '13px' }}>暂无返图，等待用户上传</div>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {items.map((item, idx) => (
+              <div key={item.id || idx} style={{
+                background: 'rgba(232,152,184,0.05)', border: '1px solid rgba(232,152,184,0.15)',
+                borderRadius: '10px', padding: '10px 14px',
+                display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap',
+              }}>
+                {item.imageUrl && (
+                  <img src={item.imageUrl} alt="返图" style={{ width: '48px', height: '48px', objectFit: 'cover', borderRadius: '6px' }} />
+                )}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ color: '#e898b8', fontSize: '12px', fontWeight: 600 }}>{item.nickname || '匿名'}</div>
+                  <div style={{ color: 'rgba(248,246,240,0.5)', fontSize: '11px', marginTop: '2px' }}>{item.desc || '无描述'}</div>
+                </div>
+                <button onClick={() => handleDelete(item.id)} style={{
+                  background: 'rgba(224,96,96,0.1)', border: '1px solid rgba(224,96,96,0.2)',
+                  borderRadius: '6px', padding: '4px 10px', color: '#e06060',
+                  fontSize: '11px', cursor: 'pointer', fontFamily: 'inherit',
+                }}>🗑️ 删除</button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    )
+  }
+  // =============================================
 
   const renderSection = () => {
     switch (activeSection) {
@@ -661,6 +712,7 @@ export default function AdminPage({ onLogout }: { onLogout?: () => void }) {
       case 'sashaSay': return <SashaSayEditor content={content} onUpdate={handleUpdate} />
       case 'materialTable': return <MaterialTableEditor content={content} onUpdate={handleUpdate} />
       case 'countdown': return <CountdownEditor content={content} onUpdate={handleUpdate} />
+      case 'offlineFeedback': return <OfflineFeedbackEditor />
       case 'pageBuilder': return (
         <PageBuilder
           pageId="custom-page"

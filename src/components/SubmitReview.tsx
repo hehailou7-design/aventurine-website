@@ -28,6 +28,7 @@ function TextInput({ value, onChange, multiline, rows }: {
 
 // ============ 类型 ============
 interface PendingSubmit {
+  id: string
   name: string
   contact: string
   title: string
@@ -35,6 +36,7 @@ interface PendingSubmit {
   type: 'news' | 'photo'
   time: string
   status: 'pending'
+  reviewNote?: string
 }
 
 interface ApprovedSubmit {

@@ -2,9 +2,24 @@ import { useState, useEffect } from 'react'
 import { useLang } from '../context/LanguageContext'
 import { useContent } from '../context/ContentContext'
 
-interface BlackmudPost {
+// ============ Types ============
+interface BlackMudUser {
   id: string
   nickname: string
+  password: string
+  verifyType: 'purchase' | 'character' | 'social'
+  verifyDetail: string
+  verified: boolean
+  muted: boolean
+  banned: boolean
+  createdAt: string
+}
+
+interface BlackMudPost {
+  id: string
+  userId: string
+  nickname: string
+  verifyType: 'purchase' | 'character' | 'social'
   text: string
   tag: string
   time: string
@@ -13,83 +28,163 @@ interface BlackmudPost {
   approved: boolean
 }
 
-const POSTS_KEY = 'aventurine_blackmud_posts'
-const NICKNAME_KEY = 'aventurine_blackmud_nickname'
-const LIKED_KEY = 'aventurine_blackmud_liked'
-const LOGIN_KEY = 'aventurine_blackmud_logged_in'
+// ============ localStorage keys ============
+const USERS_KEY = 'aventurine_bm_users'
+const CUR_USER_KEY = 'aventurine_bm_cur_user'
+const POSTS_KEY = 'aventurine_bm_posts'
+const LIKED_KEY = 'aventurine_bm_liked'
 
-function loadPosts(): BlackmudPost[] {
+// ============ Helpers ============
+function loadUsers(): BlackMudUser[] {
+  try { return JSON.parse(localStorage.getItem(USERS_KEY) || '[]') }
+  catch { return [] }
+}
+function saveUsers(users: BlackMudUser[]) { localStorage.setItem(USERS_KEY, JSON.stringify(users)) }
+
+function loadPosts(): BlackMudPost[] {
   try { return JSON.parse(localStorage.getItem(POSTS_KEY) || '[]') }
   catch { return [] }
 }
-function savePosts(posts: BlackmudPost[]) { localStorage.setItem(POSTS_KEY, JSON.stringify(posts)) }
+function savePosts(posts: BlackMudPost[]) { localStorage.setItem(POSTS_KEY, JSON.stringify(posts)) }
+
 function loadLiked(): string[] {
   try { return JSON.parse(localStorage.getItem(LIKED_KEY) || '[]') }
   catch { return [] }
 }
 function saveLiked(ids: string[]) { localStorage.setItem(LIKED_KEY, JSON.stringify(ids)) }
-function loadNickname(): string { return localStorage.getItem(NICKNAME_KEY) || '' }
-function saveNickname(n: string) { localStorage.setItem(NICKNAME_KEY, n) }
+
+function loadCurUser(): string | null {
+  try { return JSON.parse(localStorage.getItem(CUR_USER_KEY) || 'null') }
+  catch { return null }
+}
+function saveCurUser(userId: string | null) {
+  if (userId) localStorage.setItem(CUR_USER_KEY, JSON.stringify(userId))
+  else localStorage.removeItem(CUR_USER_KEY)
+}
 
 const tags = ['全部', '抽卡', '线下', '周边', '剧情', '游戏']
+const verifyTypeLabels: Record<string, string> = {
+  purchase: '🛒 周边购买记录',
+  character: '🎮 角色练度截图',
+  social: '📱 小红书/微博账号',
+}
+const verifyTypeColors: Record<string, string> = {
+  purchase: '#88c8d8',
+  character: '#d4b878',
+  social: '#e898b8',
+}
 
+// ============ Main Component ============
 export default function BlackMudPage() {
   const { t } = useLang()
   const { content } = useContent()
 
-  // 登录
-  const [loggedIn, setLoggedIn] = useState(() => localStorage.getItem(LOGIN_KEY) === 'true')
-  const [passwordInput, setPasswordInput] = useState('')
-  const [loginError, setLoginError] = useState(false)
-  const correctPassword = content.blackMud?.accountPassword || 'aventurine2024'
+  // —— 当前用户 ——
+  const [curUserId, setCurUserId] = useState<string | null>(() => loadCurUser())
+  const users = loadUsers()
+  const curUser = users.find(u => u.id === curUserId) || null
+  const isAdmin = curUser?.nickname === (content.blackMud?.adminNickname || '管理员')
+
+  // —— 页面阶段 ———
+  // 'login' | 'register' | 'forum'
+  const [stage, setStage] = useState<'login' | 'register' | 'forum'>(() => {
+    const u = users.find(u => u.id === loadCurUser())
+    return u && !u.banned ? 'forum' : 'login'
+  })
+
+  // =========== 注册 ===========
+  const [regNickname, setRegNickname] = useState('')
+  const [regPassword, setRegPassword] = useState('')
+  const [regVerifyType, setRegVerifyType] = useState<'purchase' | 'character' | 'social'>('purchase')
+  const [regVerifyDetail, setRegVerifyDetail] = useState('')
+  const [regError, setRegError] = useState('')
+  const [regSuccess, setRegSuccess] = useState(false)
+
+  const handleRegister = () => {
+    setRegError('')
+    if (!regNickname.trim() || !regPassword || !regVerifyDetail.trim()) {
+      setRegError('请填写所有必填项')
+      return
+    }
+    if (regPassword.length < 4) {
+      setRegError('密码至少4位')
+      return
+    }
+    if (users.some(u => u.nickname === regNickname.trim())) {
+      setRegError('昵称已被使用，请换一个')
+      return
+    }
+    const newUser: BlackMudUser = {
+      id: 'user_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+      nickname: regNickname.trim(),
+      password: regPassword,
+      verifyType: regVerifyType,
+      verifyDetail: regVerifyDetail.trim(),
+      verified: true, // 前端自动通过，实际可改为需审核
+      muted: false,
+      banned: false,
+      createdAt: new Date().toISOString(),
+    }
+    const next = [...users, newUser]
+    saveUsers(next)
+    setRegSuccess(true)
+    setTimeout(() => {
+      saveCurUser(newUser.id)
+      setCurUserId(newUser.id)
+      setStage('forum')
+      setRegSuccess(false)
+      setRegNickname('')
+      setRegPassword('')
+      setRegVerifyDetail('')
+    }, 1500)
+  }
+
+  // =========== 登录 ===========
+  const [loginNickname, setLoginNickname] = useState('')
+  const [loginPassword, setLoginPassword] = useState('')
+  const [loginError, setLoginError] = useState('')
 
   const handleLogin = () => {
-    if (passwordInput === correctPassword) {
-      setLoggedIn(true)
-      localStorage.setItem(LOGIN_KEY, 'true')
-      setLoginError(false)
-    } else {
-      setLoginError(true)
-    }
+    setLoginError('')
+    const user = users.find(u => u.nickname === loginNickname.trim())
+    if (!user) { setLoginError('用户不存在'); return }
+    if (user.banned) { setLoginError('账号已被封禁'); return }
+    if (user.password !== loginPassword) { setLoginError('密码错误'); return }
+    saveCurUser(user.id)
+    setCurUserId(user.id)
+    setStage('forum')
   }
 
   const handleLogout = () => {
-    setLoggedIn(false)
-    localStorage.removeItem(LOGIN_KEY)
+    saveCurUser(null)
+    setCurUserId(null)
+    setStage('login')
   }
 
-  // 帖子
-  const [posts, setPosts] = useState<BlackmudPost[]>(loadPosts)
+  // =========== 帖子 ===========
+  const [posts, setPosts] = useState<BlackMudPost[]>(loadPosts)
   const [newText, setNewText] = useState('')
   const [selectedTag, setSelectedTag] = useState('')
   const [activeFilter, setActiveFilter] = useState('全部')
-
-  // 昵称
-  const [nickname, setNickname] = useState(loadNickname)
-  const [localNickname, setLocalNickname] = useState(loadNickname)
-  const [nicknameSaved, setNicknameSaved] = useState(!!loadNickname())
-  const [editingNickname, setEditingNickname] = useState(false)
-
-  // 点赞
   const [likedPosts, setLikedPosts] = useState<string[]>(loadLiked)
 
-  // 审核队列（管理员）
-  const pendingPosts = posts.filter(p => !p.approved)
-  const approvedPosts = posts.filter(p => p.approved)
+  // 同步保存
+  useEffect(() => { savePosts(posts) }, [posts])
+  useEffect(() => { saveLiked(likedPosts) }, [likedPosts])
 
-  const filtered = activeFilter === '全部'
-    ? approvedPosts
+  const approvedPosts = posts.filter(p => p.approved && !users.find(u => u.id === p.userId)?.banned)
+  const pendingPosts = posts.filter(p => !p.approved)
+  const filtered = activeFilter === '全部' ? approvedPosts
     : approvedPosts.filter(p => p.tag === activeFilter)
 
-  // 发帖（需审核）
+  // 发帖
   const handlePost = () => {
-    if (!newText.trim()) return
-    if (!nickname.trim()) { setEditingNickname(true); return }
-    if (!loggedIn) return
-
-    const newPost: BlackmudPost = {
+    if (!newText.trim() || !curUser || curUser.muted || curUser.banned) return
+    const newPost: BlackMudPost = {
       id: 'post_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
-      nickname: nickname.trim(),
+      userId: curUser.id,
+      nickname: curUser.nickname,
+      verifyType: curUser.verifyType,
       text: newText.trim(),
       tag: selectedTag || '其他',
       time: '刚刚',
@@ -97,43 +192,39 @@ export default function BlackMudPage() {
       createdAt: new Date().toISOString(),
       approved: false,
     }
-    const next = [newPost, ...posts]
-    setPosts(next)
-    savePosts(next)
+    setPosts(prev => [newPost, ...prev])
     setNewText('')
     setSelectedTag('')
   }
 
-  // 审核通过
+  // 审核
   const handleApprove = (postId: string) => {
-    const next = posts.map(p => p.id === postId ? { ...p, approved: true, time: '刚刚' } : p)
-    setPosts(next)
-    savePosts(next)
+    setPosts(prev => prev.map(p => p.id === postId ? { ...p, approved: true, time: '刚刚' } : p))
   }
-
-  // 审核拒绝（删除）
   const handleReject = (postId: string) => {
-    const next = posts.filter(p => p.id !== postId)
-    setPosts(next)
-    savePosts(next)
+    setPosts(prev => prev.filter(p => p.id !== postId))
   }
 
   // 点赞
   const handleLike = (postId: string) => {
     if (likedPosts.includes(postId)) return
-    const next = posts.map(p => p.id === postId ? { ...p, likes: p.likes + 1 } : p)
-    setPosts(next)
-    savePosts(next)
-    const nextLiked = [...likedPosts, postId]
-    setLikedPosts(nextLiked)
-    saveLiked(nextLiked)
+    setPosts(prev => prev.map(p => p.id === postId ? { ...p, likes: p.likes + 1 } : p))
+    setLikedPosts(prev => [...prev, postId])
   }
 
-  // 保存昵称
-  const submitNickname = () => {
-    const n = localNickname.trim()
-    if (n) { setNickname(n); saveNickname(n); setNicknameSaved(true) }
-    setEditingNickname(false)
+  // 管理员操作
+  const handleDeletePost = (postId: string) => {
+    setPosts(prev => prev.filter(p => p.id !== postId))
+  }
+  const handleMuteUser = (userId: string) => {
+    const next = users.map(u => u.id === userId ? { ...u, muted: !u.muted } : u)
+    saveUsers(next)
+    setPosts([...posts]) // 触发刷新
+  }
+  const handleBanUser = (userId: string) => {
+    const next = users.map(u => u.id === userId ? { ...u, banned: !u.banned } : u)
+    saveUsers(next)
+    setPosts([...posts])
   }
 
   // 更新时间
@@ -152,57 +243,155 @@ export default function BlackMudPage() {
     return () => clearInterval(timer)
   }, [])
 
-  // ============ 未登录 ============
-  if (!loggedIn) {
+  // =========== 未登录/未注册 ===========
+  if (stage !== 'forum') {
     return (
       <div style={{ padding: '40px 0', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div className="max-w-md mx-auto px-4" style={{ width: '100%' }}>
-          <div className="card-glass" style={{
-            padding: '40px 32px', borderRadius: '20px', textAlign: 'center',
-            border: '1px solid rgba(212,184,120,0.15)',
-          }}>
+          <div className="card-glass" style={{ padding: '40px 32px', borderRadius: '20px', textAlign: 'center', border: '1px solid rgba(212,184,120,0.15)' }}>
+
+            {/* 标题 */}
             <div style={{ fontSize: '48px', marginBottom: '12px' }}>🔐</div>
             <h2 style={{ color: '#d4b878', fontSize: '20px', fontWeight: 700, marginBottom: '6px' }}>
-              黑泥区 · 论坛登录
+              {stage === 'register' ? '黑泥区 · 注册账号' : '黑泥区 · 论坛登录'}
             </h2>
             <p style={{ color: 'rgba(248,246,240,0.4)', fontSize: '12px', marginBottom: '24px' }}>
-              请输入论坛密码以进入黑泥区
+              {stage === 'register' ? '填写信息完成注册，验证身份后即可发帖' : '登录后参与论坛讨论'}
             </p>
-            <input
-              type="password"
-              value={passwordInput}
-              onChange={e => { setPasswordInput(e.target.value); setLoginError(false) }}
-              onKeyDown={e => { if (e.key === 'Enter') handleLogin() }}
-              placeholder="请输入密码"
-              autoFocus
-              style={{
-                width: '100%', padding: '12px 16px', borderRadius: '12px',
-                background: 'rgba(14,14,14,0.8)', border: '1px solid ' + (loginError ? 'rgba(224,96,96,0.4)' : 'rgba(212,184,120,0.25)'),
-                color: '#f2e8d0', fontSize: '14px', outline: 'none',
-                textAlign: 'center', boxSizing: 'border-box',
-              }}
-            />
-            {loginError && (
-              <div style={{ color: '#e06060', fontSize: '12px', marginTop: '8px' }}>密码错误，请重试</div>
+
+            {/* ——— 注册表单 ——— */}
+            {stage === 'register' && (
+              <div style={{ textAlign: 'left' }}>
+                {/* 昵称 */}
+                <div style={{ marginBottom: '14px' }}>
+                  <label style={{ color: 'rgba(212,184,120,0.8)', fontSize: '12px', display: 'block', marginBottom: '6px' }}>
+                    昵称 *
+                  </label>
+                  <input type="text" value={regNickname} onChange={e => setRegNickname(e.target.value)} placeholder="你的论坛昵称"
+                    maxLength={12}
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', background: 'rgba(14,14,14,0.8)', border: '1px solid rgba(212,184,120,0.25)', color: '#f2e8d0', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
+                  />
+                </div>
+
+                {/* 密码 */}
+                <div style={{ marginBottom: '14px' }}>
+                  <label style={{ color: 'rgba(212,184,120,0.8)', fontSize: '12px', display: 'block', marginBottom: '6px' }}>
+                    密码（至少4位）*
+                  </label>
+                  <input type="password" value={regPassword} onChange={e => setRegPassword(e.target.value)} placeholder="设置登录密码"
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', background: 'rgba(14,14,14,0.8)', border: '1px solid rgba(212,184,120,0.25)', color: '#f2e8d0', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
+                  />
+                </div>
+
+                {/* 验证方式 */}
+                <div style={{ marginBottom: '14px' }}>
+                  <label style={{ color: 'rgba(212,184,120,0.8)', fontSize: '12px', display: 'block', marginBottom: '8px' }}>
+                    验证身份（三选一）*
+                  </label>
+                  <div style={{ display: 'flex', gap: '6px', marginBottom: '10px', flexWrap: 'wrap' }}>
+                    {(['purchase', 'character', 'social'] as const).map(vt => (
+                      <button key={vt} onClick={() => setRegVerifyType(vt)}
+                        style={{
+                          padding: '6px 12px', fontSize: '11px', borderRadius: '8px', cursor: 'pointer', fontFamily: 'inherit',
+                          background: regVerifyType === vt ? 'rgba(212,184,120,0.15)' : 'transparent',
+                          border: '1px solid ' + (regVerifyType === vt ? 'rgba(212,184,120,0.4)' : 'rgba(212,184,120,0.15)'),
+                          color: regVerifyType === vt ? '#d4b878' : 'rgba(248,246,240,0.5)',
+                        }}>
+                        {verifyTypeLabels[vt]}
+                      </button>
+                    ))}
+                  </div>
+                  <input type="text" value={regVerifyDetail} onChange={e => setRegVerifyDetail(e.target.value)}
+                    placeholder={
+                      regVerifyType === 'purchase' ? '请输入周边购买记录（商品名/订单号）' :
+                      regVerifyType === 'character' ? '请输入角色练度截图链接' :
+                      '请输入小红书/微博账号'
+                    }
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', background: 'rgba(14,14,14,0.8)', border: '1px solid rgba(212,184,120,0.25)', color: '#f2e8d0', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
+                  />
+                  <div style={{ color: 'rgba(248,246,240,0.25)', fontSize: '10px', marginTop: '6px' }}>
+                    {regVerifyType === 'purchase' && '💡 可在订单详情截图上传至图床，此处填写链接'}
+                    {regVerifyType === 'character' && '💡 游戏内角色练度截图，上传至图床后填写链接'}
+                    {regVerifyType === 'social' && '💡 填写你的小红书或微博账号主页链接'}
+                  </div>
+                </div>
+
+                {regError && (
+                  <div style={{ color: '#e06060', fontSize: '12px', marginBottom: '12px', textAlign: 'center' }}>{regError}</div>
+                )}
+                {regSuccess && (
+                  <div style={{ color: '#8cba6a', fontSize: '12px', marginBottom: '12px', textAlign: 'center' }}>✅ 注册成功！正在跳转...</div>
+                )}
+
+                <button onClick={handleRegister}
+                  disabled={regSuccess}
+                  style={{
+                    width: '100%', padding: '12px', borderRadius: '12px', border: 'none',
+                    background: regSuccess ? 'rgba(212,184,120,0.1)' : 'linear-gradient(135deg, #d4b878, #c4a060)',
+                    color: regSuccess ? '#d4b878' : '#121212', fontSize: '14px', fontWeight: 700, cursor: regSuccess ? 'default' : 'pointer', fontFamily: 'inherit',
+                  }}>
+                  完成注册
+                </button>
+
+                <div style={{ textAlign: 'center', marginTop: '16px' }}>
+                  <button onClick={() => { setStage('login'); setRegError('') }}
+                    style={{ background: 'transparent', border: 'none', color: 'rgba(212,184,120,0.5)', fontSize: '12px', cursor: 'pointer', fontFamily: 'inherit' }}>
+                    已有账号？去登录 →
+                  </button>
+                </div>
+              </div>
             )}
-            <button
-              onClick={handleLogin}
-              disabled={!passwordInput.trim()}
-              style={{
-                width: '100%', marginTop: '16px', padding: '12px',
-                background: passwordInput.trim() ? 'linear-gradient(135deg, #d4b878, #c4a060)' : 'rgba(255,255,255,0.05)',
-                border: 'none', borderRadius: '12px',
-                color: passwordInput.trim() ? '#121212' : 'rgba(248,246,240,0.3)',
-                fontSize: '15px', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
-              }}
-            >进入论坛</button>
+
+            {/* ——— 登录表单 ——— */}
+            {stage === 'login' && (
+              <div>
+                <input type="text" value={loginNickname} onChange={e => { setLoginNickname(e.target.value); setLoginError('') }}
+                  onKeyDown={e => { if (e.key === 'Enter') handleLogin() }}
+                  placeholder="昵称"
+                  autoFocus
+                  style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', boxSizing: 'border-box', marginBottom: '10px',
+                    background: 'rgba(14,14,14,0.8)', border: '1px solid ' + (loginError ? 'rgba(224,96,96,0.4)' : 'rgba(212,184,120,0.25)'),
+                    color: '#f2e8d0', fontSize: '14px', outline: 'none', textAlign: 'center',
+                  }}
+                />
+                <input type="password" value={loginPassword} onChange={e => { setLoginPassword(e.target.value); setLoginError('') }}
+                  onKeyDown={e => { if (e.key === 'Enter') handleLogin() }}
+                  placeholder="密码"
+                  style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', boxSizing: 'border-box', marginBottom: '16px',
+                    background: 'rgba(14,14,14,0.8)', border: '1px solid ' + (loginError ? 'rgba(224,96,96,0.4)' : 'rgba(212,184,120,0.25)'),
+                    color: '#f2e8d0', fontSize: '14px', outline: 'none', textAlign: 'center',
+                  }}
+                />
+                {loginError && (
+                  <div style={{ color: '#e06060', fontSize: '12px', marginBottom: '12px' }}>{loginError}</div>
+                )}
+                <button onClick={handleLogin}
+                  disabled={!loginNickname.trim() || !loginPassword}
+                  style={{
+                    width: '100%', padding: '12px', borderRadius: '12px', border: 'none',
+                    background: (!loginNickname.trim() || !loginPassword) ? 'rgba(255,255,255,0.05)' : 'linear-gradient(135deg, #d4b878, #c4a060)',
+                    color: (!loginNickname.trim() || !loginPassword) ? 'rgba(248,246,240,0.3)' : '#121212',
+                    fontSize: '15px', fontWeight: 700, cursor: (!loginNickname.trim() || !loginPassword) ? 'default' : 'pointer', fontFamily: 'inherit',
+                  }}>
+                  进入论坛
+                </button>
+                <div style={{ textAlign: 'center', marginTop: '16px' }}>
+                  <button onClick={() => { setStage('register'); setLoginError('') }}
+                    style={{ background: 'transparent', border: 'none', color: 'rgba(212,184,120,0.5)', fontSize: '12px', cursor: 'pointer', fontFamily: 'inherit' }}>
+                    没有账号？注册新账号 →
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
     )
   }
 
-  // ============ 已登录 ============
+  // =========== 论坛主体 ===========
+  if (!curUser) return null
+
   return (
     <div style={{ padding: '40px 0', minHeight: '100vh' }}>
       <div className="max-w-4xl mx-auto px-4 md:px-8">
@@ -211,119 +400,113 @@ export default function BlackMudPage() {
         <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
           <div>
             <h2 className="section-title">{t('vent_board')}</h2>
-            <div style={{
-              background: 'rgba(212,184,120,0.06)', border: '1px solid rgba(212,184,120,0.2)',
-              borderRadius: '8px', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '10px',
-            }}>
+            <div style={{ background: 'rgba(212,184,120,0.06)', border: '1px solid rgba(212,184,120,0.2)', borderRadius: '8px', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
               <span style={{ color: '#d4b878', fontSize: '16px' }}>💬</span>
               <span style={{ color: 'rgba(248,246,240,0.7)', fontSize: '12px' }}>
-                {t('vent_notice')} · 审核制 · 一人一赞
+                论坛模式 · 审核制 · 一人一赞 · 验证发帖
               </span>
             </div>
           </div>
-          <button onClick={handleLogout} style={{
-            background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
-            borderRadius: '8px', padding: '6px 16px', color: 'rgba(248,246,240,0.4)',
-            fontSize: '12px', cursor: 'pointer', fontFamily: 'inherit',
-          }}>退出登录</button>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(212,184,120,0.06)', border: '1px solid rgba(212,184,120,0.15)', borderRadius: '8px', padding: '4px 10px' }}>
+              <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'rgba(212,184,120,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#d4b878', fontSize: '11px' }}>{curUser.nickname[0]}</div>
+              <span style={{ color: '#d4b878', fontSize: '12px', fontWeight: 500 }}>{curUser.nickname}</span>
+              {curUser.muted && <span style={{ color: '#e0b43c', fontSize: '10px', background: 'rgba(224,180,60,0.1)', padding: '1px 6px', borderRadius: '4px' }}>禁言中</span>}
+            </div>
+            <button onClick={handleLogout} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '6px 16px', color: 'rgba(248,246,240,0.4)', fontSize: '12px', cursor: 'pointer', fontFamily: 'inherit' }}>退出</button>
+          </div>
         </div>
 
-        {/* 审核队列 */}
-        {pendingPosts.length > 0 && (
-          <div style={{
-            marginBottom: '20px', padding: '16px',
-            background: 'rgba(224,180,60,0.06)', border: '1px solid rgba(224,180,60,0.2)',
-            borderRadius: '12px',
-          }}>
-            <div style={{ color: '#e0b43c', fontSize: '13px', fontWeight: 600, marginBottom: '12px' }}>
-              📋 审核队列（{pendingPosts.length}条待审核）
+        {/* ——— 管理员：用户管理 ——— */}
+        {isAdmin && (
+          <div style={{ marginBottom: '20px', padding: '16px', background: 'rgba(212,184,120,0.04)', border: '1px solid rgba(212,184,120,0.15)', borderRadius: '12px' }}>
+            <div style={{ color: '#d4b878', fontSize: '13px', fontWeight: 600, marginBottom: '12px' }}>🛡️ 用户管理（{users.length} 人）</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '200px', overflowY: 'auto' }}>
+              {users.filter(u => u.nickname !== curUser.nickname).map(u => (
+                <div key={u.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: 'rgba(14,14,14,0.5)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.03)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ color: '#d4b878', fontSize: '12px', fontWeight: 600 }}>{u.nickname}</span>
+                    <span style={{ fontSize: '10px', padding: '1px 6px', borderRadius: '4px', background: `rgba(${verifyTypeColors[u.verifyType].slice(1)},0.1)`, color: verifyTypeColors[u.verifyType] }}>{verifyTypeLabels[u.verifyType]}</span>
+                    {u.muted && <span style={{ color: '#e0b43c', fontSize: '10px' }}>禁言</span>}
+                    {u.banned && <span style={{ color: '#e06060', fontSize: '10px' }}>封禁</span>}
+                  </div>
+                  <div style={{ display: 'flex', gap: '6px' }}>
+                    <button onClick={() => handleMuteUser(u.id)} style={{ background: u.muted ? 'rgba(100,180,120,0.15)' : 'rgba(224,180,60,0.1)', border: '1px solid ' + (u.muted ? 'rgba(100,180,120,0.3)' : 'rgba(224,180,60,0.2)'), borderRadius: '6px', padding: '3px 10px', fontSize: '10px', cursor: 'pointer', fontFamily: 'inherit', color: u.muted ? '#8cba6a' : '#e0b43c' }}>
+                      {u.muted ? '解除禁言' : '禁言'}
+                    </button>
+                    <button onClick={() => handleBanUser(u.id)} style={{ background: u.banned ? 'rgba(100,180,120,0.1)' : 'rgba(224,96,96,0.1)', border: '1px solid ' + (u.banned ? 'rgba(100,180,120,0.2)' : 'rgba(224,96,96,0.2)'), borderRadius: '6px', padding: '3px 10px', fontSize: '10px', cursor: 'pointer', fontFamily: 'inherit', color: u.banned ? '#8cba6a' : '#e06060' }}>
+                      {u.banned ? '解封' : '封禁'}
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
-            {pendingPosts.map(post => (
-              <div key={post.id} style={{
-                padding: '12px', marginBottom: '8px',
-                background: 'rgba(14,14,14,0.5)', borderRadius: '8px',
-                border: '1px solid rgba(255,255,255,0.05)',
-              }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                  <span style={{ color: '#d4b878', fontSize: '12px', fontWeight: 600 }}>{post.nickname}</span>
-                  <span style={{
-                    background: 'rgba(255,255,255,0.05)', borderRadius: '4px',
-                    padding: '1px 8px', fontSize: '10px', color: 'rgba(248,246,240,0.4)',
-                  }}>#{post.tag}</span>
-                </div>
-                <div style={{ color: 'rgba(248,246,240,0.7)', fontSize: '13px', marginBottom: '10px' }}>{post.text}</div>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <button onClick={() => handleApprove(post.id)} style={{
-                    background: 'rgba(100,180,120,0.15)', border: '1px solid rgba(100,180,120,0.3)',
-                    borderRadius: '6px', padding: '4px 14px', color: '#8cba6a',
-                    fontSize: '11px', cursor: 'pointer', fontFamily: 'inherit',
-                  }}>✓ 通过</button>
-                  <button onClick={() => handleReject(post.id)} style={{
-                    background: 'rgba(224,96,96,0.1)', border: '1px solid rgba(224,96,96,0.2)',
-                    borderRadius: '6px', padding: '4px 14px', color: '#e06060',
-                    fontSize: '11px', cursor: 'pointer', fontFamily: 'inherit',
-                  }}>✕ 拒绝</button>
-                </div>
-              </div>
-            ))}
           </div>
         )}
 
-        {/* 昵称 */}
-        <div className="card-glass" style={{ padding: '12px 16px', marginBottom: '16px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', flexWrap: 'wrap' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(212,184,120,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#d4b878', fontSize: '14px' }}>
-              {nickname ? nickname[0] : '?'}
+        {/* ——— 审核队列（管理员） ——— */}
+        {isAdmin && pendingPosts.length > 0 && (
+          <div style={{ marginBottom: '20px', padding: '16px', background: 'rgba(224,180,60,0.06)', border: '1px solid rgba(224,180,60,0.2)', borderRadius: '12px' }}>
+            <div style={{ color: '#e0b43c', fontSize: '13px', fontWeight: 600, marginBottom: '12px' }}>
+              📋 审核队列（{pendingPosts.length}条待审核）
             </div>
-            {editingNickname ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <input type="text" value={localNickname} onChange={e => setLocalNickname(e.target.value)} placeholder="你的昵称" autoFocus maxLength={12}
-                  onKeyDown={e => { if (e.key === 'Enter') submitNickname() }}
-                  style={{ background: 'rgba(14,14,14,0.8)', border: '1px solid rgba(212,184,120,0.4)', borderRadius: '6px', padding: '6px 10px', color: '#f2e8d0', fontSize: '13px', width: '140px', outline: 'none', fontFamily: 'inherit' }}
-                />
-                <button onClick={submitNickname} className="btn-gold" style={{ fontSize: '11px', padding: '5px 12px' }}>保存</button>
-                <button onClick={() => { setEditingNickname(false); setLocalNickname(nickname) }}
-                  style={{ background: 'transparent', border: '1px solid rgba(212,184,120,0.2)', borderRadius: '6px', padding: '5px 10px', color: 'rgba(248,246,240,0.4)', fontSize: '11px', cursor: 'pointer', fontFamily: 'inherit' }}
-                >取消</button>
+            {pendingPosts.map(post => {
+              const author = users.find(u => u.id === post.userId)
+              return (
+                <div key={post.id} style={{ padding: '12px', marginBottom: '8px', background: 'rgba(14,14,14,0.5)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                    <span style={{ color: '#d4b878', fontSize: '12px', fontWeight: 600 }}>{post.nickname}</span>
+                    <span style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '4px', padding: '1px 8px', fontSize: '10px', color: 'rgba(248,246,240,0.4)' }}>#{post.tag}</span>
+                  </div>
+                  <div style={{ color: 'rgba(248,246,240,0.7)', fontSize: '13px', marginBottom: '6px' }}>{post.text}</div>
+                  {author && (
+                    <div style={{ color: 'rgba(248,246,240,0.25)', fontSize: '10px', marginBottom: '8px' }}>
+                      验证方式：{verifyTypeLabels[author.verifyType]} / 详情：{author.verifyDetail}
+                    </div>
+                  )}
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button onClick={() => handleApprove(post.id)} style={{ background: 'rgba(100,180,120,0.15)', border: '1px solid rgba(100,180,120,0.3)', borderRadius: '6px', padding: '4px 14px', color: '#8cba6a', fontSize: '11px', cursor: 'pointer', fontFamily: 'inherit' }}>✓ 通过</button>
+                    <button onClick={() => handleReject(post.id)} style={{ background: 'rgba(224,96,96,0.1)', border: '1px solid rgba(224,96,96,0.2)', borderRadius: '6px', padding: '4px 14px', color: '#e06060', fontSize: '11px', cursor: 'pointer', fontFamily: 'inherit' }}>✕ 拒绝</button>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+
+        {/* ——— 发帖 ——— */}
+        {!curUser.muted && !curUser.banned && (
+          <div className="card-glass" style={{ padding: '20px', marginBottom: '24px', borderRadius: '10px' }}>
+            <div style={{ color: '#d4b878', fontSize: '13px', marginBottom: '12px', fontWeight: 500 }}>有话要说？</div>
+            <textarea value={newText} onChange={e => setNewText(e.target.value)}
+              placeholder="理性吐槽，建设性意见优先...（发帖需审核）"
+              maxLength={500}
+              style={{ width: '100%', minHeight: '80px', background: 'rgba(14,14,14,0.8)', border: '1px solid rgba(212,184,120,0.25)', borderRadius: '8px', padding: '12px', color: '#f2e8d0', fontSize: '13px', resize: 'vertical', outline: 'none', fontFamily: 'inherit' }}
+            />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px' }}>
+              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                {tags.filter(tg => tg !== '全部').map(tag => (
+                  <button key={tag} onClick={() => setSelectedTag(selectedTag === tag ? '' : tag)} style={{
+                    padding: '4px 10px', fontSize: '11px', borderRadius: '12px', cursor: 'pointer', fontFamily: 'inherit',
+                    background: selectedTag === tag ? 'rgba(212,184,120,0.15)' : 'transparent',
+                    border: '1px solid ' + (selectedTag === tag ? 'rgba(212,184,120,0.4)' : 'rgba(212,184,120,0.15)'),
+                    color: selectedTag === tag ? '#d4b878' : 'rgba(248,246,240,0.5)',
+                  }}>#{tag}</button>
+                ))}
               </div>
-            ) : (
-              <>
-                <span style={{ color: '#d4b878', fontSize: '13px', fontWeight: 500 }}>{nickname || '未设置昵称'}</span>
-                <button onClick={() => { setEditingNickname(true); setLocalNickname(nickname) }}
-                  style={{ background: 'transparent', border: 'none', color: 'rgba(248,246,240,0.35)', fontSize: '11px', cursor: 'pointer', fontFamily: 'inherit' }}
-                >✎ 修改</button>
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* 发帖 */}
-        <div className="card-glass" style={{ padding: '20px', marginBottom: '24px', borderRadius: '10px' }}>
-          <div style={{ color: '#d4b878', fontSize: '13px', marginBottom: '12px', fontWeight: 500 }}>有话要说？</div>
-          <textarea
-            value={newText} onChange={e => setNewText(e.target.value)}
-            placeholder="理性吐槽，建设性意见优先...（发帖需审核）"
-            maxLength={500}
-            style={{ width: '100%', minHeight: '80px', background: 'rgba(14,14,14,0.8)', border: '1px solid rgba(212,184,120,0.25)', borderRadius: '8px', padding: '12px', color: '#f2e8d0', fontSize: '13px', resize: 'vertical', outline: 'none', fontFamily: 'inherit' }}
-          />
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px' }}>
-            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-              {tags.filter(tg => tg !== '全部').map(tag => (
-                <button key={tag} onClick={() => setSelectedTag(selectedTag === tag ? '' : tag)} style={{
-                  padding: '4px 10px', fontSize: '11px', borderRadius: '12px', cursor: 'pointer', fontFamily: 'inherit',
-                  background: selectedTag === tag ? 'rgba(212,184,120,0.15)' : 'transparent',
-                  border: '1px solid ' + (selectedTag === tag ? 'rgba(212,184,120,0.4)' : 'rgba(212,184,120,0.15)'),
-                  color: selectedTag === tag ? '#d4b878' : 'rgba(248,246,240,0.5)',
-                }}>#{tag}</button>
-              ))}
+              <button onClick={handlePost} className="btn-gold" style={{ fontSize: '12px', padding: '8px 18px' }}>
+                发布（待审核）
+              </button>
             </div>
-            <button onClick={handlePost} className="btn-gold" style={{ fontSize: '12px', padding: '8px 18px' }}>
-              发布（待审核）
-            </button>
           </div>
-        </div>
+        )}
+        {curUser.muted && (
+          <div style={{ padding: '12px 20px', marginBottom: '20px', background: 'rgba(224,180,60,0.06)', border: '1px solid rgba(224,180,60,0.2)', borderRadius: '10px', color: '#e0b43c', fontSize: '13px', textAlign: 'center' }}>
+            ⚠️ 你已被禁言，无法发帖
+          </div>
+        )}
 
-        {/* 筛选 */}
+        {/* ——— 筛选 ——— */}
         <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
           {tags.map(tag => (
             <button key={tag} onClick={() => setActiveFilter(tag)} style={{
@@ -335,7 +518,7 @@ export default function BlackMudPage() {
           ))}
         </div>
 
-        {/* 帖子列表 */}
+        {/* ——— 帖子列表 ——— */}
         {filtered.length === 0 ? (
           <div className="card-glass" style={{ padding: '40px 20px', borderRadius: '10px', textAlign: 'center' }}>
             <div style={{ fontSize: '40px', marginBottom: '12px' }}>🍀</div>
@@ -345,23 +528,37 @@ export default function BlackMudPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {filtered.map(post => {
               const hasLiked = likedPosts.includes(post.id)
+              const author = users.find(u => u.id === post.userId)
               return (
                 <div key={post.id} className="card-glass" style={{ padding: '16px 20px', borderRadius: '10px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', flexWrap: 'wrap', gap: '6px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'rgba(212,184,120,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#d4b878', fontSize: '12px' }}>{post.nickname[0]}</div>
                       <span style={{ color: '#d4b878', fontSize: '13px', fontWeight: 500 }}>{post.nickname}</span>
+                      <span style={{ fontSize: '9px', padding: '1px 6px', borderRadius: '4px', background: `rgba(${verifyTypeColors[post.verifyType]?.slice(1) || '212,184,120'},0.08)`, color: verifyTypeColors[post.verifyType] || '#d4b878' }}>
+                        {verifyTypeLabels[post.verifyType]?.replace(/ 🛒|🎮|📱 /, '') || ''}
+                      </span>
                       <span style={{ background: 'rgba(212,184,120,0.08)', color: 'rgba(248,246,240,0.5)', fontSize: '10px', padding: '2px 8px', borderRadius: '4px' }}>#{post.tag}</span>
                     </div>
                     <span style={{ color: 'rgba(248,246,240,0.3)', fontSize: '11px' }}>{post.time}</span>
                   </div>
                   <p style={{ color: 'rgba(242,232,208,0.8)', fontSize: '13px', lineHeight: '1.8', margin: 0, marginBottom: '10px' }}>{post.text}</p>
-                  <button
-                    onClick={() => !hasLiked && handleLike(post.id)}
-                    disabled={hasLiked}
-                    style={{ color: hasLiked ? 'rgba(212,184,120,0.8)' : 'rgba(212,184,120,0.4)', fontSize: '11px', cursor: hasLiked ? 'default' : 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', padding: 0, fontFamily: 'inherit' }}
-                    title={hasLiked ? '已赞' : '点赞'}
-                  >{hasLiked ? '♥' : '♡'} {post.likes}</button>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <button
+                      onClick={() => !hasLiked && handleLike(post.id)}
+                      disabled={hasLiked}
+                      style={{ color: hasLiked ? 'rgba(212,184,120,0.8)' : 'rgba(212,184,120,0.4)', fontSize: '11px', cursor: hasLiked ? 'default' : 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', padding: 0, fontFamily: 'inherit' }}
+                      title={hasLiked ? '已赞' : '点赞'}
+                    >{hasLiked ? '♥' : '♡'} {post.likes}</button>
+
+                    {/* 管理员：删除帖子 */}
+                    {isAdmin && (
+                      <button onClick={() => handleDeletePost(post.id)}
+                        style={{ color: '#e06060', fontSize: '10px', cursor: 'pointer', background: 'rgba(224,96,96,0.08)', border: '1px solid rgba(224,96,96,0.2)', borderRadius: '4px', padding: '2px 8px', fontFamily: 'inherit' }}>
+                        🗑️ 删帖
+                      </button>
+                    )}
+                  </div>
                 </div>
               )
             })}

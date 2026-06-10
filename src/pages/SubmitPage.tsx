@@ -1,10 +1,8 @@
 import { useState } from 'react'
 
-type SubmitType = 'news' | 'photo' | 'update' | 'feedback' | 'sponsorship'
+type SubmitType = 'news' | 'photo' | 'update'
 
 // ============ localStorage keys ============
-const FEEDBACK_PENDING_KEY = 'aventurine_feedback_pending'
-const SPONSORSHIP_PENDING_KEY = 'aventurine_sponsorship_pending'
 const CONTENT_UPDATE_PENDING_KEY = 'aventurine_content_update_pending'
 
 export default function SubmitPage() {
@@ -18,9 +16,6 @@ export default function SubmitPage() {
     content: '',
     reason: '',
     targetPage: '',
-    rating: 5,
-    experience: '',
-    contribution: '',
   })
   const [submitted, setSubmitted] = useState(false)
 
@@ -28,33 +23,7 @@ export default function SubmitPage() {
     e.preventDefault()
     if (!form.content.trim()) return
 
-    if (type === 'feedback') {
-      // 意见反馈
-      const pending = JSON.parse(localStorage.getItem(FEEDBACK_PENDING_KEY) || '[]')
-      pending.push({
-        id: 'feedback_' + Date.now().toString(36),
-        nickname: form.name || '匿名',
-        email: form.contact || '',
-        content: form.content,
-        rating: form.rating || 5,
-        submittedAt: new Date().toISOString(),
-        status: 'pending',
-      })
-      localStorage.setItem(FEEDBACK_PENDING_KEY, JSON.stringify(pending))
-    } else if (type === 'sponsorship') {
-      // 生贺组应聘
-      const pending = JSON.parse(localStorage.getItem(SPONSORSHIP_PENDING_KEY) || '[]')
-      pending.push({
-        id: 'sponsorship_' + Date.now().toString(36),
-        nickname: form.name || '匿名',
-        contact: form.contact || '',
-        experience: form.experience || '',
-        contribution: form.contribution || '',
-        submittedAt: new Date().toISOString(),
-        status: 'pending',
-      })
-      localStorage.setItem(SPONSORSHIP_PENDING_KEY, JSON.stringify(pending))
-    } else if (type === 'update') {
+    if (type === 'update') {
       // 板块更新
       const pending = JSON.parse(localStorage.getItem(CONTENT_UPDATE_PENDING_KEY) || '[]')
       pending.push({
@@ -73,6 +42,7 @@ export default function SubmitPage() {
       // 最新动态和线下实拍投稿（保留原有逻辑）
       const pending = JSON.parse(localStorage.getItem('aventurine_pending_submits') || '[]')
       pending.push({
+        id: 'submit_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 7),
         ...form,
         type,
         time: new Date().toISOString(),
@@ -83,7 +53,7 @@ export default function SubmitPage() {
 
     setSubmitted(true)
     setTimeout(() => setSubmitted(false), 3000)
-    setForm({ name: '', contact: '', title: '', content: '', reason: '', targetPage: '', rating: 5, experience: '', contribution: '' })
+    setForm({ name: '', contact: '', title: '', content: '', reason: '', targetPage: '' })
   }
 
   const renderNewsPhotoForm = () => (
@@ -118,97 +88,6 @@ export default function SubmitPage() {
           value={form.content}
           onChange={e => setForm(f => ({ ...f, content: e.target.value }))}
           placeholder={type === 'news' ? '请描述砂金相关的最新动态，包括来源链接更佳...' : '活动时间、地点、应援主题等描述...'}
-          required
-          style={{
-            width: '100%', minHeight: '100px',
-            background: 'rgba(14,14,14,0.8)',
-            border: '1px solid rgba(212,184,120,0.3)',
-            borderRadius: '8px', padding: '10px 14px',
-            color: '#f2e8d0', fontSize: '13px',
-            resize: 'vertical', outline: 'none',
-            fontFamily: 'inherit',
-          }}
-        />
-      </div>
-    </>
-  )
-
-  const renderFeedbackForm = () => (
-    <>
-      {/* 满意度评分 */}
-      <div style={{ marginBottom: '16px' }}>
-        <label style={{ color: 'rgba(212,184,120,0.8)', fontSize: '12px', display: 'block', marginBottom: '8px' }}>
-          对网站的满意度
-        </label>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          {[1, 2, 3, 4, 5].map(r => (
-            <span
-              key={r}
-              onClick={() => setForm(f => ({ ...f, rating: r }))}
-              style={{ fontSize: '24px', cursor: 'pointer', color: r <= form.rating ? '#e0c060' : 'rgba(248,246,240,0.2)' }}
-            >
-              ★
-            </span>
-          ))}
-        </div>
-      </div>
-
-      {/* 反馈内容 */}
-      <div style={{ marginBottom: '20px' }}>
-        <label style={{ color: 'rgba(212,184,120,0.8)', fontSize: '12px', display: 'block', marginBottom: '8px' }}>
-          意见反馈内容 *
-        </label>
-        <textarea
-          value={form.content}
-          onChange={e => setForm(f => ({ ...f, content: e.target.value }))}
-          placeholder="请写下你对网站的意见、建议或反馈..."
-          required
-          style={{
-            width: '100%', minHeight: '120px',
-            background: 'rgba(14,14,14,0.8)',
-            border: '1px solid rgba(212,184,120,0.3)',
-            borderRadius: '8px', padding: '10px 14px',
-            color: '#f2e8d0', fontSize: '13px',
-            resize: 'vertical', outline: 'none',
-            fontFamily: 'inherit',
-          }}
-        />
-      </div>
-    </>
-  )
-
-  const renderSponsorshipForm = () => (
-    <>
-      {/* 相关经验 */}
-      <div style={{ marginBottom: '16px' }}>
-        <label style={{ color: 'rgba(212,184,120,0.8)', fontSize: '12px', display: 'block', marginBottom: '8px' }}>
-          相关经验（选填）
-        </label>
-        <textarea
-          value={form.experience}
-          onChange={e => setForm(f => ({ ...f, experience: e.target.value }))}
-          placeholder="请描述你参与过的应援活动、粉丝组织经验等..."
-          style={{
-            width: '100%', minHeight: '80px',
-            background: 'rgba(14,14,14,0.8)',
-            border: '1px solid rgba(212,184,120,0.3)',
-            borderRadius: '8px', padding: '10px 14px',
-            color: '#f2e8d0', fontSize: '13px',
-            resize: 'vertical', outline: 'none',
-            fontFamily: 'inherit',
-          }}
-        />
-      </div>
-
-      {/* 可以贡献的内容 */}
-      <div style={{ marginBottom: '20px' }}>
-        <label style={{ color: 'rgba(212,184,120,0.8)', fontSize: '12px', display: 'block', marginBottom: '8px' }}>
-          可以贡献的内容 *
-        </label>
-        <textarea
-          value={form.contribution}
-          onChange={e => setForm(f => ({ ...f, contribution: e.target.value }))}
-          placeholder="请描述你可以为砂金生贺组贡献什么（如：绘图、视频剪辑、文案、线下组织等）..."
           required
           style={{
             width: '100%', minHeight: '100px',
@@ -308,8 +187,6 @@ export default function SubmitPage() {
     { key: 'news' as SubmitType, label: '📰 最新动态', desc: '投稿砂金相关最新动态' },
     { key: 'photo' as SubmitType, label: '📷 线下实拍', desc: '上传线下应援活动照片' },
     { key: 'update' as SubmitType, label: '✏️ 板块更新', desc: '提交板块内容更新建议' },
-    { key: 'feedback' as SubmitType, label: '📝 意见反馈', desc: '对网站的意见和建议' },
-    { key: 'sponsorship' as SubmitType, label: '🎉 生贺组应聘', desc: '申请加入生日庆祝团队' },
   ]
 
   return (
@@ -361,8 +238,6 @@ export default function SubmitPage() {
               {type === 'news' && '请描述砂金相关的最新动态，包括来源链接更佳。'}
               {type === 'photo' && '上传线下应援活动、大屏投放、线下聚会的现场实拍照片，记录每一个珍贵瞬间。'}
               {type === 'update' && '选择要更新的板块，填写新的内容，管理员审核通过后即生效。'}
-              {type === 'feedback' && '你的意见对我们非常重要，帮助我们改进网站体验。'}
-              {type === 'sponsorship' && '申请加入砂金生贺组，一起为砂金筹备生日庆祝活动。'}
             </p>
           </div>
 
@@ -411,8 +286,6 @@ export default function SubmitPage() {
 
             {/* 渲染各类型专属表单 */}
             {type === 'news' || type === 'photo' ? renderNewsPhotoForm() : null}
-            {type === 'feedback' ? renderFeedbackForm() : null}
-            {type === 'sponsorship' ? renderSponsorshipForm() : null}
             {type === 'update' ? renderUpdateForm() : null}
 
             {/* Notice */}

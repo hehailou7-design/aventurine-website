@@ -66,7 +66,10 @@ export default function HomePage({ onNavigate }: HomePageProps) {
 
   const bannerSlides = content.home.bannerSlides
   const navCards = content.home.navCards
-  const updates = content.home.updates
+  const chronicleEvents = (content.chronicle?.events || []).slice().sort((a: any, b: any) => {
+    // 日期格式 YYYY.MM.DD，直接字符串比较
+    return b.date.localeCompare(a.date)
+  }).slice(0, 5)
   const countdown = content.countdown
 
   useEffect(() => {
@@ -187,17 +190,16 @@ export default function HomePage({ onNavigate }: HomePageProps) {
         <div className="max-w-screen-2xl mx-auto px-4 md:px-8">
           <h2 className="section-title scroll-fade-in">{t('latest_update')}</h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {updates.map((u, i) => (
+            {chronicleEvents.map((ev, i) => (
               <div key={i} className="card-glass card-shine scroll-slide-left" style={{
                 padding: '14px 20px', display: 'flex', alignItems: 'center', gap: '16px',
-                transition: 'all 0.3s ease-out', cursor: 'pointer', transitionDelay: `${i * 100}ms`,
+                transition: 'all 0.3s ease-out', cursor: 'default', transitionDelay: `${i * 100}ms`,
               }}
               onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(212, 184, 120, 0.5)'; e.currentTarget.style.transform = 'translateX(8px)'; e.currentTarget.style.boxShadow = '0 4px 20px rgba(212, 184, 120, 0.15)' }}
               onMouseLeave={(e) => { e.currentTarget.style.borderColor = ''; e.currentTarget.style.transform = 'translateX(0)'; e.currentTarget.style.boxShadow = '' }}
               >
-                <span style={{ color: '#d4b878', fontSize: '12px', fontFamily: 'monospace', opacity: 0.7, whiteSpace: 'nowrap' }}>{u.date}</span>
-                <span style={{ background: 'rgba(212,184,120,0.15)', color: '#d4b878', fontSize: '10px', padding: '2px 8px', borderRadius: '4px', border: '1px solid rgba(212,184,120,0.3)', whiteSpace: 'nowrap' }}>{u.tag}</span>
-                <span style={{ color: '#f2e8d0', fontSize: '13px', flex: 1 }}>{u.text}</span>
+                <span style={{ color: '#d4b878', fontSize: '12px', fontFamily: 'monospace', opacity: 0.7, whiteSpace: 'nowrap' }}>{ev.date}</span>
+                <span style={{ color: '#f2e8d0', fontSize: '13px', flex: 1 }}>{ev.title}</span>
               </div>
             ))}
           </div>

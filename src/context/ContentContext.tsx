@@ -316,6 +316,7 @@ export type SiteContent = {
     warningText: string;
     requireVerify: boolean;
     accountPassword: string;
+    adminNickname: string;
   };
   submit: {
     newsTitle: string;
@@ -543,7 +544,7 @@ const defaultContent: SiteContent = {
     ],
     characterList: ['砂金', '开拓者（存护）', '开拓者（同谐）', '阿兰', '爱丝妲', '白露', '黑塔', '停云', '桂乃芬', '寒鸦', '景元', '卡芙卡', '流萤', '逻格斯', '罗刹', '阮·梅', '砂金', '银狼', '知更鸟', '黄泉'],
   },
-  blackMud: { pageTitle: '黑泥区 - 理性吐槽', warningText: '本区为理性讨论板块。禁止人身攻击、辱骂角色及制作组。如有严重违规行为，管理员将删除相关留言。', requireVerify: true, accountPassword: 'aventurine2024' },
+  blackMud: { pageTitle: '黑泥区 - 理性吐槽', warningText: '本区为理性讨论板块。禁止人身攻击、辱骂角色及制作组。如有严重违规行为，管理员将删除相关留言。', requireVerify: true, accountPassword: 'aventurine2024', adminNickname: '管理员' },
   submit: { newsTitle: '最新动态投稿', photoTitle: '线下应援实拍投稿', updateTitle: '板块内容更新投稿', guidelines: '投稿须知：① 请确保内容真实有效 ② 审核通过后将展示于对应板块 ③ 恶意虚假信息将被拒稿 ④ 游客无需登录即可投稿 ⑤ 板块更新需注明修改理由' },
   blessings: { pageTitle: '祝福区 - 愿极光照亮你的旅途', subtitle: '写下你想对砂金说的话，每一条祝福都是一片极光', items: [] },
   supportRecord: {
