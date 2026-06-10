@@ -70,9 +70,42 @@ export default function SupportRecordPage() {
   const year2025Summary = content.supportRecord?.year2025Summary || ''
   const year2026Summary = content.supportRecord?.year2026Summary || ''
 
-  const [joinOpen, setJoinOpen] = useState(false)
+  const [joinModalOpen, setJoinModalOpen] = useState(false)
+  const [joinForm, setJoinForm] = useState({ name: '', contact: '', supportTypes: [] as string[], note: '' })
+  const [joinSubmitted, setJoinSubmitted] = useState(false)
   const [searchCity, setSearchCity] = useState('')
   const [selectedRecord, setSelectedRecord] = useState<any>(null)
+
+  const handleJoinSubmit = () => {
+    if (!joinForm.name.trim() || !joinForm.contact.trim() || joinForm.supportTypes.length === 0) return
+    // 保存到 localStorage，管理员可在后台查看
+    try {
+      const existing = JSON.parse(localStorage.getItem('aventurine_join_requests') || '[]')
+      existing.push({
+        ...joinForm,
+        submittedAt: new Date().toISOString(),
+      })
+      localStorage.setItem('aventurine_join_requests', JSON.stringify(existing))
+      setJoinSubmitted(true)
+    } catch {
+      // ignore storage errors
+    }
+  }
+
+  const resetJoinForm = () => {
+    setJoinForm({ name: '', contact: '', supportTypes: [], note: '' })
+    setJoinSubmitted(false)
+    setJoinModalOpen(false)
+  }
+
+  const toggleSupportType = (key: string) => {
+    setJoinForm(prev => ({
+      ...prev,
+      supportTypes: prev.supportTypes.includes(key)
+        ? prev.supportTypes.filter(k => k !== key)
+        : [...prev.supportTypes, key]
+    }))
+  }
 
   // Extract unique cities from records
   const cities = useMemo(() => {
@@ -155,48 +188,221 @@ export default function SupportRecordPage() {
           border: '1px solid rgba(212,184,120,0.2)', 
           borderRadius: '16px',
           marginBottom: '28px',
-          overflow: 'hidden',
+          padding: '20px 24px',
+          textAlign: 'center',
         }}>
+          <p style={{ color: 'rgba(248,246,240,0.6)', fontSize: '13px', marginBottom: '14px', lineHeight: '1.6' }}>
+            想要参与砂金生贺应援？无论你是想提供大屏资源、制作无料、还是组织线下活动，<br />都欢迎加入我们，一起为砂金献上最好的生日祝福！
+          </p>
           <button
-            onClick={() => setJoinOpen(!joinOpen)}
+            onClick={() => setJoinModalOpen(true)}
             style={{
-              width: '100%', background: 'transparent', border: 'none',
-              color: '#d4b878', fontSize: '16px', fontWeight: 600,
-              padding: '16px 24px', cursor: 'pointer',
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              transition: 'all 0.3s',
+              background: 'linear-gradient(135deg, #d4b878, #c4a060)',
+              border: 'none', borderRadius: '24px',
+              color: '#121212', fontSize: '15px', fontWeight: 700,
+              padding: '12px 40px', cursor: 'pointer',
+              transition: 'all 0.3s ease',
+              display: 'inline-flex', alignItems: 'center', gap: '8px',
+              boxShadow: '0 4px 20px rgba(212,184,120,0.25)',
             }}
+            onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 28px rgba(212,184,120,0.35)' }}
+            onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 20px rgba(212,184,120,0.25)' }}
           >
-            <span>{t('join_support_title')}</span>
-            <span style={{ 
-              transform: joinOpen ? 'rotate(180deg)' : 'rotate(0deg)', 
-              transition: 'transform 0.3s',
-              fontSize: '12px',
-            }}>▼</span>
+            🎂 {t('join_support_title')} ✨
           </button>
-          {joinOpen && (
-            <div style={{ padding: '0 24px 20px', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '10px' }}>
-              {joinOptions.map((opt) => (
-                <div key={opt.key} style={{
-                  display: 'flex', alignItems: 'center', gap: '10px',
-                  padding: '10px 14px',
-                  background: 'rgba(212,184,120,0.05)',
-                  border: `1px solid ${opt.color}22`,
-                  borderRadius: '10px',
-                  fontSize: '13px', color: '#f8f6f0',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(212,184,120,0.1)'; e.currentTarget.style.transform = 'translateY(-2px)' }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(212,184,120,0.05)'; e.currentTarget.style.transform = 'translateY(0)' }}
-                >
-                  <span style={{ fontSize: '20px' }}>{opt.icon}</span>
-                  <span>{t(opt.labelKey)}</span>
-                </div>
-              ))}
-            </div>
-          )}
         </div>
+
+        {/* Join Support Modal */}
+        {joinModalOpen && (
+          <div style={{
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+            background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            zIndex: 9999, padding: '20px',
+          }}
+            onClick={(e) => { if (e.target === e.currentTarget) resetJoinForm() }}
+          >
+            <div style={{
+              background: 'linear-gradient(180deg, #1a1a2e, #16213e)',
+              border: '1px solid rgba(212,184,120,0.25)',
+              borderRadius: '20px', padding: '32px',
+              maxWidth: '480px', width: '100%',
+              maxHeight: '90vh', overflow: 'auto',
+              position: 'relative',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
+            }}>
+              {/* Close button */}
+              <button
+                onClick={resetJoinForm}
+                style={{
+                  position: 'absolute', top: '16px', right: '16px',
+                  background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: '50%', width: '32px', height: '32px',
+                  color: '#f8f6f0', fontSize: '16px', cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}
+              >✕</button>
+
+              {joinSubmitted ? (
+                /* Success View */
+                <div style={{ textAlign: 'center', padding: '20px 0' }}>
+                  <div style={{ fontSize: '48px', marginBottom: '16px' }}>🎉</div>
+                  <h3 style={{ color: '#d4b878', fontSize: '20px', fontWeight: 700, marginBottom: '8px' }}>
+                    提交成功！
+                  </h3>
+                  <p style={{ color: 'rgba(248,246,240,0.6)', fontSize: '13px', lineHeight: '1.8', marginBottom: '24px' }}>
+                    感谢你的热情参与！<br />
+                    我们会尽快通过你留下的联系方式与你取得联系 💛
+                  </p>
+                  <button
+                    onClick={resetJoinForm}
+                    style={{
+                      background: 'linear-gradient(135deg, #64b878, #4a9a5a)',
+                      border: 'none', borderRadius: '20px',
+                      color: '#121212', fontSize: '14px', fontWeight: 600,
+                      padding: '10px 32px', cursor: 'pointer',
+                    }}
+                  >关闭</button>
+                </div>
+              ) : (
+                /* Form View */
+                <>
+                  <h3 style={{
+                    color: '#d4b878', fontSize: '19px', fontWeight: 700,
+                    marginBottom: '6px', textAlign: 'center',
+                  }}>
+                    🎂 加入应援
+                  </h3>
+                  <p style={{
+                    color: 'rgba(248,246,240,0.45)', fontSize: '12px',
+                    textAlign: 'center', marginBottom: '24px',
+                  }}>
+                    填写你的信息，让我们一起为砂金庆生
+                  </p>
+
+                  {/* Name */}
+                  <div style={{ marginBottom: '16px' }}>
+                    <label style={{ color: 'rgba(248,246,240,0.7)', fontSize: '13px', fontWeight: 600, marginBottom: '6px', display: 'block' }}>
+                      你的昵称 <span style={{ color: '#e06060' }}>*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={joinForm.name}
+                      onChange={(e) => setJoinForm(p => ({ ...p, name: e.target.value }))}
+                      placeholder="怎么称呼你？"
+                      style={{
+                        width: '100%', padding: '10px 14px', borderRadius: '10px',
+                        background: 'rgba(20,20,20,0.5)', border: '1px solid rgba(255,255,255,0.1)',
+                        color: '#f8f6f0', fontSize: '14px', outline: 'none',
+                        boxSizing: 'border-box',
+                      }}
+                    />
+                  </div>
+
+                  {/* Contact */}
+                  <div style={{ marginBottom: '16px' }}>
+                    <label style={{ color: 'rgba(248,246,240,0.7)', fontSize: '13px', fontWeight: 600, marginBottom: '6px', display: 'block' }}>
+                      联系方式 <span style={{ color: '#e06060' }}>*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={joinForm.contact}
+                      onChange={(e) => setJoinForm(p => ({ ...p, contact: e.target.value }))}
+                      placeholder="微信 / QQ / 邮箱"
+                      style={{
+                        width: '100%', padding: '10px 14px', borderRadius: '10px',
+                        background: 'rgba(20,20,20,0.5)', border: '1px solid rgba(255,255,255,0.1)',
+                        color: '#f8f6f0', fontSize: '14px', outline: 'none',
+                        boxSizing: 'border-box',
+                      }}
+                    />
+                  </div>
+
+                  {/* Support Types */}
+                  <div style={{ marginBottom: '16px' }}>
+                    <label style={{ color: 'rgba(248,246,240,0.7)', fontSize: '13px', fontWeight: 600, marginBottom: '8px', display: 'block' }}>
+                      我能提供什么 <span style={{ color: '#e06060' }}>*</span>（可多选）
+                    </label>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '8px' }}>
+                      {joinOptions.map((opt) => {
+                        const selected = joinForm.supportTypes.includes(opt.key)
+                        return (
+                          <button
+                            key={opt.key}
+                            onClick={() => toggleSupportType(opt.key)}
+                            style={{
+                              display: 'flex', alignItems: 'center', gap: '8px',
+                              padding: '9px 12px', borderRadius: '10px',
+                              background: selected ? `${opt.color}20` : 'rgba(255,255,255,0.03)',
+                              border: selected ? `1px solid ${opt.color}60` : '1px solid rgba(255,255,255,0.08)',
+                              color: selected ? opt.color : 'rgba(248,246,240,0.6)',
+                              fontSize: '13px', cursor: 'pointer',
+                              transition: 'all 0.2s',
+                              textAlign: 'left',
+                            }}
+                          >
+                            <span style={{ fontSize: '16px' }}>{opt.icon}</span>
+                            <span>{t(opt.labelKey)}</span>
+                            {selected && <span style={{ marginLeft: 'auto', fontSize: '14px' }}>✓</span>}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Notes */}
+                  <div style={{ marginBottom: '20px' }}>
+                    <label style={{ color: 'rgba(248,246,240,0.7)', fontSize: '13px', fontWeight: 600, marginBottom: '6px', display: 'block' }}>
+                      备注（选填）
+                    </label>
+                    <textarea
+                      value={joinForm.note}
+                      onChange={(e) => setJoinForm(p => ({ ...p, note: e.target.value }))}
+                      placeholder="还有什么想告诉我们的？"
+                      rows={3}
+                      style={{
+                        width: '100%', padding: '10px 14px', borderRadius: '10px',
+                        background: 'rgba(20,20,20,0.5)', border: '1px solid rgba(255,255,255,0.1)',
+                        color: '#f8f6f0', fontSize: '14px', outline: 'none', resize: 'vertical',
+                        boxSizing: 'border-box', fontFamily: 'inherit',
+                      }}
+                    />
+                  </div>
+
+                  {/* Submit */}
+                  <button
+                    onClick={handleJoinSubmit}
+                    disabled={!joinForm.name.trim() || !joinForm.contact.trim() || joinForm.supportTypes.length === 0}
+                    style={{
+                      width: '100%', padding: '12px', borderRadius: '20px',
+                      background: (!joinForm.name.trim() || !joinForm.contact.trim() || joinForm.supportTypes.length === 0)
+                        ? 'rgba(255,255,255,0.05)'
+                        : 'linear-gradient(135deg, #d4b878, #c4a060)',
+                      border: 'none',
+                      color: (!joinForm.name.trim() || !joinForm.contact.trim() || joinForm.supportTypes.length === 0)
+                        ? 'rgba(248,246,240,0.3)'
+                        : '#121212',
+                      fontSize: '15px', fontWeight: 700, cursor: 'pointer',
+                      transition: 'all 0.3s',
+                    }}
+                    onMouseEnter={(e) => {
+                      if (joinForm.name.trim() && joinForm.contact.trim() && joinForm.supportTypes.length > 0) {
+                        e.currentTarget.style.transform = 'translateY(-2px)'
+                        e.currentTarget.style.boxShadow = '0 6px 24px rgba(212,184,120,0.3)'
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)'
+                      e.currentTarget.style.boxShadow = 'none'
+                    }}
+                  >
+                    ✨ 提交报名
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* City Search Filter */}
         <div style={{ marginBottom: '24px', display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center' }}>

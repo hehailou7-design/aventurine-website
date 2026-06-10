@@ -7,6 +7,7 @@ import FeedbackReview from '../components/FeedbackReview'
 import SponsorshipReview from '../components/SponsorshipReview'
 import ContentUpdateReview from '../components/ContentUpdateReview'
 import BlackMudReview from '../components/BlackMudReview'
+import JoinReview from '../components/JoinReview'
 import SupportRecordEditor from '../components/SupportRecordEditor'
 import PageBuilder from '../components/pageBuilder/PageBuilder'
 import ImageCropper from '../components/ImageCropper'
@@ -18,6 +19,7 @@ type PageSection =
   | 'chronicle' | 'blackMud' | 'submit' | 'account'
   | 'profile' | 'blessings' | 'images' | 'admins'
   | 'feedbackReview' | 'sponsorshipReview' | 'blackMudReview' | 'contentUpdateReview'
+  | 'joinReview'
   | 'supportRecord' | 'theme'
   | 'siteConfig'
   | 'pageBuilder'
@@ -310,6 +312,7 @@ export default function AdminPage({ onLogout }: { onLogout?: () => void }) {
     { key: 'sponsorshipReview', label: '生贺组应聘审核', icon: '🎉' },
     { key: 'contentUpdateReview', label: '板块更新审核', icon: '📋' },
     { key: 'blackMudReview', label: '黑泥区审核', icon: '🔒' },
+    { key: 'joinReview', label: '应援报名审核', icon: '✋' },
     // 应援记录
     { key: 'supportRecord', label: '生贺应援', icon: '📼' },
     // 页面构建器
@@ -329,6 +332,7 @@ export default function AdminPage({ onLogout }: { onLogout?: () => void }) {
       case 'sponsorshipReview': return <SponsorshipReview />
       case 'contentUpdateReview': return <ContentUpdateReview />
       case 'blackMudReview': return <BlackMudReview />
+      case 'joinReview': return <JoinReview />
       case 'supportRecord': return <SupportRecordEditor content={content.supportRecord} onUpdate={handleUpdate} />
       case 'pageBuilder': return (
         <PageBuilder
