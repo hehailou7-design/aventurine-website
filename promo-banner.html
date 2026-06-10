@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>砂金Aventurine粉丝应援站 — 宣传介绍</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans SC', sans-serif;
+    background: #050508;
+    color: #e0d8c8;
+    overflow-x: hidden;
+    line-height: 1.8;
+  }
+
+  /* ── Particle Canvas ── */
+  #particles {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Sections ── */
+  .section {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 80px 40px;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    padding: 40px 20px;
+  }
+
+  .hero-ornament {
+    width: 120px;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, #d4b878, #f0d68a, #d4b878, transparent);
+    margin: 0 auto 30px;
+    border-radius: 2px;
+  }
+
+  .hero-badge {
+    display: inline-block;
+    padding: 8px 24px;
+    border: 1px solid rgba(212,184,120,0.4);
+    border-radius: 50px;
+    font-size: 14px;
+    color: #d4b878;
+    letter-spacing: 4px;
+    margin-bottom: 30px;
+    backdrop-filter: blur(10px);
+    background: rgba(212,184,120,0.05);
+  }
+
+  .hero h1 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: clamp(42px, 8vw, 80px);
+    font-weight: 900;
+    background: linear-gradient(180deg, #f0d68a 0%, #d4b878 40%, #a88850 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 20px;
+    line-height: 1.2;
+  }
+
+  .hero h2 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: clamp(18px, 3vw, 28px);
+    font-weight: 400;
+    color: rgba(212,184,120,0.7);
+    margin-bottom: 40px;
+    letter-spacing: 3px;
+  }
+
+  .hero-decorative-diamond {
+    margin: 40px 0;
+    opacity: 0.6;
+  }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: rgba(212,184,120,0.4);
+    font-size: 12px;
+    letter-spacing: 2px;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(10px); }
+  }
+
+  /* ── Section Headers ── */
+  .section-header {
+    text-align: center;
+    margin-bottom: 60px;
+  }
+
+  .section-number {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 72px;
+    font-weight: 900;
+    color: rgba(212,184,120,0.06);
+    line-height: 1;
+    margin-bottom: -20px;
+  }
+
+  .section-header h3 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: clamp(28px, 5vw, 40px);
+    font-weight: 700;
+    color: #d4b878;
+    margin-bottom: 12px;
+  }
+
+  .section-divider {
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, #d4b878, #f0d68a, #d4b878);
+    margin: 0 auto;
+    border-radius: 2px;
+  }
+
+  .section-subtitle {
+    margin-top: 16px;
+    color: rgba(212,184,120,0.5);
+    font-size: 15px;
+    letter-spacing: 2px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* ── Feature Cards ── */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+  }
+
+  .feature-card {
+    background: linear-gradient(135deg, rgba(30,25,18,0.9), rgba(20,18,14,0.95));
+    border: 1px solid rgba(212,184,120,0.15);
+    border-radius: 16px;
+    padding: 36px 28px;
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(212,184,120,0.4), transparent);
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+
+  .feature-card:hover {
+    border-color: rgba(212,184,120,0.4);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 60px rgba(212,184,120,0.08);
+  }
+
+  .feature-card:hover::before {
+    opacity: 1;
+  }
+
+  .feature-icon {
+    font-size: 36px;
+    margin-bottom: 16px;
+  }
+
+  .feature-card h4 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 20px;
+    color: #d4b878;
+    margin-bottom: 10px;
+  }
+
+  .feature-card p {
+    font-size: 14px;
+    color: rgba(200,190,170,0.7);
+    line-height: 1.8;
+  }
+
+  /* ── Tutorial Steps ── */
+  .tutorial-timeline {
+    position: relative;
+    padding-left: 40px;
+  }
+
+  .tutorial-timeline::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(180deg, #d4b878, rgba(212,184,120,0.1));
+  }
+
+  .tutorial-step {
+    position: relative;
+    margin-bottom: 48px;
+    padding-left: 40px;
+  }
+
+  .tutorial-step::before {
+    content: '';
+    position: absolute;
+    left: -33px;
+    top: 8px;
+    width: 16px;
+    height: 16px;
+    background: #d4b878;
+    border-radius: 50%;
+    box-shadow: 0 0 20px rgba(212,184,120,0.4);
+    border: 3px solid #050508;
+  }
+
+  .step-number {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 14px;
+    color: #d4b878;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+  }
+
+  .tutorial-step h4 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 22px;
+    color: #e0d8c8;
+    margin-bottom: 8px;
+  }
+
+  .tutorial-step p {
+    font-size: 14px;
+    color: rgba(200,190,170,0.6);
+    line-height: 1.9;
+  }
+
+  .tutorial-step .tip {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 6px 14px;
+    background: rgba(212,184,120,0.08);
+    border: 1px solid rgba(212,184,120,0.2);
+    border-radius: 20px;
+    font-size: 12px;
+    color: #d4b878;
+  }
+
+  /* ── Significance Section ── */
+  .significance-dual {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+  }
+
+  @media (max-width: 768px) {
+    .significance-dual { grid-template-columns: 1fr; }
+    .tutorial-timeline { padding-left: 20px; }
+    .tutorial-step::before { left: -25px; }
+  }
+
+  .sig-card {
+    padding: 48px 36px;
+    border-radius: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .sig-card.aventurine {
+    background: linear-gradient(135deg, rgba(40,30,20,0.95), rgba(25,20,15,0.98));
+    border: 1px solid rgba(212,184,120,0.2);
+  }
+
+  .sig-card.fans {
+    background: linear-gradient(135deg, rgba(25,20,35,0.95), rgba(20,18,25,0.98));
+    border: 1px solid rgba(180,160,216,0.2);
+  }
+
+  .sig-card .sig-icon {
+    font-size: 48px;
+    margin-bottom: 20px;
+  }
+
+  .sig-card h4 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 26px;
+    margin-bottom: 20px;
+  }
+
+  .sig-card.aventurine h4 { color: #d4b878; }
+  .sig-card.fans h4 { color: #b0a0d8; }
+
+  .sig-card .sig-line {
+    width: 40px;
+    height: 2px;
+    margin-bottom: 20px;
+    border-radius: 1px;
+  }
+
+  .sig-card.aventurine .sig-line { background: #d4b878; }
+  .sig-card.fans .sig-line { background: #b0a0d8; }
+
+  .sig-card ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .sig-card li {
+    padding: 10px 0;
+    font-size: 14px;
+    color: rgba(200,190,170,0.7);
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    padding-left: 20px;
+    position: relative;
+  }
+
+  .sig-card li::before {
+    content: '◆';
+    position: absolute;
+    left: 0;
+    font-size: 8px;
+  }
+
+  .sig-card.aventurine li::before { color: #d4b878; }
+  .sig-card.fans li::before { color: #b0a0d8; }
+
+  /* ── Stats Row ── */
+  .stats-row {
+    display: flex;
+    justify-content: center;
+    gap: 60px;
+    flex-wrap: wrap;
+    margin: 60px 0;
+  }
+
+  .stat-item {
+    text-align: center;
+  }
+
+  .stat-number {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 48px;
+    font-weight: 900;
+    background: linear-gradient(180deg, #f0d68a, #d4b878);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .stat-label {
+    font-size: 13px;
+    color: rgba(212,184,120,0.5);
+    letter-spacing: 2px;
+    margin-top: 8px;
+  }
+
+  /* ── CTA ── */
+  .cta-section {
+    text-align: center;
+    padding: 100px 40px;
+    background: linear-gradient(180deg, transparent, rgba(212,184,120,0.03), transparent);
+  }
+
+  .cta-section h3 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: clamp(24px, 5vw, 36px);
+    color: #d4b878;
+    margin-bottom: 16px;
+  }
+
+  .cta-section p {
+    color: rgba(200,190,170,0.6);
+    margin-bottom: 40px;
+    font-size: 16px;
+  }
+
+  .cta-url {
+    display: inline-block;
+    padding: 16px 40px;
+    background: linear-gradient(135deg, rgba(212,184,120,0.15), rgba(212,184,120,0.05));
+    border: 1px solid rgba(212,184,120,0.4);
+    border-radius: 50px;
+    font-family: 'Noto Serif SC', serif;
+    font-size: 18px;
+    color: #d4b878;
+    letter-spacing: 2px;
+    text-decoration: none;
+    transition: all 0.3s;
+  }
+
+  .cta-url:hover {
+    background: linear-gradient(135deg, rgba(212,184,120,0.25), rgba(212,184,120,0.1));
+    border-color: rgba(212,184,120,0.6);
+    box-shadow: 0 0 40px rgba(212,184,120,0.15);
+  }
+
+  /* ── Footer ── */
+  .promo-footer {
+    text-align: center;
+    padding: 40px;
+    border-top: 1px solid rgba(212,184,120,0.08);
+    font-size: 12px;
+    color: rgba(200,190,170,0.3);
+    letter-spacing: 2px;
+  }
+
+  /* ── Decorative Ornaments ── */
+  .corner-ornament {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    opacity: 0.15;
+  }
+  .corner-ornament.tl { top: 20px; left: 20px; }
+  .corner-ornament.tr { top: 20px; right: 20px; }
+  .corner-ornament.bl { bottom: 20px; left: 20px; }
+  .corner-ornament.br { bottom: 20px; right: 20px; }
+
+  /* ── Marquee Banner ── */
+  .marquee-banner {
+    background: linear-gradient(90deg, rgba(212,184,120,0.05), rgba(212,184,120,0.1), rgba(212,184,120,0.05));
+    border-top: 1px solid rgba(212,184,120,0.1);
+    border-bottom: 1px solid rgba(212,184,120,0.1);
+    padding: 16px 0;
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+  }
+
+  .marquee-track {
+    display: flex;
+    animation: marquee 25s linear infinite;
+    white-space: nowrap;
+  }
+
+  .marquee-track span {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 14px;
+    color: rgba(212,184,120,0.5);
+    letter-spacing: 4px;
+    padding: 0 40px;
+  }
+
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 600px) {
+    .section { padding: 50px 20px; }
+    .features-grid { grid-template-columns: 1fr; }
+    .stats-row { gap: 30px; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="particles"></canvas>
+
+<!-- ════════════ MARQUEE ════════════ -->
+<div class="marquee-banner">
+  <div class="marquee-track">
+    <span>✦ 一切献给——砂金大人 ✦</span>
+    <span>✦ ALL FOR AVENTURINE ✦</span>
+    <span>✦ 我们终将会在极光下重逢 ✦</span>
+    <span>✦ WE WILL MEET AGAIN UNDER THE AURORA ✦</span>
+    <span>✦ 一切献给——砂金大人 ✦</span>
+    <span>✦ ALL FOR AVENTURINE ✦</span>
+    <span>✦ 我们终将会在极光下重逢 ✦</span>
+    <span>✦ WE WILL MEET AGAIN UNDER THE AURORA ✦</span>
+  </div>
+</div>
+
+<!-- ════════════ HERO ════════════ -->
+<section class="hero">
+  <div class="hero-badge">崩坏：星穹铁道 · FAN STATION</div>
+  <div class="hero-ornament"></div>
+  <h1>砂金 Aventurine<br>粉丝应援站</h1>
+  <h2>一切献给——砂金大人</h2>
+
+  <svg class="hero-decorative-diamond" width="80" height="80" viewBox="0 0 80 80">
+    <defs>
+      <linearGradient id="diamondGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#f0d68a"/>
+        <stop offset="50%" stop-color="#d4b878"/>
+        <stop offset="100%" stop-color="#a88850"/>
+      </linearGradient>
+    </defs>
+    <polygon points="40,4 72,40 40,76 8,40" fill="none" stroke="url(#diamondGrad)" stroke-width="1.5" opacity="0.6"/>
+    <polygon points="40,12 64,40 40,68 16,40" fill="none" stroke="url(#diamondGrad)" stroke-width="1" opacity="0.4"/>
+    <circle cx="40" cy="40" r="3" fill="#d4b878" opacity="0.8"/>
+  </svg>
+
+  <p style="max-width:640px;color:rgba(200,190,170,0.5);font-size:16px;line-height:2;">
+    一个集角色资料、物料整理、应援记录、粉丝互动于一体的<br>
+    全方位砂金粉丝应援平台
+  </p>
+
+  <div class="scroll-hint">
+    <span>向 下 探 索</span>
+    <svg width="20" height="20" viewBox="0 0 20 20"><path d="M10 4v10M5 10l5 5 5-5" fill="none" stroke="#d4b878" stroke-width="1" opacity="0.4"/></svg>
+  </div>
+</section>
+
+<!-- ════════════ 01 网站简介 ════════════ -->
+<section class="section">
+  <div class="section-header">
+    <div class="section-number">01</div>
+    <h3>网站简介</h3>
+    <div class="section-divider"></div>
+    <p class="section-subtitle">WHAT IS THIS SITE</p>
+  </div>
+
+  <div style="max-width:800px;margin:0 auto;text-align:center;">
+    <p style="font-size:17px;line-height:2.2;color:rgba(200,190,170,0.7);">
+      这是为《崩坏：星穹铁道》中备受喜爱的角色——<strong style="color:#d4b878;">砂金（Aventurine）</strong>打造的专属粉丝应援网站。
+      网站集角色资料库、官方物料整理、线下应援记录、粉丝互动社区于一体，
+      是所有砂金厨的<strong style="color:#d4b878;">一站式精神家园</strong>。
+    </p>
+
+    <div class="stats-row">
+      <div class="stat-item">
+        <div class="stat-number">16+</div>
+        <div class="stat-label">功能页面</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">4</div>
+        <div class="stat-label">语言支持</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">23+</div>
+        <div class="stat-label">官方物料</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">∞</div>
+        <div class="stat-label">粉丝热爱</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════ 02 核心功能 ════════════ -->
+<section class="section">
+  <div class="section-header">
+    <div class="section-number">02</div>
+    <h3>核心功能一览</h3>
+    <div class="section-divider"></div>
+    <p class="section-subtitle">CORE FEATURES</p>
+  </div>
+
+  <div class="features-grid">
+
+    <div class="feature-card">
+      <div class="feature-icon">📋</div>
+      <h4>角色设定档案</h4>
+      <p>完整的砂金角色资料：属性面板、战斗技能、星魂效果、行迹、培养材料、角色故事与语音台词，一应俱全。</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">🎨</div>
+      <h4>角色物料中心</h4>
+      <p>收录官方立绘、宣传图、壁纸等高清物料。每件物料都配有详情页、大图预览、下载功能和粉丝留言板。</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">🤝</div>
+      <h4>官方联动追踪</h4>
+      <p>整理茶百道、中信银行等官方联名活动信息，收录联名周边商品目录，支持跳转官方购买渠道。</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">📅</div>
+      <h4>角色编年史</h4>
+      <p>以优雅时间线形式记录砂金从登场至今的每一个重要时刻——版本上线、剧情高光、生日庆典。</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">🎂</div>
+      <h4>生贺应援记录</h4>
+      <p>记录2025一周年、2026二周年等全国各城市线下应援活动，支持按城市搜索和地图定位查看。</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">💬</div>
+      <h4>互动社区</h4>
+      <p>祝福弹幕墙、黑泥吐槽区、投稿区、意见反馈——多种互动方式，让每位粉丝都能发声。</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">🎮</div>
+      <h4>强度攻略专区</h4>
+      <p>命座提升详解、最优配队推荐、遗器搭配指南、角色强度对比——助力把砂金培养到最强。</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">🌐</div>
+      <h4>多语言支持</h4>
+      <p>支持中文、English、日本語、한국어四种语言切换，让全球砂金粉丝都能无障碍浏览。</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════ 03 使用教程 ════════════ -->
+<section class="section">
+  <div class="section-header">
+    <div class="section-number">03</div>
+    <h3>使用教程</h3>
+    <div class="section-divider"></div>
+    <p class="section-subtitle">HOW TO USE</p>
+  </div>
+
+  <div class="tutorial-timeline">
+
+    <div class="tutorial-step">
+      <div class="step-number">STEP 01</div>
+      <h4>访问网站</h4>
+      <p>打开浏览器，访问 <strong style="color:#d4b878;">aventurine0505.xyz</strong>，即可进入砂金粉丝应援站首页。首页展示角色Hero横幅、快捷导航卡片和最新动态。</p>
+      <span class="tip">💡 支持PC和手机端自适应浏览</span>
+    </div>
+
+    <div class="tutorial-step">
+      <div class="step-number">STEP 02</div>
+      <h4>浏览角色资料</h4>
+      <p>点击导航栏「角色设定」进入砂金完整资料页。通过顶部标签切换查看<strong>属性数据、战斗技能、星魂、行迹、培养材料、角色故事和语音台词</strong>等详情。</p>
+      <span class="tip">💡 9个标签页覆盖角色全部信息</span>
+    </div>
+
+    <div class="tutorial-step">
+      <div class="step-number">STEP 03</div>
+      <h4>查看与下载物料</h4>
+      <p>进入「角色物料」页面，浏览官方原画和粉丝整理的物料。点击任意物料卡片进入<strong>详情页</strong>，可查看高清大图、详细描述、下载原图，还可以在留言板和同好交流。</p>
+      <span class="tip">💡 每件物料都有独立留言板</span>
+    </div>
+
+    <div class="tutorial-step">
+      <div class="step-number">STEP 04</div>
+      <h4>参与粉丝互动</h4>
+      <p>在「祝福区」发送弹幕祝福、在「黑泥区」发帖吐槽（需审核）、在「投稿区」提交二创作品或最新动态。多种方式表达对砂金的热爱！</p>
+      <span class="tip">💡 黑泥区需先提交审核申请</span>
+    </div>
+
+    <div class="tutorial-step">
+      <div class="step-number">STEP 05</div>
+      <h4>加入线下应援</h4>
+      <p>在「生贺应援」页面点击<strong>「加入应援」</strong>按钮，填写联系方式和想参与的支持类型，提交后即可加入粉丝应援团队，参与线下活动组织。</p>
+      <span class="tip">💡 支持多选：生贺组、文案、设计、视频等</span>
+    </div>
+
+    <div class="tutorial-step">
+      <div class="step-number">STEP 06</div>
+      <h4>切换语言</h4>
+      <p>点击导航栏右侧的语言切换按钮，可在<strong>中文 / English / 日本語 / 한국어</strong>之间自由切换。方便全球砂金粉丝共同使用。</p>
+      <span class="tip">💡 所有页面均支持四种语言</span>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════ 04 双重意义 ════════════ -->
+<section class="section">
+  <div class="section-header">
+    <div class="section-number">04</div>
+    <h3>意义与价值</h3>
+    <div class="section-divider"></div>
+    <p class="section-subtitle">SIGNIFICANCE</p>
+  </div>
+
+  <div class="significance-dual">
+
+    <!-- 对砂金的意义 -->
+    <div class="sig-card aventurine">
+      <div class="corner-ornament tl">
+        <svg viewBox="0 0 60 60"><path d="M0 30 L0 0 L30 0" fill="none" stroke="#d4b878" stroke-width="1"/></svg>
+      </div>
+      <div class="corner-ornament tr">
+        <svg viewBox="0 0 60 60"><path d="M60 30 L60 0 L30 0" fill="none" stroke="#d4b878" stroke-width="1"/></svg>
+      </div>
+      <div class="sig-icon">💎</div>
+      <h4>对砂金角色的意义</h4>
+      <div class="sig-line"></div>
+      <ul>
+        <li><strong>角色影响力的证明</strong>——一个专属粉丝站的存在，本身就是砂金角色人气和影响力的最好证明</li>
+        <li><strong>信息聚合中心</strong>——将散落在各平台的砂金相关资料集中整理，形成完整的角色知识库</li>
+        <li><strong>文化沉淀的载体</strong>——记录角色从登场到成长的每一个节点，成为崩铁角色文化的一部分</li>
+        <li><strong>官方与粉丝的桥梁</strong>——整理官方联动信息、周边商品，帮助官方活动触达更多核心粉丝</li>
+        <li><strong>角色生命力的延续</strong>——即使版本更迭，粉丝站持续运营让砂金的热度永不消退</li>
+      </ul>
+      <div class="corner-ornament bl">
+        <svg viewBox="0 0 60 60"><path d="M0 30 L0 60 L30 60" fill="none" stroke="#d4b878" stroke-width="1"/></svg>
+      </div>
+      <div class="corner-ornament br">
+        <svg viewBox="0 0 60 60"><path d="M60 30 L60 60 L30 60" fill="none" stroke="#d4b878" stroke-width="1"/></svg>
+      </div>
+    </div>
+
+    <!-- 对粉丝的意义 -->
+    <div class="sig-card fans">
+      <div class="corner-ornament tl">
+        <svg viewBox="0 0 60 60"><path d="M0 30 L0 0 L30 0" fill="none" stroke="#b0a0d8" stroke-width="1"/></svg>
+      </div>
+      <div class="corner-ornament tr">
+        <svg viewBox="0 0 60 60"><path d="M60 30 L60 0 L30 0" fill="none" stroke="#b0a0d8" stroke-width="1"/></svg>
+      </div>
+      <div class="sig-icon">💜</div>
+      <h4>对粉丝群体的意义</h4>
+      <div class="sig-line"></div>
+      <ul>
+        <li><strong>精神归属地</strong>——为砂金厨提供一个专属的"家"，让同好找到组织，不再孤单</li>
+        <li><strong>一站式信息获取</strong>——无需在多个平台间跳转，一个网站满足角色信息、物料、攻略全部需求</li>
+        <li><strong>创作与交流平台</strong>——投稿区、留言板、祝福弹幕，激发粉丝创作热情和交流欲望</li>
+        <li><strong>线下活动组织枢纽</strong>——应援报名、城市活动记录，让线上热爱落到线下实际行动</li>
+        <li><strong>降低入门门槛</strong>——新粉丝可以通过网站快速了解砂金的一切，轻松融入粉丝圈</li>
+      </ul>
+      <div class="corner-ornament bl">
+        <svg viewBox="0 0 60 60"><path d="M0 30 L0 60 L30 60" fill="none" stroke="#b0a0d8" stroke-width="1"/></svg>
+      </div>
+      <div class="corner-ornament br">
+        <svg viewBox="0 0 60 60"><path d="M60 30 L60 60 L30 60" fill="none" stroke="#b0a0d8" stroke-width="1"/></svg>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════ CTA ════════════ -->
+<section class="cta-section">
+  <svg width="60" height="60" viewBox="0 0 60 60" style="margin-bottom:30px;">
+    <defs>
+      <linearGradient id="ctaDiamond" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#f0d68a"/>
+        <stop offset="100%" stop-color="#a88850"/>
+      </linearGradient>
+    </defs>
+    <polygon points="30,3 54,30 30,57 6,30" fill="none" stroke="url(#ctaDiamond)" stroke-width="1.5"/>
+    <polygon points="30,9 48,30 30,51 12,30" fill="none" stroke="url(#ctaDiamond)" stroke-width="0.8" opacity="0.5"/>
+    <circle cx="30" cy="30" r="3" fill="#d4b878"/>
+  </svg>
+  <h3>立即访问砂金粉丝应援站</h3>
+  <p>一切献给——砂金大人。我们终将会在极光下重逢。</p>
+  <a href="https://aventurine0505.xyz" target="_blank" class="cta-url">✦ aventurine0505.xyz ✦</a>
+</section>
+
+<!-- ════════════ FOOTER ════════════ -->
+<div class="promo-footer">
+  <p>© 2026 Aventurine Fan Station · 崩坏：星穹铁道 · 砂金粉丝应援站</p>
+  <p style="margin-top:8px;">本网站为粉丝自发组织，与 miHoYo 无直接关联</p>
+</div>
+
+<!-- ════════════ PARTICLE SCRIPT ════════════ -->
+<script>
+(function() {
+  const canvas = document.getElementById('particles');
+  const ctx = canvas.getContext('2d');
+  let particles = [];
+  let animId;
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = document.body.scrollHeight;
+  }
+
+  resize();
+  window.addEventListener('resize', () => { resize(); initParticles(); });
+
+  function initParticles() {
+    const count = Math.min(Math.floor(window.innerWidth * 0.05), 60);
+    particles = [];
+    for (let i = 0; i < count; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: (Math.random() - 0.5) * 0.3,
+        size: Math.random() * 1.5 + 0.5,
+        opacity: Math.random() * 0.3 + 0.05
+      });
+    }
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    particles.forEach(p => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(212,184,120,${p.opacity})`;
+      ctx.fill();
+
+      // glow
+      const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 4);
+      grad.addColorStop(0, `rgba(212,184,120,${p.opacity * 0.6})`);
+      grad.addColorStop(1, 'rgba(212,184,120,0)');
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size * 4, 0, Math.PI * 2);
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      // connection lines
+      particles.forEach(q => {
+        const dx = p.x - q.x;
+        const dy = p.y - q.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 120) {
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(q.x, q.y);
+          ctx.strokeStyle = `rgba(212,184,120,${0.04 * (1 - dist / 120)})`;
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
+        }
+      });
+
+      // update
+      p.x += p.vx;
+      p.y += p.vy;
+
+      if (p.x < 0) p.x = canvas.width;
+      if (p.x > canvas.width) p.x = 0;
+      if (p.y < 0) p.y = canvas.height;
+      if (p.y > canvas.height) p.y = 0;
+    });
+
+    animId = requestAnimationFrame(draw);
+  }
+
+  // Update canvas height on scroll
+  let scrollTimeout;
+  window.addEventListener('scroll', () => {
+    clearTimeout(scrollTimeout);
+    scrollTimeout = setTimeout(() => {
+      canvas.height = document.body.scrollHeight;
+    }, 100);
+  });
+
+  initParticles();
+  draw();
+})();
+</script>
+
+</body>
+</html>
