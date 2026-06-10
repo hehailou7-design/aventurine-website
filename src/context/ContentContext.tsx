@@ -37,6 +37,10 @@ export interface MaterialItem {
   customLink?: string;
   videoUrl?: string;
   interactiveUrl?: string;
+  /** 详情页长描述（可选，为空时使用 desc） */
+  detailDesc?: string;
+  /** 详情页额外图片（可选） */
+  detailImages?: string[];
 }
 
 export interface CollabStore {
@@ -376,31 +380,31 @@ const defaultContent: SiteContent = {
   materials: {
     officialTitle: '官方原画', offlineTitle: '物料整理',
     official: [
-      { title: '砂金官方立绘（横版）', desc: '崩坏：星穹铁道官方立绘，横版全身', tag: '立绘', image: '', date: '2024.02.28', link: 'https://www.miyoushe.com/sr/article/50218448', clickAction: 'link' },
-      { title: '砂金官方立绘（竖版）', desc: '崩坏：星穹铁道官方立绘，竖版全身', tag: '立绘', image: '', date: '2024.02.28', clickAction: 'none' },
-      { title: '砂金透明底立绘', desc: '官方透明背景立绘', tag: '立绘', image: '', date: '2024.03.01', clickAction: 'none' },
-      { title: '2.1版本PV「狂热奔向深渊」', desc: '砂金角色PV「金手指」，官方完整版', tag: 'PV', image: '', date: '2024.03.15', link: 'https://www.bilibili.com/video/BV12x421m7K9', clickAction: 'video' },
-      { title: '砂金官图自存（第一弹）', desc: '官方宣传图集合', tag: '宣传图', image: '', date: '2024.03.09', link: 'https://www.miyoushe.com/sr/article/50129960', clickAction: 'link' },
-      { title: '砂金官图自存（第二弹）', desc: '更多官方宣传图', tag: '宣传图', image: '', date: '2024.03.12', link: 'https://www.miyoushe.com/sr/article/50218448', clickAction: 'link' },
-      { title: '214情人节特别电影宣传图', desc: '情人节特别活动宣传', tag: '宣传图', image: '', date: '2024.02.14', clickAction: 'none' },
-      { title: '砂金anan杂志封面', desc: '日本anan杂志封面，砂金主题', tag: '杂志', image: '', date: '2024.03.20', clickAction: 'none' },
-      { title: '英推嘉年华宣图', desc: '英国Twitter嘉年华活动宣传图', tag: '宣传图', image: '', date: '2024.04.01', clickAction: 'none' },
-      { title: '砂金壁纸高清无水印（第一弹）', desc: '高清壁纸收藏集第一弹', tag: '壁纸', image: '', date: '2024.05.04', link: 'https://www.miyoushe.com/sr/article/52420580', clickAction: 'link' },
-      { title: '砂金壁纸高清无水印（第二弹）', desc: '高清壁纸收藏集第二弹', tag: '壁纸', image: '', date: '2024.05.25', clickAction: 'none' },
+      { title: '砂金官方立绘（横版）', desc: '崩坏：星穹铁道官方立绘，横版全身', tag: '立绘', image: '', date: '2024.02.28', link: 'https://www.miyoushe.com/sr/article/50218448', clickAction: 'link', detailDesc: '这是崩坏：星穹铁道官方发布的砂金横版全身立绘。砂金身着标志性的金色与黑色礼服，手持硬币道具，展现了角色从容不迫的赌徒气质。该立绘于2024年2月28日首次公开，是砂金角色的正式亮相形象。点击"查看原图"可跳转至米游社官方文章查看高清大图。' },
+      { title: '砂金官方立绘（竖版）', desc: '崩坏：星穹铁道官方立绘，竖版全身', tag: '立绘', image: '', date: '2024.02.28', clickAction: 'none', detailDesc: '砂金竖版官方立绘，与横版同日发布。竖版构图更突出角色的身高与气场，适合作为手机壁纸使用。砂金的精致服饰细节在这张立绘中得以充分展现——从胸前的领巾到腰间的装饰链，每一处都体现了米哈游的美术功底。' },
+      { title: '砂金透明底立绘', desc: '官方透明背景立绘', tag: '立绘', image: '', date: '2024.03.01', clickAction: 'none', detailDesc: '砂金透明背景立绘，去除了游戏内背景，仅保留角色本体。透明底素材非常适合用于二创、表情包制作、周边设计等场景。该版本于2024年3月1日放出，方便同人创作者使用。' },
+      { title: '2.1版本PV「狂热奔向深渊」', desc: '砂金角色PV「金手指」，官方完整版', tag: 'PV', image: '', date: '2024.03.15', link: 'https://www.bilibili.com/video/BV12x421m7K9', clickAction: 'video', detailDesc: '砂金正式亮相的2.1版本PV「狂热奔向深渊」。影片中砂金以压倒性的存在感登场，展示了其操纵概率、运筹帷幄的核心魅力。PV配乐极具张力，镜头语言充满戏剧性，完美诠释了砂金"赌上一切"的角色主题。点击播放按钮跳转B站观看完整版。' },
+      { title: '砂金官图自存（第一弹）', desc: '官方宣传图集合', tag: '宣传图', image: '', date: '2024.03.09', link: 'https://www.miyoushe.com/sr/article/50129960', clickAction: 'link', detailDesc: '官方发布的第一弹砂金宣传图合集包含多张不同场景、不同表情的砂金图片：战斗姿态、休闲日常、Q版表情包等。这些图片广泛用于粉丝社群传播和应援物料制作。点击链接查看米游社完整图集。' },
+      { title: '砂金官图自存（第二弹）', desc: '更多官方宣传图', tag: '宣传图', image: '', date: '2024.03.12', link: 'https://www.miyoushe.com/sr/article/50218448', clickAction: 'link', detailDesc: '官方第二弹砂金宣传图合集在第一弹基础上补充了更多素材，包括砂金与匹诺康尼场景的互动图、角色细节特写等。适合作为深入了解角色视觉设计的参考。' },
+      { title: '214情人节特别电影宣传图', desc: '情人节特别活动宣传', tag: '宣传图', image: '', date: '2024.02.14', clickAction: 'none', detailDesc: '2024年情人节特别发布的砂金宣传图，这也是砂金角色的首次公开曝光。图中砂金手捧玫瑰，背景是浪漫的金色粒子效果，以"赌上我的心"为主题，引发了玩家社区的广泛讨论和期待。' },
+      { title: '砂金anan杂志封面', desc: '日本anan杂志封面，砂金主题', tag: '杂志', image: '', date: '2024.03.20', clickAction: 'none', detailDesc: '砂金登上日本知名杂志anan封面，彰显了角色在海外市场的影响力。杂志封面采用砂金的标志性金色调，搭配时尚感的版式设计，将游戏角色与时尚杂志美学完美融合。' },
+      { title: '英推嘉年华宣图', desc: '英国Twitter嘉年华活动宣传图', tag: '宣传图', image: '', date: '2024.04.01', clickAction: 'none', detailDesc: '崩坏星穹铁道英国Twitter官方账号发布的嘉年华活动宣传图，砂金作为核心角色亮相。该宣传图面向海外粉丝群体，设计风格融合了英伦元素与原有的角色美学。' },
+      { title: '砂金壁纸高清无水印（第一弹）', desc: '高清壁纸收藏集第一弹', tag: '壁纸', image: '', date: '2024.05.04', link: 'https://www.miyoushe.com/sr/article/52420580', clickAction: 'link', detailDesc: '官方整理的高清无水印砂金壁纸合集第一弹，包含多种分辨率适配不同设备（手机、平板、桌面）。壁纸以砂金的经典造型为基础，配以匹诺康尼的金色背景，展现角色高贵优雅的气质。' },
+      { title: '砂金壁纸高清无水印（第二弹）', desc: '高清壁纸收藏集第二弹', tag: '壁纸', image: '', date: '2024.05.25', clickAction: 'none', detailDesc: '高清壁纸合集第二弹，在第一弹基础上增加了更多场景和构图。包含砂金的战斗场景截图、角色界面立绘的高清版本等。' },
     ],
     offline: [
-      { title: '茶百道联动联名吊牌', desc: '崩铁X茶百道联动，可固定联名吊牌', tag: '联动', image: '', date: '2024.04.26', clickAction: 'none' },
-      { title: '立绘系列亚克力立牌', desc: '官方立绘亚克力立牌', tag: '周边', image: '', date: '2024.09.01', clickAction: 'none' },
-      { title: '主题印象系列 - 条纹衬衫', desc: '砂金主题印象系列，蓝绿/米黄两款', tag: '周边', image: '', date: '2025.03.20', clickAction: 'none' },
-      { title: '主题印象系列 - 胸针', desc: '砂金主题印象系列胸针', tag: '周边', image: '', date: '2025.03.20', clickAction: 'none' },
-      { title: '主题印象系列 - 戒指套装', desc: '砂金主题印象系列戒指', tag: '周边', image: '', date: '2025.03.20', clickAction: 'none' },
-      { title: '主题印象系列 - 手表', desc: '砂金主题印象系列手表，399元', tag: '周边', image: '', date: '2025.03.20', clickAction: 'none' },
-      { title: '叽米的会客室 - 迷你马口铁徽章', desc: '砂金迷你马口铁徽章', tag: '周边', image: '', date: '2024.06.01', clickAction: 'none' },
-      { title: '叽米的会客室 - 毛绒玩偶挂件', desc: '砂金毛绒玩偶挂件/摆件/公仔', tag: '周边', image: '', date: '2024.06.01', clickAction: 'none' },
-      { title: '无名客的奖章 - 亚克力印章摆件', desc: '砂金亚克力印章摆件', tag: '周边', image: '', date: '2024.07.01', clickAction: 'none' },
-      { title: 'GSC砂金粘土人手办', desc: '良笑社砂金粘土人手办', tag: '手办', image: '', date: '2025.03.15', clickAction: 'none' },
-      { title: '崩铁X中信联动借记卡（砂金卡面）', desc: '中信银行崩铁联动借记卡，砂金卡面', tag: '联动', image: '', date: '2024.09.01', clickAction: 'none' },
-      { title: '指尖键帽系列第二弹（砂金）', desc: '砂金Q萌个性键帽公仔', tag: '周边', image: '', date: '2025.06.09', clickAction: 'none' },
+      { title: '茶百道联动联名吊牌', desc: '崩铁X茶百道联动，可固定联名吊牌', tag: '联动', image: '', date: '2024.04.26', clickAction: 'none', detailDesc: '崩坏：星穹铁道与茶百道联名活动的限定吊牌。砂金款吊牌采用金色为主色调，印有角色立绘和联名logo。吊牌可固定在包袋或钥匙扣上，是粉丝收藏的热门周边。活动期间在全国茶百道门店消费指定套餐即可获得。' },
+      { title: '立绘系列亚克力立牌', desc: '官方立绘亚克力立牌', tag: '周边', image: '', date: '2024.09.01', clickAction: 'none', detailDesc: '以砂金官方立绘为主题的亚克力立牌。采用高清UV印刷工艺，色彩还原度高，立牌尺寸约15cm高。附带底座，可摆放在桌面、书架或展示柜中，是砂金推的必备桌面周边。' },
+      { title: '主题印象系列 - 条纹衬衫', desc: '砂金主题印象系列，蓝绿/米黄两款', tag: '周边', image: '', date: '2025.03.20', clickAction: 'none', detailDesc: '米哈游"主题印象"系列服饰周边，以砂金的配色方案为设计灵感。衬衫提供蓝绿色和米黄色两种选择，袖口和领口内侧印有砂金的代表符号。材质为棉涤混纺，日常穿着舒适。' },
+      { title: '主题印象系列 - 胸针', desc: '砂金主题印象系列胸针', tag: '周边', image: '', date: '2025.03.20', clickAction: 'none', detailDesc: '砂金主题印象系列胸针，采用金色电镀工艺，造型取自砂金服饰中的经典元素。胸针尺寸精致，可别在衣领、背包或帽子等位置，低调展现对角色的喜爱。' },
+      { title: '主题印象系列 - 戒指套装', desc: '砂金主题印象系列戒指', tag: '周边', image: '', date: '2025.03.20', clickAction: 'none', detailDesc: '砂金主题印象系列戒指套装，包含多款设计，灵感来源于砂金在游戏中佩戴的戒指和手部装饰。采用合金材质，部分款式镶嵌人造宝石。适合日常佩戴或收藏展示。' },
+      { title: '主题印象系列 - 手表', desc: '砂金主题印象系列手表，399元', tag: '周边', image: '', date: '2025.03.20', clickAction: 'none', detailDesc: '主题印象系列中最具代表性的单品——砂金主题手表，售价399元。表盘设计融入了砂金的视觉元素，表带印有角色logo。石英机芯，日常防水，兼具实用性与收藏价值。' },
+      { title: '叽米的会客室 - 迷你马口铁徽章', desc: '砂金迷你马口铁徽章', tag: '周边', image: '', date: '2024.06.01', clickAction: 'none', detailDesc: '"叽米的会客室"系列周边中的砂金款迷你马口铁徽章。直径约5cm，采用马口铁材质，表面覆有保护膜。图案为砂金的Q版造型，可爱又精致，可以别在背包、痛包或itabag上展示。' },
+      { title: '叽米的会客室 - 毛绒玩偶挂件', desc: '砂金毛绒玩偶挂件/摆件/公仔', tag: '周边', image: '', date: '2024.06.01', clickAction: 'none', detailDesc: '砂金Q版毛绒玩偶挂件，约12cm高。采用柔软的短毛绒面料，填充饱满，手感极佳。头顶有挂绳设计，可挂在包上作为挂件，也可以作为桌面摆件。砂金的标志性金色头发和服饰细节都做了还原。' },
+      { title: '无名客的奖章 - 亚克力印章摆件', desc: '砂金亚克力印章摆件', tag: '周边', image: '', date: '2024.07.01', clickAction: 'none', detailDesc: '"无名客的奖章"系列砂金款亚克力印章摆件。透明亚克力材质，底座内置印章功能，可以印出砂金的代表图案。摆件整体设计精美，兼具装饰性和实用性。' },
+      { title: 'GSC砂金粘土人手办', desc: '良笑社砂金粘土人手办', tag: '手办', image: '', date: '2025.03.15', clickAction: 'none', detailDesc: '由Good Smile Company（良笑社）出品的砂金粘土人手办（Nendoroid）。约10cm高，附带多种表情零件和手部配件，可自由更换摆出不同的姿势。包含砂金的硬币道具和专属底座。粘土人系列以Q版造型和可动性著称，是手办收藏的热门系列。' },
+      { title: '崩铁X中信联动借记卡（砂金卡面）', desc: '中信银行崩铁联动借记卡，砂金卡面', tag: '联动', image: '', date: '2024.09.01', clickAction: 'none', detailDesc: '中信银行与崩坏：星穹铁道联名推出的借记卡，提供砂金专属卡面可选。卡面以金色为主色调，印有砂金立绘。持卡可享受中信银行的基础金融服务，是砂金粉丝的身份象征。' },
+      { title: '指尖键帽系列第二弹（砂金）', desc: '砂金Q萌个性键帽公仔', tag: '周边', image: '', date: '2025.06.09', clickAction: 'none', detailDesc: '"指尖键帽"系列第二弹的砂金款键帽公仔。Q版砂金造型搭配机械键盘键帽底座，可以安装在Cherry MX轴体的机械键盘上。既是实用的键帽替换件，也是桌面的可爱装饰。' },
     ],
   },
   collaboration: {

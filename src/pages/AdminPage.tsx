@@ -124,13 +124,26 @@ function MaterialsEditor({ content, onUpdate }: { content: typeof defaultContent
     <div>
       <h3 style={{ color: '#d4b878', fontSize: '14px', marginBottom: '12px' }}>官方原画</h3>
       <ArrayEditor title="官方物料" items={content.official} onChange={v => onUpdate('materials.official', v)}
-        fields={[{ key: 'title', label: '标题' }, { key: 'desc', label: '描述' }, { key: 'image', label: '图片', type: 'image' }, { key: 'date', label: '日期' }, { key: 'link', label: '链接' }]}
-        onAdd={() => onUpdate('materials.official', [...content.official, { title: '', desc: '', tag: '', image: '', date: '', link: '', clickAction: 'none' }])}
+        fields={[
+          { key: 'title', label: '标题' },
+          { key: 'desc', label: '卡片描述' },
+          { key: 'detailDesc', label: '详情页描述（支持长文本）', multiline: true },
+          { key: 'image', label: '图片', type: 'image' },
+          { key: 'date', label: '日期' },
+          { key: 'link', label: '外部链接' },
+        ]}
+        onAdd={() => onUpdate('materials.official', [...content.official, { title: '', desc: '', detailDesc: '', tag: '', image: '', date: '', link: '', clickAction: 'none' }])}
       />
       <h3 style={{ color: '#d4b878', fontSize: '14px', marginTop: '24px', marginBottom: '12px' }}>线下物料</h3>
       <ArrayEditor title="线下物料" items={content.offline} onChange={v => onUpdate('materials.offline', v)}
-        fields={[{ key: 'title', label: '标题' }, { key: 'desc', label: '描述' }, { key: 'image', label: '图片', type: 'image' }, { key: 'date', label: '日期' }]}
-        onAdd={() => onUpdate('materials.offline', [...content.offline, { title: '', desc: '', tag: '', image: '', date: '' }])}
+        fields={[
+          { key: 'title', label: '标题' },
+          { key: 'desc', label: '卡片描述' },
+          { key: 'detailDesc', label: '详情页描述（支持长文本）', multiline: true },
+          { key: 'image', label: '图片', type: 'image' },
+          { key: 'date', label: '日期' },
+        ]}
+        onAdd={() => onUpdate('materials.offline', [...content.offline, { title: '', desc: '', detailDesc: '', tag: '', image: '', date: '' }])}
       />
     </div>
   )
