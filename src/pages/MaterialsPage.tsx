@@ -96,6 +96,7 @@ function DetailPage({ item, onClose, allItems, onSwitchItem }: { item: MaterialI
 function MaterialsCalendar({ events }: { events: CalendarEvent[] }) {
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth())
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear())
+  const [hoveredDay, setHoveredDay] = useState<number | null>(null)
 
   const months = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
   const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate()
@@ -107,62 +108,148 @@ function MaterialsCalendar({ events }: { events: CalendarEvent[] }) {
     return events.filter(e => e.date === `${monthStr}-${dayStr}`)
   }
 
+  const monthEvents = events.filter(e => e.date.startsWith(String(currentMonth+1).padStart(2,'0')))
+
   return (
     <div style={{
-      background: 'linear-gradient(135deg, rgba(255,200,220,0.08), rgba(232,152,184,0.05))',
-      border: '1px solid rgba(232,152,184,0.2)', borderRadius: '20px',
-      padding: '24px', maxWidth: '600px', margin: '0 auto',
+      background: 'linear-gradient(135deg, rgba(255,210,230,0.1), rgba(232,152,184,0.06), rgba(255,180,200,0.04))',
+      border: '2px solid rgba(232,152,184,0.25)',
+      borderRadius: '24px',
+      padding: '28px', maxWidth: '620px', margin: '0 auto',
+      boxShadow: '0 8px 32px rgba(232,152,184,0.08)',
+      position: 'relative', overflow: 'hidden',
     }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+      {/* Decorative corner */}
+      <div style={{ position: 'absolute', top: '-30px', right: '-20px', fontSize: '80px', opacity: 0.04, pointerEvents: 'none' }}>🌸</div>
+      <div style={{ position: 'absolute', bottom: '-20px', left: '-20px', fontSize: '60px', opacity: 0.03, pointerEvents: 'none' }}>🎀</div>
+
+      {/* Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <button onClick={() => { if (currentMonth === 0) { setCurrentMonth(11); setCurrentYear(y => y-1) } else setCurrentMonth(m => m-1) }}
-          style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(232,152,184,0.2)', borderRadius: '8px', padding: '6px 14px', color: '#e898b8', cursor: 'pointer', fontFamily: 'inherit', fontSize: '14px' }}>◀</button>
-        <h3 style={{ color: '#e898b8', fontSize: '18px', fontWeight: 700, margin: 0 }}>🌸 {currentYear}年{months[currentMonth]}</h3>
+          style={{ background: 'rgba(232,152,184,0.1)', border: '1px solid rgba(232,152,184,0.25)', borderRadius: '10px', padding: '8px 16px', color: '#e898b8', cursor: 'pointer', fontFamily: 'inherit', fontSize: '14px', transition: 'all 0.2s' }}
+          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(232,152,184,0.2)'; e.currentTarget.style.transform = 'scale(1.05)' }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(232,152,184,0.1)'; e.currentTarget.style.transform = 'scale(1)' }}
+        >◀</button>
+        <div style={{ textAlign: 'center' }}>
+          <h3 style={{ color: '#e898b8', fontSize: '20px', fontWeight: 700, margin: 0, textShadow: '0 0 12px rgba(232,152,184,0.3)' }}>
+            🌸 {currentYear}年{months[currentMonth]}
+          </h3>
+          <div style={{ color: 'rgba(232,152,184,0.4)', fontSize: '11px', marginTop: '4px' }}>
+            {monthEvents.length > 0 ? `🌸 ${monthEvents.length} 个事件` : '✨ 美好的月份'}
+          </div>
+        </div>
         <button onClick={() => { if (currentMonth === 11) { setCurrentMonth(0); setCurrentYear(y => y+1) } else setCurrentMonth(m => m+1) }}
-          style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(232,152,184,0.2)', borderRadius: '8px', padding: '6px 14px', color: '#e898b8', cursor: 'pointer', fontFamily: 'inherit', fontSize: '14px' }}>▶</button>
+          style={{ background: 'rgba(232,152,184,0.1)', border: '1px solid rgba(232,152,184,0.25)', borderRadius: '10px', padding: '8px 16px', color: '#e898b8', cursor: 'pointer', fontFamily: 'inherit', fontSize: '14px', transition: 'all 0.2s' }}
+          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(232,152,184,0.2)'; e.currentTarget.style.transform = 'scale(1.05)' }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(232,152,184,0.1)'; e.currentTarget.style.transform = 'scale(1)' }}
+        >▶</button>
       </div>
 
       {/* Day headers */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px', marginBottom: '8px' }}>
-        {['日', '一', '二', '三', '四', '五', '六'].map(d => (
-          <div key={d} style={{ textAlign: 'center', color: 'rgba(232,152,184,0.5)', fontSize: '11px', fontWeight: 600, padding: '4px 0' }}>{d}</div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '6px', marginBottom: '8px' }}>
+        {['日', '一', '二', '三', '四', '五', '六'].map((d, i) => (
+          <div key={d} style={{
+            textAlign: 'center', color: i === 0 || i === 6 ? 'rgba(232,152,184,0.4)' : 'rgba(232,152,184,0.3)',
+            fontSize: '11px', fontWeight: 600, padding: '4px 0',
+          }}>{d}</div>
         ))}
       </div>
 
       {/* Calendar grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '5px' }}>
         {Array.from({ length: firstDay }).map((_, i) => <div key={'e'+i} />)}
         {Array.from({ length: daysInMonth }).map((_, i) => {
           const day = i + 1
           const dayEvents = getEventsForDay(day)
           const sticker = dayEvents.length > 0 ? dayEvents[0].sticker : null
+          const isHovered = hoveredDay === day
+          const isSpecial = dayEvents.length > 0
+          // Special dates get extra styling
+          const isMay5 = currentMonth === 4 && day === 5
+          const isApr17 = currentMonth === 3 && day === 17
+          const isSuperSpecial = isMay5 || isApr17
+
           return (
-            <div key={day} style={{
-              textAlign: 'center', padding: '6px 2px', borderRadius: '8px',
-              background: dayEvents.length > 0 ? 'rgba(232,152,184,0.1)' : 'transparent',
-              border: dayEvents.length > 0 ? '1px solid rgba(232,152,184,0.2)' : '1px solid transparent',
-              cursor: dayEvents.length > 0 ? 'pointer' : 'default',
-              position: 'relative',
-            }} title={dayEvents.map(e => e.title + ': ' + e.desc).join('\n')}>
-              <div style={{ color: dayEvents.length > 0 ? '#e898b8' : 'rgba(248,246,240,0.5)', fontSize: '12px', fontWeight: dayEvents.length > 0 ? 700 : 400 }}>
+            <div key={day}
+              onMouseEnter={() => dayEvents.length > 0 && setHoveredDay(day)}
+              onMouseLeave={() => setHoveredDay(null)}
+              style={{
+                textAlign: 'center', padding: '8px 2px', borderRadius: '12px',
+                background: isSuperSpecial
+                  ? 'linear-gradient(135deg, rgba(255,180,200,0.2), rgba(232,152,184,0.15))'
+                  : isSpecial
+                  ? 'rgba(232,152,184,0.1)'
+                  : 'transparent',
+                border: isSuperSpecial
+                  ? '2px solid rgba(232,152,184,0.4)'
+                  : isSpecial
+                  ? '1px solid rgba(232,152,184,0.2)'
+                  : '1px solid transparent',
+                cursor: isSpecial ? 'pointer' : 'default',
+                position: 'relative' as const,
+                transform: isHovered ? 'scale(1.15)' : 'scale(1)',
+                transition: 'all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                zIndex: isHovered ? 5 : 1,
+                boxShadow: isHovered ? '0 4px 16px rgba(232,152,184,0.2)' : 'none',
+              }}
+              title={dayEvents.map(e => e.title + ': ' + e.desc).join('\n')}
+            >
+              <div style={{
+                color: isSuperSpecial ? '#e87090' : isSpecial ? '#e898b8' : 'rgba(248,246,240,0.35)',
+                fontSize: '13px', fontWeight: isSpecial ? 700 : 400,
+              }}>
                 {day}
               </div>
-              {sticker && <div style={{ fontSize: '14px', marginTop: '2px' }}>{sticker}</div>}
+              {sticker && (
+                <div style={{
+                  fontSize: isHovered ? '20px' : '16px',
+                  marginTop: '2px',
+                  transition: 'all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                  animation: isSpecial ? 'bounce-cal 2s ease-in-out infinite' : 'none',
+                }}>
+                  {sticker}
+                </div>
+              )}
+              {isHovered && dayEvents.length > 1 && (
+                <div style={{ fontSize: '10px', color: 'rgba(232,152,184,0.6)', marginTop: '2px' }}>
+                  +{dayEvents.length - 1}
+                </div>
+              )}
             </div>
           )
         })}
       </div>
 
       {/* Event list */}
-      <div style={{ marginTop: '16px', borderTop: '1px solid rgba(232,152,184,0.1)', paddingTop: '12px' }}>
-        {events.filter(e => e.date.startsWith(String(currentMonth+1).padStart(2,'0'))).slice(0, 5).map(e => (
-          <div key={e.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 0', fontSize: '12px' }}>
-            <span style={{ fontSize: '16px' }}>{e.sticker}</span>
-            <span style={{ color: 'rgba(248,246,240,0.5)', fontFamily: 'monospace' }}>{e.date}</span>
-            <span style={{ color: '#e898b8', fontWeight: 600 }}>{e.title}</span>
-            <span style={{ color: 'rgba(248,246,240,0.4)', fontSize: '11px' }}>{e.desc}</span>
-          </div>
-        ))}
-      </div>
+      {monthEvents.length > 0 && (
+        <div style={{
+          marginTop: '20px', borderTop: '2px dashed rgba(232,152,184,0.15)',
+          paddingTop: '14px', maxHeight: '160px', overflowY: 'auto',
+        }}>
+          {monthEvents.map(e => (
+            <div key={e.id} style={{
+              display: 'flex', alignItems: 'center', gap: '10px',
+              padding: '6px 10px', borderRadius: '10px',
+              background: 'rgba(232,152,184,0.04)',
+              marginBottom: '4px',
+              transition: 'all 0.2s',
+              cursor: 'default',
+            }}
+            onMouseEnter={el => { el.currentTarget.style.background = 'rgba(232,152,184,0.1)' }}
+            onMouseLeave={el => { el.currentTarget.style.background = 'rgba(232,152,184,0.04)' }}
+            >
+              <span style={{ fontSize: '22px', flexShrink: 0 }}>{e.sticker || '🌸'}</span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ color: '#e898b8', fontWeight: 600, fontSize: '13px' }}>{e.title}</div>
+                <div style={{ color: 'rgba(248,246,240,0.35)', fontSize: '11px', marginTop: '1px' }}>{e.desc}</div>
+              </div>
+              <span style={{ color: 'rgba(232,152,184,0.4)', fontFamily: 'monospace', fontSize: '11px', flexShrink: 0 }}>
+                {e.date}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

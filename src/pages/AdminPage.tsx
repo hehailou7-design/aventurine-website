@@ -24,6 +24,7 @@ type PageSection =
   | 'supportRecord' | 'theme'
   | 'siteConfig'
   | 'pageBuilder'
+  | 'calendar' | 'sashaSay' | 'materialTable' | 'countdown'
 
 // —— 通用组件 ———
 export function FormGroup({ label, children }: { label: string; children: React.ReactNode }) {
@@ -230,6 +231,310 @@ function SiteConfigEditor({ content, onUpdate }: { content: any; onUpdate: (path
   )
 }
 
+// —— 砂金日历编辑器 ———
+function CalendarEditor({ content, onUpdate }: { content: any; onUpdate: (path: string, v: any) => void }) {
+  const events: any[] = content.calendar?.events || []
+  const ANIMAL_STICKERS = ['🐱', '🐰', '🐼', '🐨', '🦊', '🐸', '🐻', '🐶', '🐭', '🐹', '🐯', '🦁', '🐮', '🐷', '🐵', '🐔', '🐧', '🐦', '🐤', '🦄', '🐝', '🐞', '🦋', '🐌', '🐙', '🦀', '🐠', '🐳', '🦕', '🌟', '💫', '✨', '🎀', '💎', '🍀', '🌸', '🌺', '🌻', '🍓', '🍰']
+  return (
+    <div>
+      <p style={{ color: 'rgba(248,246,240,0.4)', fontSize: '12px', marginBottom: '16px', lineHeight: '1.6' }}>
+        编辑砂金日历上的事件。选择可爱的动物贴纸来标记特别的日子。<br/>
+        <span style={{ color: '#e898b8' }}>提示：</span>日期格式为 MM-DD（如 05-05 表示5月5日）。
+      </p>
+      <h3 style={{ color: '#e898b8', fontSize: '14px', marginBottom: '12px', marginTop: '24px' }}>
+        📅 日历事件（{events.length} 个）
+      </h3>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        {events.map((event: any, idx: number) => (
+          <div key={event.id || idx} style={{
+            background: 'rgba(232,152,184,0.05)', border: '1px solid rgba(232,152,184,0.15)',
+            borderRadius: '12px', padding: '14px',
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+              <span style={{ color: '#e898b8', fontSize: '13px', fontWeight: 600 }}>
+                {event.sticker || '📅'} {event.title || '未命名事件'}
+              </span>
+              <button onClick={() => {
+                const next = events.filter((_, i) => i !== idx)
+                onUpdate('calendar.events', next)
+              }} style={{ background: 'rgba(224,96,96,0.15)', border: '1px solid rgba(224,96,96,0.3)', borderRadius: '6px', color: '#e06060', fontSize: '11px', padding: '2px 8px', cursor: 'pointer' }}>
+                ✕ 删除
+              </button>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+              <FormGroup label="日期 (MM-DD)">
+                <TextInput value={event.date || ''} onChange={v => {
+                  const next = [...events]; next[idx] = { ...next[idx], date: v }; onUpdate('calendar.events', next)
+                }} />
+              </FormGroup>
+              <FormGroup label="贴纸">
+                <select value={event.sticker || ''} onChange={e => {
+                  const next = [...events]; next[idx] = { ...next[idx], sticker: e.target.value }; onUpdate('calendar.events', next)
+                }} style={{ width: '100%', background: '#121212', border: '1px solid rgba(232,152,184,0.3)', borderRadius: '6px', padding: '6px 8px', color: '#f2e8d0', fontSize: '16px', cursor: 'pointer' }}>
+                  <option value="">无贴纸</option>
+                  {ANIMAL_STICKERS.map(s => <option key={s} value={s}>{s}</option>)}
+                </select>
+              </FormGroup>
+              <FormGroup label="标题">
+                <TextInput value={event.title || ''} onChange={v => {
+                  const next = [...events]; next[idx] = { ...next[idx], title: v }; onUpdate('calendar.events', next)
+                }} />
+              </FormGroup>
+              <FormGroup label="描述">
+                <TextInput value={event.desc || ''} onChange={v => {
+                  const next = [...events]; next[idx] = { ...next[idx], desc: v }; onUpdate('calendar.events', next)
+                }} />
+              </FormGroup>
+            </div>
+          </div>
+        ))}
+      </div>
+      <button onClick={() => {
+        const next = [...events, { id: 'e' + Date.now(), date: '', title: '', desc: '', sticker: '🐱' }]
+        onUpdate('calendar.events', next)
+      }} style={{
+        marginTop: '12px', width: '100%',
+        background: 'rgba(232,152,184,0.1)', border: '1px dashed rgba(232,152,184,0.3)',
+        borderRadius: '8px', padding: '10px', color: '#e898b8', fontSize: '13px', cursor: 'pointer', fontWeight: 600,
+      }}>
+        + 添加事件
+      </button>
+    </div>
+  )
+}
+
+// —— 砂砂想说编辑器 ———
+function SashaSayEditor({ content, onUpdate }: { content: any; onUpdate: (path: string, v: any) => void }) {
+  const sashaSay = content.sashaSay || { knowledge: [], gachaQuotes: [], pageTitle: '砂砂想说', subtitle: '', gachaTitle: '扭蛋预言' }
+  return (
+    <div>
+      <p style={{ color: 'rgba(248,246,240,0.4)', fontSize: '12px', marginBottom: '16px', lineHeight: '1.6' }}>
+        编辑砂砂想说板块：冷知识和扭蛋预言。<br/>
+        <span style={{ color: '#d4b878' }}>提示：</span>冷知识以云词形式展现，预言稀有度影响扭出概率。
+      </p>
+      <FormGroup label="页面标题">
+        <TextInput value={sashaSay.pageTitle || ''} onChange={v => onUpdate('sashaSay.pageTitle', v)} />
+      </FormGroup>
+      <FormGroup label="副标题">
+        <TextInput value={sashaSay.subtitle || ''} onChange={v => onUpdate('sashaSay.subtitle', v)} />
+      </FormGroup>
+
+      {/* 冷知识 */}
+      <h3 style={{ color: '#d4b878', fontSize: '14px', marginTop: '24px', marginBottom: '12px' }}>
+        🧊 冷知识（{sashaSay.knowledge?.length || 0} 条）
+      </h3>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        {(sashaSay.knowledge || []).map((item: any, idx: number) => (
+          <div key={idx} style={{
+            background: 'rgba(136,200,216,0.05)', border: '1px solid rgba(136,200,216,0.15)',
+            borderRadius: '8px', padding: '10px',
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+              <span style={{ color: '#88c8d8', fontSize: '12px', fontWeight: 600 }}>#{idx + 1}</span>
+              <button onClick={() => {
+                const next = [...sashaSay.knowledge]; next.splice(idx, 1); onUpdate('sashaSay.knowledge', next)
+              }} style={{ background: 'rgba(224,96,96,0.1)', border: 'none', borderRadius: '4px', color: '#e06060', fontSize: '11px', cursor: 'pointer', padding: '2px 6px' }}>✕</button>
+            </div>
+            <FormGroup label="内容">
+              <TextInput multiline value={item.text || ''} onChange={v => {
+                const next = [...sashaSay.knowledge]; next[idx] = { ...next[idx], text: v }; onUpdate('sashaSay.knowledge', next)
+              }} />
+            </FormGroup>
+            <FormGroup label="来源（选填）">
+              <TextInput value={item.source || ''} onChange={v => {
+                const next = [...sashaSay.knowledge]; next[idx] = { ...next[idx], source: v }; onUpdate('sashaSay.knowledge', next)
+              }} />
+            </FormGroup>
+          </div>
+        ))}
+      </div>
+      <button onClick={() => {
+        const next = [...(sashaSay.knowledge || []), { text: '', source: '' }]
+        onUpdate('sashaSay.knowledge', next)
+      }} style={{
+        marginTop: '8px', width: '100%',
+        background: 'rgba(136,200,216,0.1)', border: '1px dashed rgba(136,200,216,0.3)',
+        borderRadius: '8px', padding: '10px', color: '#88c8d8', fontSize: '13px', cursor: 'pointer', fontWeight: 600,
+      }}>
+        + 添加冷知识
+      </button>
+
+      {/* 扭蛋预言 */}
+      <h3 style={{ color: '#d4b878', fontSize: '14px', marginTop: '24px', marginBottom: '12px' }}>
+        🎰 扭蛋预言（{sashaSay.gachaQuotes?.length || 0} 条）
+      </h3>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        {(sashaSay.gachaQuotes || []).map((q: any, idx: number) => (
+          <div key={q.id || idx} style={{
+            background: q.rarity === 'UR' ? 'rgba(212,184,120,0.08)' : q.rarity === 'SSR' ? 'rgba(212,168,232,0.08)' : 'rgba(136,200,216,0.05)',
+            border: `1px solid ${q.rarity === 'UR' ? 'rgba(212,184,120,0.2)' : q.rarity === 'SSR' ? 'rgba(212,168,232,0.2)' : 'rgba(136,200,216,0.15)'}`,
+            borderRadius: '8px', padding: '10px',
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+              <span style={{
+                color: q.rarity === 'UR' ? '#d4b878' : q.rarity === 'SSR' ? '#d4a8e8' : '#88c8d8',
+                fontSize: '12px', fontWeight: 600,
+              }}>{q.rarity} · #{idx + 1}</span>
+              <button onClick={() => {
+                const next = [...sashaSay.gachaQuotes]; next.splice(idx, 1); onUpdate('sashaSay.gachaQuotes', next)
+              }} style={{ background: 'rgba(224,96,96,0.1)', border: 'none', borderRadius: '4px', color: '#e06060', fontSize: '11px', cursor: 'pointer', padding: '2px 6px' }}>✕</button>
+            </div>
+            <FormGroup label="预言内容">
+              <TextInput multiline value={q.text || ''} onChange={v => {
+                const next = [...sashaSay.gachaQuotes]; next[idx] = { ...next[idx], text: v }; onUpdate('sashaSay.gachaQuotes', next)
+              }} />
+            </FormGroup>
+            <FormGroup label="稀有度">
+              <select value={q.rarity || 'SR'} onChange={e => {
+                const next = [...sashaSay.gachaQuotes]; next[idx] = { ...next[idx], rarity: e.target.value }; onUpdate('sashaSay.gachaQuotes', next)
+              }} style={{ width: '100%', background: '#121212', border: '1px solid rgba(212,184,120,0.3)', borderRadius: '6px', padding: '6px 8px', color: '#f2e8d0', fontSize: '13px', cursor: 'pointer' }}>
+                <option value="SR">SR — 普通（60%）</option>
+                <option value="SSR">SSR — 稀有（30%）</option>
+                <option value="UR">UR — 极品（10%）</option>
+              </select>
+            </FormGroup>
+          </div>
+        ))}
+      </div>
+      <button onClick={() => {
+        const next = [...(sashaSay.gachaQuotes || []), { id: 'q' + Date.now(), text: '', rarity: 'SR' }]
+        onUpdate('sashaSay.gachaQuotes', next)
+      }} style={{
+        marginTop: '8px', width: '100%',
+        background: 'rgba(212,184,120,0.1)', border: '1px dashed rgba(212,184,120,0.3)',
+        borderRadius: '8px', padding: '10px', color: '#d4b878', fontSize: '13px', cursor: 'pointer', fontWeight: 600,
+      }}>
+        + 添加预言
+      </button>
+    </div>
+  )
+}
+
+// —— 物料表格编辑器 ———
+function MaterialTableEditor({ content, onUpdate }: { content: any; onUpdate: (path: string, v: any) => void }) {
+  const mt = content.materialTable || { year2024: [], year2025: [], year2026: [] }
+  const years = [
+    { key: 'year2024', label: '2024 年', color: '#88c8d8' },
+    { key: 'year2025', label: '2025 年', color: '#d4b878' },
+    { key: 'year2026', label: '2026 年', color: '#e898b8' },
+  ]
+  return (
+    <div>
+      <p style={{ color: 'rgba(248,246,240,0.4)', fontSize: '12px', marginBottom: '16px', lineHeight: '1.6' }}>
+        编辑角色物料表格，按年份分组。表格显示：时间、标题、图片、链接。<br/>
+        <span style={{ color: '#d4b878' }}>提示：</span>修改后前端表格视图自动更新。
+      </p>
+      {years.map(year => {
+        const items = mt[year.key] || []
+        return (
+          <div key={year.key} style={{ marginBottom: '20px' }}>
+            <h3 style={{ color: year.color, fontSize: '14px', marginBottom: '10px', marginTop: '12px' }}>
+              📊 {year.label}（{items.length} 条）
+            </h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              {items.map((item: any, idx: number) => (
+                <div key={idx} style={{
+                  background: 'rgba(255,255,255,0.02)', border: `1px solid rgba(${year.color === '#88c8d8' ? '136,200,216' : year.color === '#d4b878' ? '212,184,120' : '232,152,184'},0.15)`,
+                  borderRadius: '8px', padding: '10px',
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                    <span style={{ color: year.color, fontSize: '12px', fontWeight: 600 }}>#{idx + 1}</span>
+                    <button onClick={() => {
+                      const next = [...items]; next.splice(idx, 1); onUpdate(`materialTable.${year.key}`, next)
+                    }} style={{ background: 'rgba(224,96,96,0.1)', border: 'none', borderRadius: '4px', color: '#e06060', fontSize: '11px', cursor: 'pointer', padding: '2px 6px' }}>✕</button>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
+                    <FormGroup label="日期">
+                      <TextInput value={item.date || ''} onChange={v => {
+                        const next = [...items]; next[idx] = { ...next[idx], date: v }; onUpdate(`materialTable.${year.key}`, next)
+                      }} />
+                    </FormGroup>
+                    <FormGroup label="标签">
+                      <TextInput value={item.tag || ''} onChange={v => {
+                        const next = [...items]; next[idx] = { ...next[idx], tag: v }; onUpdate(`materialTable.${year.key}`, next)
+                      }} />
+                    </FormGroup>
+                    <FormGroup label="标题">
+                      <TextInput value={item.title || ''} onChange={v => {
+                        const next = [...items]; next[idx] = { ...next[idx], title: v }; onUpdate(`materialTable.${year.key}`, next)
+                      }} />
+                    </FormGroup>
+                    <FormGroup label="链接">
+                      <TextInput value={item.link || ''} onChange={v => {
+                        const next = [...items]; next[idx] = { ...next[idx], link: v }; onUpdate(`materialTable.${year.key}`, next)
+                      }} />
+                    </FormGroup>
+                  </div>
+                  <FormGroup label="图片">
+                    <ImagePicker value={item.image || ''} onChange={v => {
+                      const next = [...items]; next[idx] = { ...next[idx], image: v }; onUpdate(`materialTable.${year.key}`, next)
+                    }} />
+                  </FormGroup>
+                </div>
+              ))}
+            </div>
+            <button onClick={() => {
+              const next = [...items, { date: '', title: '', image: '', link: '', tag: '' }]
+              onUpdate(`materialTable.${year.key}`, next)
+            }} style={{
+              marginTop: '6px', width: '100%',
+              background: `rgba(${year.color === '#88c8d8' ? '136,200,216' : year.color === '#d4b878' ? '212,184,120' : '232,152,184'},0.1)`,
+              border: `1px dashed rgba(${year.color === '#88c8d8' ? '136,200,216' : year.color === '#d4b878' ? '212,184,120' : '232,152,184'},0.3)`,
+              borderRadius: '8px', padding: '8px', color: year.color, fontSize: '12px', cursor: 'pointer', fontWeight: 600,
+            }}>
+              + 添加 {year.label} 物料
+            </button>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+// —— 倒计时编辑器 ———
+function CountdownEditor({ content, onUpdate }: { content: any; onUpdate: (path: string, v: any) => void }) {
+  const cd = content.countdown || { birthday: '05-05', debutDate: '04-17' }
+  return (
+    <div>
+      <p style={{ color: 'rgba(248,246,240,0.4)', fontSize: '12px', marginBottom: '16px', lineHeight: '1.6' }}>
+        编辑首页倒计时日期。修改后首页倒计时将自动使用新日期计算。<br/>
+        <span style={{ color: '#d4b878' }}>提示：</span>日期格式为 MM-DD。
+      </p>
+      <div style={{
+        background: 'rgba(212,184,120,0.05)', border: '1px solid rgba(212,184,120,0.15)',
+        borderRadius: '12px', padding: '20px',
+      }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+          <div>
+            <FormGroup label="🎂 生日 (MM-DD)">
+              <TextInput value={cd.birthday || ''} onChange={v => onUpdate('countdown.birthday', v)} />
+            </FormGroup>
+            <div style={{ color: 'rgba(232,152,184,0.6)', fontSize: '11px', marginTop: '4px' }}>
+              当前：{cd.birthday || '05-05'}（砂金生日 5月5日）
+            </div>
+          </div>
+          <div>
+            <FormGroup label="🚀 入池日 (MM-DD)">
+              <TextInput value={cd.debutDate || ''} onChange={v => onUpdate('countdown.debutDate', v)} />
+            </FormGroup>
+            <div style={{ color: 'rgba(136,200,216,0.6)', fontSize: '11px', marginTop: '4px' }}>
+              当前：{cd.debutDate || '04-17'}（砂金入池日 4月17日）
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style={{
+        marginTop: '16px',
+        background: 'rgba(100,180,120,0.08)', border: '1px solid rgba(100,180,120,0.15)',
+        borderRadius: '8px', padding: '12px', color: '#8cba6a', fontSize: '12px', lineHeight: '1.6',
+      }}>
+        ✅ 倒计时会自动计算距离下一个日期的天、时、分、秒。<br/>
+        📅 修改后首页的生日倒计时和入池日倒计时将同步更新。
+      </div>
+    </div>
+  )
+}
+
 // —— 主组件 ———
 export default function AdminPage({ onLogout }: { onLogout?: () => void }) {
   const { content, updateContent, resetContent, isDirty, publishContent, isPublishing, syncToSite, lastPublishResult } = useContent()
@@ -327,6 +632,11 @@ export default function AdminPage({ onLogout }: { onLogout?: () => void }) {
     { key: 'submitReview', label: '动态投稿审核', icon: '📰' },
     // 应援记录
     { key: 'supportRecord', label: '生贺应援', icon: '📼' },
+    // 更多内容
+    { key: 'materialTable', label: '物料表格', icon: '📊' },
+    { key: 'calendar', label: '砂金日历', icon: '📅' },
+    { key: 'sashaSay', label: '砂砂想说', icon: '💬' },
+    { key: 'countdown', label: '倒计时', icon: '⏳' },
     // 页面构建器
     { key: 'pageBuilder', label: '页面构建器', icon: '🎨' },
   ]
@@ -347,6 +657,10 @@ export default function AdminPage({ onLogout }: { onLogout?: () => void }) {
       case 'joinReview': return <JoinReview />
       case 'submitReview': return <SubmitReview />
       case 'supportRecord': return <SupportRecordEditor content={content.supportRecord} onUpdate={handleUpdate} />
+      case 'calendar': return <CalendarEditor content={content} onUpdate={handleUpdate} />
+      case 'sashaSay': return <SashaSayEditor content={content} onUpdate={handleUpdate} />
+      case 'materialTable': return <MaterialTableEditor content={content} onUpdate={handleUpdate} />
+      case 'countdown': return <CountdownEditor content={content} onUpdate={handleUpdate} />
       case 'pageBuilder': return (
         <PageBuilder
           pageId="custom-page"
