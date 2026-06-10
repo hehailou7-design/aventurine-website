@@ -8,6 +8,7 @@ import CollaborationPage from './pages/CollaborationPage'
 import ChroniclePage from './pages/ChroniclePage'
 import BlackMudPage from './pages/BlackMudPage'
 import SubmitPage from './pages/SubmitPage'
+import SashaSayPage from './pages/SashaSayPage'
 import BlessingsPage from './pages/BlessingsPage'
 import SupportRecordPage from './pages/SupportRecordPage'
 import FeedbackPage from './pages/FeedbackPage'
@@ -29,6 +30,7 @@ export type PageType =
   | 'blackmud'
   | 'submit'
   | 'supportRecord'
+  | 'sashaSay'
   | 'feedback'
   | 'sponsorship'
   | 'blessings'
@@ -125,6 +127,7 @@ function AppContent() {
         case 'blackmud': return <BlackMudPage />
         case 'submit': return <SubmitPage />
         case 'supportRecord': return <SupportRecordPage />
+        case 'sashaSay': return <SashaSayPage />
         case 'feedback': return <FeedbackPage />
         case 'sponsorship': return <SponsorshipPage />
         case 'blessings': return <BlessingsPage />

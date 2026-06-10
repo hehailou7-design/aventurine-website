@@ -127,6 +127,52 @@ export interface Blessing {
   likes: number;
 }
 
+export interface SupportScreen {
+  address: string;
+  deadline: string;
+  unlockCondition: string;
+  link: string;
+  city?: string;
+}
+
+export interface SupportMapMarker {
+  id: string;
+  city: string;
+  title: string;
+  lat: number;
+  lng: number;
+  desc: string;
+}
+
+export interface CalendarEvent {
+  id: string;
+  date: string; // MM-DD
+  title: string;
+  desc: string;
+  sticker: string; // emoji animal
+}
+
+export interface SandKnowledge {
+  id: string;
+  text: string;
+  source?: string;
+  submittedBy?: string;
+}
+
+export interface GachaQuote {
+  id: string;
+  text: string;
+  rarity: 'SR' | 'SSR' | 'UR';
+}
+
+export interface MaterialTableItem {
+  date: string; // YYYY-MM-DD or just MM-DD
+  title: string;
+  image: string;
+  link: string;
+  tag: string;
+}
+
 export interface FeedbackItem {
   id: string;
   nickname: string;
@@ -269,6 +315,7 @@ export type SiteContent = {
     pageTitle: string;
     warningText: string;
     requireVerify: boolean;
+    accountPassword: string;
   };
   submit: {
     newsTitle: string;
@@ -284,8 +331,32 @@ export type SiteContent = {
   supportRecord: {
     pageTitle: string;
     records: { date: string; title: string; location: string; city: string; lat: number; lng: number; desc: string; image: string; tag: string; howToJoin: string }[];
+    year2024Summary: string;
     year2025Summary: string;
     year2026Summary: string;
+    screens: SupportScreen[];
+    mapMarkers2024: SupportMapMarker[];
+    mapMarkers2025: SupportMapMarker[];
+    mapMarkers2026: SupportMapMarker[];
+  };
+  sashaSay: {
+    pageTitle: string;
+    subtitle: string;
+    knowledge: SandKnowledge[];
+    gachaQuotes: GachaQuote[];
+    gachaTitle: string;
+  };
+  calendar: {
+    events: CalendarEvent[];
+  };
+  countdown: {
+    birthday: string;
+    debutDate: string;
+  };
+  materialTable: {
+    year2024: MaterialTableItem[];
+    year2025: MaterialTableItem[];
+    year2026: MaterialTableItem[];
   };
   theme: {
     primaryColor: string;
@@ -314,6 +385,7 @@ const defaultContent: SiteContent = {
       { key: 'blackmud', icon: '◉', label: '黑泥区', desc: '理性吐槽·有话好说', color: '#888' },
       { key: 'submit', icon: '✉', label: '投稿区', desc: '最新动态·线下实拍·板块更新', color: '#b0a0d8' },
       { key: 'supportRecord', icon: '🎂', label: '生贺应援', desc: '线下应援·生贺记录', color: '#d4b878' },
+      { key: 'sashaSay', icon: '🗣️', label: '砂砂想说', desc: '冷知识·扭蛋预言', color: '#e898b8' },
       { key: 'blessings', icon: '♥', label: '祝福区', desc: '留下对砂金的祝福', color: '#d4b878' },
     ],
     updates: [
@@ -471,13 +543,42 @@ const defaultContent: SiteContent = {
     ],
     characterList: ['砂金', '开拓者（存护）', '开拓者（同谐）', '阿兰', '爱丝妲', '白露', '黑塔', '停云', '桂乃芬', '寒鸦', '景元', '卡芙卡', '流萤', '逻格斯', '罗刹', '阮·梅', '砂金', '银狼', '知更鸟', '黄泉'],
   },
-  blackMud: { pageTitle: '黑泥区 - 理性吐槽', warningText: '本区为理性讨论板块。禁止人身攻击、辱骂角色及制作组。如有严重违规行为，管理员将删除相关留言。', requireVerify: true },
+  blackMud: { pageTitle: '黑泥区 - 理性吐槽', warningText: '本区为理性讨论板块。禁止人身攻击、辱骂角色及制作组。如有严重违规行为，管理员将删除相关留言。', requireVerify: true, accountPassword: 'aventurine2024' },
   submit: { newsTitle: '最新动态投稿', photoTitle: '线下应援实拍投稿', updateTitle: '板块内容更新投稿', guidelines: '投稿须知：① 请确保内容真实有效 ② 审核通过后将展示于对应板块 ③ 恶意虚假信息将被拒稿 ④ 游客无需登录即可投稿 ⑤ 板块更新需注明修改理由' },
   blessings: { pageTitle: '祝福区 - 愿极光照亮你的旅途', subtitle: '写下你想对砂金说的话，每一条祝福都是一片极光', items: [] },
   supportRecord: {
     pageTitle: '眠于金色夏夜的过往 · 生贺应援',
+    year2024Summary: '✦ 砂金正式上线\n✦ 首日流水登顶全服\n✦ 茶百道联动\n✦ 中信银行联动借记卡\n✦ 叽米的会客室系列\n✦ 无名客的奖章系列\n\n砂金角色的第一年，从正式上线到成为崩铁人气角色，粉丝应援开始萌芽。',
     year2025Summary: `✦ 60城百屏\n✦ 240+棒超长产出接龙\n✦ 11城线下咖啡应援\n✦ 24城线下打卡活动\n✦ 5城生咖\n✦ 线下大型生日会\n✦ 线上生日会\n✦ 重庆痛楼\n✦ 星星命名\n✦ 多平台联动等更多活动\n\n携手200多位产出老师及多城线下共同庆祝砂金4.17入池一周年。与此同时等待着即将在5月5日立夏到来的卡卡瓦日。`,
     year2026Summary: `崩坏星穹铁道距今为止最大规模/最多城市数/最多活动数/最多屏数的民办单人应援企划，每项活动均为崩铁ip同人活动的最大规模。我们今年将在北上广深等114个城市展开线下活动并且投屏2w+的电子屏，更有灯光秀/喷泉秀/双城摩天轮/超跑应援/宇宙传讯发射/280+小时超长产出合绘/砂金二创电影节等庆生项目\n\n我们希望并期待着能在未来看到砂金的更多可能。\n\n●百城万屏单人大屏Live2d应援【100城20000+屏】\n●百城线下活动【114城】\n●30城咖啡应援【线下30城快闪+无料发放】\n●17城生咖【线下16城无料发放+线下聚会】\n●19城痛楼【线下19城痛楼+无料发放】\n●产出接龙270+小时持续30天\n●双城摩天轮应援\n●喷泉痛泉应援\n●超跑应援超前预告\n●宇宙深空传讯发射\n●砂金二创电影节\n●楼体灯光秀\n●武汉亲橙万象汇痛楼\n●烤匠麻辣烤鱼x砂金生贺组三城联动\n●集研会x砂金生贺组联动\n●次元汇x砂金生贺组联动\n●交易猫x砂金生贺组联动\n●交易猫x砂金同人主页防诈公益小短片\n●千岛特别联动\n●生贺头像+版头解锁\n更多内容敬请期待...\n\n主催/核管：二生\n主办：砂金右向同人主页/砂金生贺组/砂金同人主页\n策划：二生/幸陨/谢却荼蘼/停停/章鱼\n美工：我什么时候退休/阡陌momo/二生/奈川早月/这里已经没有正常人了\n免屏组：执花厨/二生/宝宝奴/鹊酒/花月/小喵砂/江柯/小春/all beauty/松鼠\n线上生日会主催：章鱼\n产出接龙主催：酒茨`,
+    screens: [
+      { address: '上海IFC商圈LED大屏', deadline: '2026-05-05', unlockCondition: '应援人数达500人', link: 'https://example.com/sh-ifc', city: '上海' },
+      { address: '北京三里屯太古里', deadline: '2026-05-05', unlockCondition: '应援人数达300人', link: 'https://example.com/bj-slt', city: '北京' },
+      { address: '广州天河城', deadline: '2026-05-05', unlockCondition: '应援人数达200人', link: 'https://example.com/gz-thc', city: '广州' },
+      { address: '成都IFS熊猫屏', deadline: '2026-05-05', unlockCondition: '应援人数达400人', link: 'https://example.com/cd-ifs', city: '成都' },
+      { address: '长沙IFS', deadline: '2026-05-05', unlockCondition: '应援人数达250人', link: 'https://example.com/cs-ifs', city: '长沙' },
+      { address: '双城摩天轮灯光秀', deadline: '2026-05-05', unlockCondition: '应援人数达1000人', link: 'https://example.com/ferris-wheel', city: '长沙/南昌' },
+    ],
+    mapMarkers2024: [
+      { id: 'm2024-1', city: '上海', title: '茶百道联名·上海站', lat: 31.2304, lng: 121.4737, desc: '崩铁X茶百道联名活动' },
+      { id: 'm2024-2', city: '广州', title: '叽米的会客室首发', lat: 23.1291, lng: 113.2644, desc: '砂金周边首次线下发售' },
+      { id: 'm2024-3', city: '北京', title: '中信联动卡首发', lat: 39.9042, lng: 116.4074, desc: '中信银行崩铁联动借记卡砂金卡面首发' },
+    ],
+    mapMarkers2025: [
+      { id: 'm2025-1', city: '上海', title: '一周年·大型生日会', lat: 31.2304, lng: 121.4737, desc: '砂金线下大型生日会' },
+      { id: 'm2025-2', city: '重庆', title: '一周年·重庆痛楼', lat: 29.5630, lng: 106.5516, desc: '解放碑商圈电梯楼整栋应援' },
+      { id: 'm2025-3', city: '广州', title: '一周年·生咖', lat: 23.1291, lng: 113.2644, desc: '五城生咖之一' },
+      { id: 'm2025-4', city: '成都', title: '一周年·生咖+咖啡', lat: 30.5728, lng: 104.0668, desc: '咖啡应援+生咖双重活动' },
+      { id: 'm2025-5', city: '杭州', title: '一周年·生咖', lat: 30.2741, lng: 120.1551, desc: '西湖畔线下聚会' },
+    ],
+    mapMarkers2026: [
+      { id: 'm2026-1', city: '上海', title: '二周年·超跑应援', lat: 31.3389, lng: 121.2256, desc: '砂金主题超跑车队' },
+      { id: 'm2026-2', city: '北京', title: '二周年·百城万屏', lat: 39.9042, lng: 116.4074, desc: '20000+电子屏Live2d应援' },
+      { id: 'm2026-3', city: '长沙', title: '二周年·摩天轮', lat: 28.2282, lng: 112.9388, desc: '砂金主题灯光应援' },
+      { id: 'm2026-4', city: '武汉', title: '二周年·痛楼', lat: 30.5928, lng: 114.3055, desc: '亲橙万象汇砂金痛楼' },
+      { id: 'm2026-5', city: '酒泉', title: '二周年·宇宙传讯', lat: 40.9600, lng: 100.2900, desc: '向宇宙深空发射传讯' },
+      { id: 'm2026-6', city: '成都', title: '二周年·烤匠联动', lat: 30.5728, lng: 104.0668, desc: '烤匠麻辣烤鱼三城联动' },
+    ],
     records: [
       // 2025 一周年
       { date: '2025.04.17', title: '一周年生贺·60城百屏联动', location: '全国60+城市核心商圈大屏', city: '全国', lat: 35.8617, lng: 104.1954, desc: '砂金一周年60城百屏应援活动，覆盖全国各大城市核心商圈电子屏投放。', image: '', tag: '百屏', howToJoin: '关注砂金生贺组各平台账号获取最新大屏点位信息' },
@@ -506,6 +607,75 @@ const defaultContent: SiteContent = {
       { date: '2026.05.05', title: '二周年·烤匠麻辣烤鱼联动', location: '成都/重庆/西安 三城联动', city: '全国', lat: 30.5728, lng: 104.0668, desc: '烤匠麻辣烤鱼x砂金生贺组三城联动，推出砂金主题套餐及限定周边。', image: '', tag: '联动', howToJoin: '前往成都/重庆/西安指定烤匠门店即可参与' },
       { date: '2026.05.05', title: '二周年·交易猫联动', location: '交易猫APP平台', city: '线上', lat: 0, lng: 0, desc: '交易猫x砂金生贺组联动，含防诈公益小短片拍摄及千岛特别联动活动。', image: '', tag: '联动', howToJoin: '下载交易猫APP查看砂金主题专区' },
       { date: '2026.05.05', title: '二周年·生贺头像版头解锁', location: '微博超话/B站专题', city: '线上', lat: 0, lng: 0, desc: '砂金二周年限定头像+版头一键解锁，粉丝可更换专属砂金装扮。', image: '', tag: '特别', howToJoin: '在微博砂金超话或B站专题页面领取专属头像框' },
+    ],
+  },
+  sashaSay: {
+    pageTitle: '砂砂想说',
+    subtitle: '关于砂金的趣味冷知识与名言预言',
+    gachaTitle: '🎰 扭蛋预言',
+    knowledge: [
+      { id: 'k1', text: '砂金的真名是"卡卡瓦夏"（Kakavasha），这个名字在埃维金语中意为"被命运眷顾的孩子"。', source: '官方设定' },
+      { id: 'k2', text: '砂金是"石心十人"中的一员，由IPC战略投资部直属。每位成员都以一种宝石命名。', source: '游戏剧情' },
+      { id: 'k3', text: '砂金的命途是"存护"（Preservation），但他的战斗风格却充满攻击性。', source: '角色设定' },
+      { id: 'k4', text: '砂金的生日是5月5日（立夏），立夏象征着生命的勃发。', source: '官方设定' },
+      { id: 'k5', text: '砂金在2.1版本正式上线（2024年4月17日），首日流水超越黄泉登顶全服。', source: '游戏数据' },
+      { id: 'k6', text: '砂金的CV阵容：中文杨超然、日文河西健吾、英文Camden Sutkowski、韩文朴俊元。', source: '官方公开' },
+      { id: 'k7', text: '砂金的技能设计融入了赌场元素——战技"直观投注"，终结技"命运轮盘"。', source: '技能描述' },
+      { id: 'k8', text: '砂金是崩铁中第一位"存护"命途的限定五星角色，开创了存护输出的新流派。', source: '游戏机制' },
+      { id: 'k9', text: '砂金的标志性台词"所有命运都是早已注定的赌局"暗示了角色的核心理念。', source: '台词分析' },
+      { id: 'k10', text: '砂金佩戴的多枚戒指各有含义，左手中指的戒指据推测代表了石心十人排位。', source: '角色考据' },
+    ],
+    gachaQuotes: [
+      { id: 'g1', text: '「所有命运都是早已注定的赌局——但庄家，永远是我。」', rarity: 'UR' },
+      { id: 'g2', text: '「亲爱的，你输定了。不过没关系，与我共赴这场盛宴吧。」', rarity: 'UR' },
+      { id: 'g3', text: '「美丽的事物总是伴随着风险，这也是它们迷人的原因。」', rarity: 'SSR' },
+      { id: 'g4', text: '「在卡卡瓦的极光下，我们终将重逢。」', rarity: 'SSR' },
+      { id: 'g5', text: '「赌上一切的人，从来不会输。」', rarity: 'SSR' },
+      { id: 'g6', text: '「运气？不，这是计算好的。」', rarity: 'SR' },
+      { id: 'g7', text: '「IPC从不做亏本买卖——感情除外。」', rarity: 'SR' },
+      { id: 'g8', text: '「每一枚硬币都有两面，正如每一个选择都有代价。」', rarity: 'SR' },
+      { id: 'g9', text: '「你以为你在赌？其实你只是在帮我计算概率。」', rarity: 'SR' },
+      { id: 'g10', text: '「存护不是防御，是让敌人后悔攻击的选择。」', rarity: 'SR' },
+      { id: 'g11', text: '「我的戒指比你的未来更闪亮。」', rarity: 'SSR' },
+      { id: 'g12', text: '「来，抛个硬币吧——反正结果都一样。」', rarity: 'SR' },
+    ],
+  },
+  calendar: {
+    events: [
+      { id: 'c1', date: '02-14', title: '砂金首次曝光', desc: '2024年情人节特别宣传图', sticker: '🐱' },
+      { id: 'c2', date: '02-28', title: '官方立绘发布', desc: '横版/竖版同日公开', sticker: '🐰' },
+      { id: 'c3', date: '03-15', title: '2.1版本PV发布', desc: '「狂热奔向深渊」PV', sticker: '🦊' },
+      { id: 'c4', date: '04-17', title: '砂金正式上线', desc: '入池日！2.1版本上线', sticker: '🐻' },
+      { id: 'c5', date: '04-26', title: '茶百道联动', desc: '崩铁X茶百道联名开始', sticker: '🐼' },
+      { id: 'c6', date: '05-05', title: '砂金生日/卡卡瓦日', desc: '立夏 · 生日快乐！', sticker: '🎂' },
+      { id: 'c7', date: '06-01', title: '叽米的会客室', desc: '砂金徽章、毛绒玩偶上线', sticker: '🐣' },
+      { id: 'c8', date: '09-01', title: '中信联动卡', desc: '崩铁X中信借记卡上线', sticker: '🐨' },
+      { id: 'c9', date: '12-01', title: '砂金角色礼盒', desc: '砂金主题礼盒上线', sticker: '🎁' },
+    ],
+  },
+  countdown: { birthday: '05-05', debutDate: '04-17' },
+  materialTable: {
+    year2024: [
+      { date: '02-14', title: '情人节特别电影宣传图', image: '', link: '', tag: '宣传图' },
+      { date: '02-28', title: '砂金官方立绘（横版）', image: '', link: '', tag: '立绘' },
+      { date: '02-28', title: '砂金官方立绘（竖版）', image: '', link: '', tag: '立绘' },
+      { date: '03-01', title: '砂金透明底立绘', image: '', link: '', tag: '立绘' },
+      { date: '03-15', title: '2.1版本PV「狂热奔向深渊」', image: '', link: '', tag: 'PV' },
+      { date: '03-20', title: '砂金anan杂志封面', image: '', link: '', tag: '杂志' },
+      { date: '04-26', title: '茶百道联动联名吊牌', image: '', link: '', tag: '联动' },
+      { date: '06-01', title: '叽米的会客室 · 迷你马口铁徽章', image: '', link: '', tag: '周边' },
+      { date: '09-01', title: '崩铁X中信联动借记卡（砂金卡面）', image: '', link: '', tag: '联动' },
+    ],
+    year2025: [
+      { date: '03-15', title: 'GSC砂金粘土人手办', image: '', link: '', tag: '手办' },
+      { date: '03-20', title: '主题印象系列 · 条纹衬衫', image: '', link: '', tag: '周边' },
+      { date: '03-20', title: '主题印象系列 · 手表', image: '', link: '', tag: '周边' },
+      { date: '06-09', title: '指尖键帽系列第二弹（砂金）', image: '', link: '', tag: '周边' },
+    ],
+    year2026: [
+      { date: '05-05', title: '二周年·百城万屏Live2d应援', image: '', link: '', tag: '应援' },
+      { date: '05-05', title: '二周年·双城摩天轮应援', image: '', link: '', tag: '特别' },
+      { date: '05-05', title: '二周年·宇宙深空传讯发射', image: '', link: '', tag: '特别' },
     ],
   },
   theme: { primaryColor: '#d4b878', secondaryColor: '#c4a868', backgroundColor: '#0a0a0a', cardStyle: 'glass', fontSize: 'medium', borderRadius: 12 },

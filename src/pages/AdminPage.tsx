@@ -172,7 +172,7 @@ function SiteConfigEditor({ content, onUpdate }: { content: any; onUpdate: (path
     <div>
       <p style={{ color: 'rgba(248,246,240,0.4)', fontSize: '12px', marginBottom: '16px', lineHeight: '1.6' }}>
         在这里自定义网站的外观：标题、副标题、Logo 和页头背景图。<br/>
-        <span style={{ color: '#d4b878' }}>提示：</span>修改后点击底部「发布到全站」按钮，所有人都能看到。
+        <span style={{ color: '#d4b878' }}>提示：</span>修改后点击底部「保存并发布到全站」按钮，所有人都能看到。
       </p>
 
       <FormGroup label="网站标题">
@@ -239,13 +239,10 @@ export default function AdminPage({ onLogout }: { onLogout?: () => void }) {
   const [ghToken, setGhToken] = useState(() => getGitHubToken())
   const [showTokenInput, setShowTokenInput] = useState(false)
 
-  const handleSyncToSite = () => {
+  const handleSyncAndPublish = async () => {
     syncToSite()
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
-  }
-
-  const handlePublish = async () => {
     setPublishMsg(null)
     const result = await publishContent()
     setPublishMsg({
@@ -426,60 +423,34 @@ export default function AdminPage({ onLogout }: { onLogout?: () => void }) {
               </button>
             )}
 
-            {/* 同步到全站 & 发布按钮 */}
+            {/* 保存并发布到全站 */}
             <button
-              onClick={handleSyncToSite}
-              style={{
-                background: isDirty ? 'linear-gradient(135deg, #64b878, #4a9a5a)' : 'rgba(100,180,120,0.15)',
-                border: '1px solid rgba(100,180,120,0.3)',
-                borderRadius: '6px',
-                color: isDirty ? '#121212' : '#8cba6a',
-                fontSize: '12px',
-                padding: '6px 16px',
-                cursor: 'pointer',
-                fontWeight: 600,
-                transition: 'all 0.3s ease',
-                display: 'flex', alignItems: 'center', gap: '4px',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-2px)'
-                e.currentTarget.style.boxShadow = '0 4px 16px rgba(100,184,120,0.3)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)'
-                e.currentTarget.style.boxShadow = 'none'
-              }}
-            >
-              🔄 同步到全站
-            </button>
-
-            <button
-              onClick={handlePublish}
+              onClick={handleSyncAndPublish}
               disabled={isPublishing}
               style={{
-                background: isPublishing ? 'rgba(100,180,120,0.1)' : 'linear-gradient(135deg, #64b878, #4a9a5a)',
+                background: isPublishing ? 'rgba(212,184,120,0.1)' : 'linear-gradient(135deg, #d4b878, #c4a060)',
                 border: 'none',
-                borderRadius: '6px',
-                color: isPublishing ? '#8cba8a' : '#121212',
-                fontSize: '12px',
-                padding: '6px 16px',
+                borderRadius: '8px',
+                color: isPublishing ? '#d4b878' : '#121212',
+                fontSize: '13px', fontWeight: 700,
+                padding: '8px 20px',
                 cursor: isPublishing ? 'default' : 'pointer',
-                fontWeight: 600,
                 transition: 'all 0.3s ease',
-                display: 'flex', alignItems: 'center', gap: '4px',
+                display: 'flex', alignItems: 'center', gap: '6px',
+                boxShadow: isPublishing ? 'none' : '0 2px 12px rgba(212,184,120,0.25)',
               }}
               onMouseEnter={(e) => {
                 if (!isPublishing) {
                   e.currentTarget.style.transform = 'translateY(-2px)'
-                  e.currentTarget.style.boxShadow = '0 4px 16px rgba(100,184,120,0.4)'
+                  e.currentTarget.style.boxShadow = '0 6px 24px rgba(212,184,120,0.35)'
                 }
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)'
-                e.currentTarget.style.boxShadow = 'none'
+                e.currentTarget.style.boxShadow = '0 2px 12px rgba(212,184,120,0.25)'
               }}
             >
-              {isPublishing ? '⏳ 发布中...' : '🚀 发布到全站'}
+              {isPublishing ? '⏳ 发布中...' : '🚀 保存并发布到全站'}
             </button>
 
             {saved && <span style={{ color: '#9cba8a', fontSize: '12px' }}>✓ 已保存</span>}
@@ -502,8 +473,7 @@ export default function AdminPage({ onLogout }: { onLogout?: () => void }) {
             background: 'rgba(100,180,120,0.08)', border: '1px solid rgba(100,180,120,0.2)',
             color: '#8cba6a', fontSize: '13px',
           }}>
-            💡 <b>🔄 同步到全站</b>：保存快照，本设备前台刷新即见<br />
-            💡 <b>🚀 发布到全站</b>：一键推送到 GitHub → 自动部署 → 2 分钟后 aventurine0505.xyz 全站生效
+            💡 <b>🚀 保存并发布到全站</b>：保存快照 + 推送到 GitHub → 自动部署 → 2 分钟后 aventurine0505.xyz 全站生效
           </div>
         )}
 

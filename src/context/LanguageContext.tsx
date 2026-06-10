@@ -15,7 +15,7 @@ const translations: Record<Lang, Record<string, string>> = {
     nav1: '角色设定', nav2: '角色物料', nav4: '官方联动', nav5: '角色编年史',
     nav6: '强度专区', nav7: '黑泥区', nav8: '投稿区', nav9: '账户中心', nav10: '个人中心', nav11: '祝福区',
     nav12: '生贺应援', nav13: '意见反馈', nav14: '生贺/赞助',
-    nav15: '自定义页面',
+    nav15: '自定义页面', nav16: '砂砂想说',
     home: '首页',
     copyright: '非商用粉丝站 · 版权归米哈游及原作者所有 · 本站与米哈游官方无关',
     footer_slogan: '我们终将会在极光下重逢',
