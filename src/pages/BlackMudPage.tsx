@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useLang } from '../context/LanguageContext'
 import { useContent } from '../context/ContentContext'
+import { fetchCloudData, saveCloudData, type CloudData } from '../services/CloudDataService'
 
 // ============ Types ============
 interface BlackMudUser {
@@ -33,6 +34,38 @@ const USERS_KEY = 'aventurine_bm_users'
 const CUR_USER_KEY = 'aventurine_bm_cur_user'
 const POSTS_KEY = 'aventurine_bm_posts'
 const LIKED_KEY = 'aventurine_bm_liked'
+
+// ============ Cloud Sync ============
+const syncToCloud = async () => {
+  try {
+    const users = loadUsers()
+    const posts = loadPosts()
+    const cloudData = await fetchCloudData()
+    cloudData.blackMudUsers = users
+    cloudData.blackMudPosts = posts
+    await saveCloudData(cloudData)
+    console.log('黑泥区数据已同步到云端')
+  } catch (error) {
+    console.error('同步到云端失败:', error)
+  }
+}
+
+const loadFromCloud = async () => {
+  try {
+    const cloudData = await fetchCloudData()
+    if (cloudData.blackMudUsers && cloudData.blackMudUsers.length > 0) {
+      saveUsers(cloudData.blackMudUsers)
+    }
+    if (cloudData.blackMudPosts && cloudData.blackMudPosts.length > 0) {
+      savePosts(cloudData.blackMudPosts)
+    }
+    console.log('黑泥区数据已从云端加载')
+    return true
+  } catch (error) {
+    console.error('从云端加载失败:', error)
+    return false
+  }
+}
 
 // ============ Helpers ============
 function loadUsers(): BlackMudUser[] {
@@ -85,12 +118,32 @@ export default function BlackMudPage() {
   const curUser = users.find(u => u.id === curUserId) || null
   const isAdmin = curUser?.nickname === (content.blackMud?.adminNickname || '管理员')
 
-  // —— 页面阶段 ———
+  // —— 页面阶段 ——
   // 'login' | 'register' | 'forum'
   const [stage, setStage] = useState<'login' | 'register' | 'forum'>(() => {
     const u = users.find(u => u.id === loadCurUser())
     return u && !u.banned ? 'forum' : 'login'
   })
+
+  // 云端同步版本号（用于触发重新渲染）
+  const [cloudSyncVersion, setCloudSyncVersion] = useState(0)
+
+  // 云端同步：加载时从云端加载，然后每30秒同步一次
+  useEffect(() => {
+    const syncData = async () => {
+      const success = await loadFromCloud()
+      if (success) {
+        // 更新状态以触发重新渲染
+        setPosts(loadPosts())
+        setLikedPosts(loadLiked())
+        setCloudSyncVersion(prev => prev + 1)
+      }
+    }
+    syncData()
+    
+    const interval = setInterval(syncData, 30000)
+    return () => clearInterval(interval)
+  }, [])
 
   // =========== 注册 ===========
   const [regNickname, setRegNickname] = useState('')
@@ -127,6 +180,7 @@ export default function BlackMudPage() {
     }
     const next = [...users, newUser]
     saveUsers(next)
+    syncToCloud() // 同步到云端
     setRegSuccess(true)
     setTimeout(() => {
       saveCurUser(newUser.id)

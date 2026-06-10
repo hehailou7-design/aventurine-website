@@ -217,6 +217,11 @@ export default function BlessingsPage() {
       console.error('删除后同步云端失败:', error)
     }
   }
+  
+  // 暴露删除方法给后台管理
+  if (typeof window !== 'undefined') {
+    (window as any).deleteBlessing = handleDeleteBlessing
+  }
 
   const sorted = [...blessings].sort(
     (a, b) => new Date(b.time).getTime() - new Date(a.time).getTime()
@@ -511,32 +516,13 @@ export default function BlessingsPage() {
                       {b.name}
                     </span>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span style={{
-                        color: 'rgba(248,246,240,0.3)',
-                        fontSize: '10px',
-                      }}>
-                        {formatTime(b.time)}
-                      </span>
-                      {/* 删除按钮 - 仅管理员可见 */}
-                      {isAdmin && (
-                        <button
-                          onClick={() => handleDeleteBlessing(b.id)}
-                          style={{
-                            background: 'rgba(224,96,96,0.15)',
-                            border: '1px solid rgba(224,96,96,0.3)',
-                            borderRadius: '4px',
-                            color: '#e06060',
-                            fontSize: '10px',
-                            padding: '2px 6px',
-                            cursor: 'pointer',
-                            transition: 'all 0.3s',
-                          }}
-                          title="删除此祝福"
-                        >
-                          删除
-                        </button>
-                      )}
-                    </div>
+                    <span style={{
+                      color: 'rgba(248,246,240,0.3)',
+                      fontSize: '10px',
+                    }}>
+                      {formatTime(b.time)}
+                    </span>
+                  </div>
                   </div>
 
                   <p style={{
