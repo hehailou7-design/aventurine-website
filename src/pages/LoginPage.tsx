@@ -136,15 +136,6 @@ export default function LoginPage({ onBack, onLoginSuccess }: { onBack: () => vo
           ← 返回网站
         </button>
 
-        <div style={{
-          marginTop: '20px', padding: '10px',
-          background: 'rgba(212,184,120,0.04)',
-          borderRadius: '6px', textAlign: 'center',
-        }}>
-          <div style={{ color: 'rgba(248,246,240,0.3)', fontSize: '10px' }}>
-            默认密码: aventurine2026
-          </div>
-        </div>
       </div>
     </div>
   )

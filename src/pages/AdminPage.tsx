@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { useContent, defaultContent } from '../context/ContentContext'
 import ProfileBoxEditor from '../components/ProfileBoxEditor'
 import ImagePicker from '../components/ImagePicker'
@@ -9,6 +9,8 @@ import ContentUpdateReview from '../components/ContentUpdateReview'
 import BlackMudReview from '../components/BlackMudReview'
 import SupportRecordEditor from '../components/SupportRecordEditor'
 import PageBuilder from '../components/pageBuilder/PageBuilder'
+import ImageCropper from '../components/ImageCropper'
+import { getGitHubToken, setGitHubToken } from '../lib/github-publish'
 
 // —— 类型 ———
 type PageSection =
@@ -17,6 +19,7 @@ type PageSection =
   | 'profile' | 'blessings' | 'images' | 'admins'
   | 'feedbackReview' | 'sponsorshipReview' | 'blackMudReview' | 'contentUpdateReview'
   | 'supportRecord' | 'theme'
+  | 'siteConfig'
   | 'pageBuilder'
 
 // —— 通用组件 ———
@@ -146,16 +149,151 @@ function ChronicleEditor({ content, onUpdate }: { content: typeof defaultContent
   )
 }
 
+// —— 网站外观设置 ———
+function SiteConfigEditor({ content, onUpdate }: { content: any; onUpdate: (path: string, v: any) => void }) {
+  const sc = content.siteConfig || {}
+  return (
+    <div>
+      <p style={{ color: 'rgba(248,246,240,0.4)', fontSize: '12px', marginBottom: '16px', lineHeight: '1.6' }}>
+        在这里自定义网站的外观：标题、副标题、Logo 和页头背景图。<br/>
+        <span style={{ color: '#d4b878' }}>提示：</span>修改后点击底部「发布到全站」按钮，所有人都能看到。
+      </p>
+
+      <FormGroup label="网站标题">
+        <TextInput value={sc.siteTitle || ''} onChange={v => onUpdate('siteConfig.siteTitle', v)} />
+      </FormGroup>
+      <FormGroup label="网站副标题">
+        <TextInput value={sc.siteSubtitle || ''} onChange={v => onUpdate('siteConfig.siteSubtitle', v)} />
+      </FormGroup>
+
+      <FormGroup label="网站 Logo（图片 URL 或上传）">
+        <ImagePicker
+          value={sc.logoUrl || ''}
+          onChange={v => onUpdate('siteConfig.logoUrl', v)}
+          label="上传 Logo（建议 200×60px）"
+        />
+      </FormGroup>
+
+      <FormGroup label="页头背景图（图片 URL 或上传）">
+        <ImagePicker
+          value={sc.headerImage || ''}
+          onChange={v => onUpdate('siteConfig.headerImage', v)}
+          label="上传页头背景图（建议 1920×400px）"
+        />
+      </FormGroup>
+
+      <FormGroup label="Favicon（浏览器标签页图标）">
+        <ImagePicker
+          value={sc.favicon || ''}
+          onChange={v => onUpdate('siteConfig.favicon', v)}
+          label="上传 Favicon（建议 64×64px）"
+        />
+      </FormGroup>
+
+      {/* 预览 */}
+      <div style={{
+        marginTop: '20px', padding: '16px',
+        background: 'rgba(212,184,120,0.05)', border: '1px solid rgba(212,184,120,0.15)', borderRadius: '12px',
+      }}>
+        <div style={{ color: '#d4b878', fontSize: '12px', marginBottom: '8px' }}>📱 预览</div>
+        <div style={{
+          background: sc.headerImage ? `url(${sc.headerImage}) center/cover` : 'linear-gradient(135deg, #1a1a1a, #0a0a0a)',
+          borderRadius: '8px', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '12px',
+          minHeight: '60px',
+        }}>
+          {sc.logoUrl && (
+            <img src={sc.logoUrl} alt="logo" style={{ height: '36px', width: 'auto', borderRadius: '4px' }} />
+          )}
+          <div>
+            <div style={{ color: '#d4b878', fontSize: '14px', fontWeight: 600 }}>{sc.siteTitle || '砂金全球应援站'}</div>
+            <div style={{ color: 'rgba(248,246,240,0.5)', fontSize: '11px' }}>{sc.siteSubtitle || '我们终将在卡卡瓦的极光下重逢'}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // —— 主组件 ———
 export default function AdminPage({ onLogout }: { onLogout?: () => void }) {
-  const { content, updateContent, resetContent, isDirty } = useContent()
+  const { content, updateContent, resetContent, isDirty, publishContent, isPublishing, syncToSite, lastPublishResult } = useContent()
   const [activeSection, setActiveSection] = useState<PageSection>('home')
   const [saved, setSaved] = useState(false)
+  const [publishMsg, setPublishMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [ghToken, setGhToken] = useState(() => getGitHubToken())
+  const [showTokenInput, setShowTokenInput] = useState(false)
+
+  const handleSyncToSite = () => {
+    syncToSite()
+    setSaved(true)
+    setTimeout(() => setSaved(false), 2000)
+  }
+
+  const handlePublish = async () => {
+    setPublishMsg(null)
+    const result = await publishContent()
+    setPublishMsg({
+      type: result.success ? 'success' : 'error',
+      text: result.message,
+    })
+  }
 
   const handleUpdate = (path: string, value: any) => {
     updateContent(path, value)
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
+  }
+
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const handleExport = () => {
+    const fullData = JSON.stringify(content, null, 2)
+    const blob = new Blob([fullData], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `aventurine-backup-${new Date().toISOString().slice(0, 10)}.json`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
+  const handleImport = () => {
+    fileInputRef.current?.click()
+  }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      try {
+        const text = ev.target?.result as string
+        const data = JSON.parse(text)
+        const saveData = computeDiffForImport(data)
+        localStorage.setItem('aventurine_site_content', JSON.stringify(saveData))
+        alert('✅ 导入成功！页面将刷新以加载新数据。')
+        window.location.reload()
+      } catch {
+        alert('❌ 文件格式无效，请确保上传的是正确的备份文件。')
+      }
+    }
+    reader.readAsText(file)
+    e.target.value = ''
+  }
+
+  const computeDiffForImport = (fullData: any): Record<string, unknown> => {
+    const diff: Record<string, unknown> = {}
+    for (const key of Object.keys(defaultContent)) {
+      const dv = (defaultContent as any)[key]
+      const fv = fullData[key]
+      if (fv === undefined || fv === null) continue
+      if (JSON.stringify(dv) !== JSON.stringify(fv)) {
+        diff[key] = fv
+      }
+    }
+    return diff
   }
 
   const sections: { key: PageSection; label: string; icon: string }[] = [
@@ -165,48 +303,67 @@ export default function AdminPage({ onLogout }: { onLogout?: () => void }) {
     { key: 'materials', label: '角色物料', icon: '◇' },
     { key: 'collaboration', label: '官方联动', icon: '★' },
     { key: 'chronicle', label: '编年史', icon: '◈' },
+    { key: 'siteConfig', label: '网站外观', icon: '🎨' },
+    { key: 'theme', label: '主题设置', icon: '🎨' },
     // 审核板块
     { key: 'feedbackReview', label: '意见反馈审核', icon: '📝' },
     { key: 'sponsorshipReview', label: '生贺组应聘审核', icon: '🎉' },
     { key: 'contentUpdateReview', label: '板块更新审核', icon: '📋' },
     { key: 'blackMudReview', label: '黑泥区审核', icon: '🔒' },
     // 应援记录
-    { key: 'supportRecord', label: '应援记录', icon: '📼' },
+    { key: 'supportRecord', label: '生贺应援', icon: '📼' },
     // 页面构建器
     { key: 'pageBuilder', label: '页面构建器', icon: '🎨' },
   ]
 
-  const section = (() => {
+  const renderSection = () => {
     switch (activeSection) {
-      case 'home': return content.home
-      case 'character': return content.character
-      case 'profileBoxes': return content.character
-      case 'materials': return content.materials
-      case 'collaboration': return content.collaboration
-      case 'chronicle': return content.chronicle
-      default: return content.home
+      case 'home': return <HomeEditor content={content.home} onUpdate={handleUpdate} />
+      case 'character': return <CharacterEditor content={content.character} onUpdate={handleUpdate} />
+      case 'profileBoxes': return <ProfileBoxEditor onUpdate={handleUpdate} />
+      case 'materials': return <MaterialsEditor content={content.materials} onUpdate={handleUpdate} />
+      case 'collaboration': return <CollaborationEditor content={content.collaboration} onUpdate={handleUpdate} />
+      case 'chronicle': return <ChronicleEditor content={content.chronicle} onUpdate={handleUpdate} />
+      case 'siteConfig': return <SiteConfigEditor content={content} onUpdate={handleUpdate} />
+      case 'feedbackReview': return <FeedbackReview />
+      case 'sponsorshipReview': return <SponsorshipReview />
+      case 'contentUpdateReview': return <ContentUpdateReview />
+      case 'blackMudReview': return <BlackMudReview />
+      case 'supportRecord': return <SupportRecordEditor content={content.supportRecord} onUpdate={handleUpdate} />
+      case 'pageBuilder': return (
+        <PageBuilder
+          pageId="custom-page"
+          pageName="自定义页面"
+          onSave={(data) => {
+            updateContent('pageBuilder', data)
+            setSaved(true)
+            setTimeout(() => setSaved(false), 2000)
+          }}
+          initialData={content.pageBuilder || null}
+        />
+      )
+      default: return <HomeEditor content={content.home} onUpdate={handleUpdate} />
     }
-  })()
+  }
 
   return (
     <div style={{ padding: '40px 0', minHeight: '100vh' }}>
       <div className="max-w-screen-2xl mx-auto px-4 md:px-8">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '8px' }}>
           <h1 style={{ color: '#d4b878', fontSize: '20px', fontWeight: 700 }}>后台管理</h1>
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-            <button 
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+            <button
               onClick={() => {
-                // 返回前台网站
                 if (onLogout) onLogout()
                 else window.location.href = '/'
               }}
-              style={{ 
-                background: 'rgba(212,184,120,0.15)', 
-                border: '1px solid rgba(212,184,120,0.3)', 
-                borderRadius: '6px', 
-                color: '#d4b878', 
-                fontSize: '12px', 
-                padding: '6px 16px', 
+              style={{
+                background: 'rgba(212,184,120,0.15)',
+                border: '1px solid rgba(212,184,120,0.3)',
+                borderRadius: '6px',
+                color: '#d4b878',
+                fontSize: '12px',
+                padding: '6px 16px',
                 cursor: 'pointer',
                 fontWeight: 600,
                 transition: 'all 0.3s ease',
@@ -222,44 +379,171 @@ export default function AdminPage({ onLogout }: { onLogout?: () => void }) {
             >
               ← 返回网站
             </button>
-            <button 
-              onClick={() => {
-                // 手动触发保存（实际上ContentContext已经自动保存）
-                setSaved(true)
-                setTimeout(() => setSaved(false), 2000)
-                alert('✓ 所有更改已保存到本地存储！')
-              }} 
-              style={{ 
-                background: 'linear-gradient(135deg, #d4b878, #a8893a)', 
-                border: 'none', 
-                borderRadius: '6px', 
-                color: '#121212', 
-                fontSize: '12px', 
-                padding: '6px 16px', 
+
+            {/* Token 设置 & 发布按钮 */}
+            {!ghToken && (
+              <button
+                onClick={() => setShowTokenInput(!showTokenInput)}
+                style={{
+                  background: 'rgba(224,180,80,0.15)', border: '1px solid rgba(224,180,80,0.3)',
+                  borderRadius: '6px', color: '#e0b450', fontSize: '12px',
+                  padding: '6px 12px', cursor: 'pointer', fontWeight: 600,
+                }}
+              >
+                🔑 设置 Token
+              </button>
+            )}
+            {ghToken && (
+              <button
+                onClick={() => setShowTokenInput(!showTokenInput)}
+                style={{
+                  background: 'rgba(100,180,120,0.15)', border: '1px solid rgba(100,180,120,0.3)',
+                  borderRadius: '6px', color: '#8cba6a', fontSize: '12px',
+                  padding: '6px 12px', cursor: 'pointer', fontWeight: 600,
+                }}
+              >
+                ✅ Token 已配置
+              </button>
+            )}
+
+            {/* 同步到全站 & 发布按钮 */}
+            <button
+              onClick={handleSyncToSite}
+              style={{
+                background: isDirty ? 'linear-gradient(135deg, #64b878, #4a9a5a)' : 'rgba(100,180,120,0.15)',
+                border: '1px solid rgba(100,180,120,0.3)',
+                borderRadius: '6px',
+                color: isDirty ? '#121212' : '#8cba6a',
+                fontSize: '12px',
+                padding: '6px 16px',
                 cursor: 'pointer',
                 fontWeight: 600,
                 transition: 'all 0.3s ease',
+                display: 'flex', alignItems: 'center', gap: '4px',
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-2px)'
-                e.currentTarget.style.boxShadow = '0 4px 16px rgba(212, 184, 120, 0.4)'
+                e.currentTarget.style.boxShadow = '0 4px 16px rgba(100,184,120,0.3)'
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)'
                 e.currentTarget.style.boxShadow = 'none'
               }}
             >
-              💾 保存更改
+              🔄 同步到全站
             </button>
+
+            <button
+              onClick={handlePublish}
+              disabled={isPublishing}
+              style={{
+                background: isPublishing ? 'rgba(100,180,120,0.1)' : 'linear-gradient(135deg, #64b878, #4a9a5a)',
+                border: 'none',
+                borderRadius: '6px',
+                color: isPublishing ? '#8cba8a' : '#121212',
+                fontSize: '12px',
+                padding: '6px 16px',
+                cursor: isPublishing ? 'default' : 'pointer',
+                fontWeight: 600,
+                transition: 'all 0.3s ease',
+                display: 'flex', alignItems: 'center', gap: '4px',
+              }}
+              onMouseEnter={(e) => {
+                if (!isPublishing) {
+                  e.currentTarget.style.transform = 'translateY(-2px)'
+                  e.currentTarget.style.boxShadow = '0 4px 16px rgba(100,184,120,0.4)'
+                }
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = 'none'
+              }}
+            >
+              {isPublishing ? '⏳ 发布中...' : '🚀 发布到全站'}
+            </button>
+
             {saved && <span style={{ color: '#9cba8a', fontSize: '12px' }}>✓ 已保存</span>}
             {isDirty && <button onClick={() => { resetContent(); setSaved(true); setTimeout(() => setSaved(false), 2000) }} style={{ background: 'rgba(212,184,120,0.15)', border: '1px solid rgba(212,184,120,0.3)', borderRadius: '6px', color: '#d4b878', fontSize: '12px', padding: '6px 12px', cursor: 'pointer' }}>恢复默认</button>}
+            <button onClick={handleExport} style={{ background: 'rgba(100,180,120,0.15)', border: '1px solid rgba(100,180,120,0.3)', borderRadius: '6px', color: '#8cba6a', fontSize: '12px', padding: '6px 12px', cursor: 'pointer' }}>
+              📥 导出数据
+            </button>
+            <button onClick={handleImport} style={{ background: 'rgba(160,140,210,0.15)', border: '1px solid rgba(160,140,210,0.3)', borderRadius: '6px', color: '#b0a0d8', fontSize: '12px', padding: '6px 12px', cursor: 'pointer' }}>
+              📤 导入数据
+            </button>
+            <input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".json" style={{ display: 'none' }} />
             <button onClick={onLogout || (() => window.location.reload())} style={{ background: 'rgba(224,96,96,0.15)', border: '1px solid rgba(224,96,96,0.3)', borderRadius: '6px', color: '#e06060', fontSize: '12px', padding: '6px 12px', cursor: 'pointer' }}>退出登录</button>
           </div>
         </div>
 
+        {/* 同步说明 */}
+        {!isDirty && (
+          <div style={{
+            padding: '10px 16px', borderRadius: '8px', marginBottom: '16px',
+            background: 'rgba(100,180,120,0.08)', border: '1px solid rgba(100,180,120,0.2)',
+            color: '#8cba6a', fontSize: '13px',
+          }}>
+            💡 <b>🔄 同步到全站</b>：保存快照，本设备前台刷新即见<br />
+            💡 <b>🚀 发布到全站</b>：一键推送到 GitHub → 自动部署 → 2 分钟后 aventurine0505.xyz 全站生效
+          </div>
+        )}
+
+        {/* Token 设置面板 */}
+        {showTokenInput && (
+          <div style={{
+            padding: '12px 16px', borderRadius: '8px', marginBottom: '16px',
+            background: 'rgba(224,180,80,0.06)', border: '1px solid rgba(224,180,80,0.2)',
+          }}>
+            <div style={{ fontSize: '13px', color: '#e0b450', marginBottom: '8px' }}>
+              🔑 GitHub Personal Access Token（一键发布必需）
+            </div>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <input
+                type="password"
+                value={ghToken}
+                onChange={(e) => setGhToken(e.target.value)}
+                placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
+                style={{
+                  flex: 1, padding: '8px 12px', borderRadius: '6px',
+                  background: 'rgba(20,20,20,0.6)', border: '1px solid rgba(255,255,255,0.1)',
+                  color: '#f8f6f0', fontSize: '13px', fontFamily: 'monospace',
+                }}
+              />
+              <button
+                onClick={() => {
+                  setGitHubToken(ghToken)
+                  setShowTokenInput(false)
+                }}
+                style={{
+                  padding: '8px 16px', borderRadius: '6px', cursor: 'pointer',
+                  background: 'linear-gradient(135deg, #64b878, #4a9a5a)',
+                  border: 'none', color: '#121212', fontSize: '13px', fontWeight: 600,
+                }}
+              >
+                保存
+              </button>
+            </div>
+            <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginTop: '6px' }}>
+              如何获取？访问 github.com → Settings → Developer settings → Personal access tokens → Tokens (classic) → 勾选 repo 权限
+            </div>
+          </div>
+        )}
+
+        {/* 发布结果消息 */}
+        {publishMsg && (
+          <div style={{
+            padding: '10px 16px', borderRadius: '8px', marginBottom: '16px',
+            background: publishMsg.type === 'success' ? 'rgba(100,180,120,0.08)' : 'rgba(224,96,96,0.08)',
+            border: publishMsg.type === 'success' ? '1px solid rgba(100,180,120,0.2)' : '1px solid rgba(224,96,96,0.2)',
+            color: publishMsg.type === 'success' ? '#8cba6a' : '#e06060',
+            fontSize: '13px', whiteSpace: 'pre-line',
+          }}>
+            {publishMsg.type === 'success' ? '✅ ' : '❌ '}{publishMsg.text}
+          </div>
+        )}
+
         <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr', gap: '24px' }}>
           {/* 侧边栏 */}
-          <div style={{ background: 'rgba(26,26,26,0.6)', border: '1px solid rgba(212,184,120,0.1)', borderRadius: '12px', padding: '12px' }}>
+          <div style={{ background: 'rgba(26,26,26,0.6)', border: '1px solid rgba(212,184,120,0.1)', borderRadius: '12px', padding: '12px', maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' }}>
             {sections.map(s => (
               <div key={s.key} onClick={() => setActiveSection(s.key)}
                 style={{
@@ -275,30 +559,8 @@ export default function AdminPage({ onLogout }: { onLogout?: () => void }) {
           </div>
 
           {/* 内容区 */}
-          <div style={{ background: 'rgba(26,26,26,0.4)', border: '1px solid rgba(212,184,120,0.1)', borderRadius: '12px', padding: '20px' }}>
-            {activeSection === 'home' && <HomeEditor content={content.home} onUpdate={handleUpdate} />}
-            {activeSection === 'character' && <CharacterEditor content={content.character} onUpdate={handleUpdate} />}
-            {activeSection === 'profileBoxes' && <ProfileBoxEditor onUpdate={handleUpdate} />}
-            {activeSection === 'materials' && <MaterialsEditor content={content.materials} onUpdate={handleUpdate} />}
-            {activeSection === 'collaboration' && <CollaborationEditor content={content.collaboration} onUpdate={handleUpdate} />}
-            {activeSection === 'chronicle' && <ChronicleEditor content={content.chronicle} onUpdate={handleUpdate} />}
-            {activeSection === 'feedbackReview' && <FeedbackReview />}
-            {activeSection === 'sponsorshipReview' && <SponsorshipReview />}
-            {activeSection === 'contentUpdateReview' && <ContentUpdateReview />}
-            {activeSection === 'blackMudReview' && <BlackMudReview />}
-            {activeSection === 'supportRecord' && <SupportRecordEditor content={content.supportRecord} onUpdate={handleUpdate} />}
-            {activeSection === 'pageBuilder' && (
-              <PageBuilder 
-                pageId="custom-page"
-                pageName="自定义页面"
-                onSave={(data) => {
-                  updateContent('pageBuilder', data)
-                  setSaved(true)
-                  setTimeout(() => setSaved(false), 2000)
-                }}
-                initialData={content.pageBuilder || null}
-              />
-            )}
+          <div style={{ background: 'rgba(26,26,26,0.4)', border: '1px solid rgba(212,184,120,0.1)', borderRadius: '12px', padding: '20px', minHeight: 'calc(100vh - 200px)', overflowY: 'auto' }}>
+            {renderSection()}
           </div>
         </div>
       </div>

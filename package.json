@@ -4,7 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "generate-content": "node scripts/generate-content-json.cjs",
+    "dev": "node scripts/generate-content-json.cjs && vite",
+    "prebuild": "node scripts/generate-content-json.cjs",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"

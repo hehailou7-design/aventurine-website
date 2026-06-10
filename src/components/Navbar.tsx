@@ -13,11 +13,11 @@ interface NavbarProps {
 const navItems: { key: PageType; tKey: string }[] = [
   { key: 'character', tKey: 'nav1' },
   { key: 'materials', tKey: 'nav2' },
+  { key: 'supportRecord', tKey: 'nav12' },
   { key: 'collaboration', tKey: 'nav4' },
   { key: 'chronicle', tKey: 'nav5' },
   { key: 'blackmud', tKey: 'nav7' },
   { key: 'submit', tKey: 'nav8' },
-  { key: 'supportRecord', tKey: 'nav12' },
   { key: 'feedback', tKey: 'nav13' },
   { key: 'sponsorship', tKey: 'nav14' },
   { key: 'blessings', tKey: 'nav11' },
@@ -34,6 +34,7 @@ const langOptions: { code: 'zh' | 'en' | 'ja' | 'ko'; label: string }[] = [
 export default function Navbar({ currentPage, onNavigate, mobileMenuOpen, setMobileMenuOpen, onOpenAdmin }: NavbarProps) {
   const { t, lang, setLang } = useLang()
   const [langOpen, setLangOpen] = useState(false)
+  const [contactOpen, setContactOpen] = useState(false)
 
   return (
     <nav style={{ background: '#0a0a0a', borderBottom: '1px solid rgba(212,184,120,0.2)' }}
@@ -75,6 +76,57 @@ export default function Navbar({ currentPage, onNavigate, mobileMenuOpen, setMob
 
         {/* Right: Lang + Mobile Menu */}
         <div className="flex items-center gap-3">
+          {/* Contact Us button */}
+          <div className="relative hidden md:block">
+            <button
+              onClick={() => setContactOpen(!contactOpen)}
+              style={{
+                color: '#d4b878',
+                border: '1px solid rgba(212,184,120,0.4)',
+                borderRadius: '4px',
+                padding: '4px 10px',
+                fontSize: '12px',
+                background: 'transparent',
+                cursor: 'pointer',
+              }}
+            >
+              {t('contact_us')}
+            </button>
+            {contactOpen && (
+              <div style={{
+                position: 'absolute', right: 0, top: '110%',
+                background: '#1a1a1a', border: '1px solid rgba(212,184,120,0.3)',
+                borderRadius: '8px', minWidth: '240px', zIndex: 100,
+                padding: '12px 16px',
+              }}>
+                <div style={{ color: '#d4b878', fontSize: '13px', fontWeight: 600, marginBottom: '10px', borderBottom: '1px solid rgba(212,184,120,0.2)', paddingBottom: '8px' }}>
+                  {t('contact_title')}
+                </div>
+                <div style={{ fontSize: '12px', color: '#f8f6f0', lineHeight: '2' }}>
+                  <div>📕 小红书 @砂金生贺组</div>
+                  <div>🎵 抖音 @砂金生贺组</div>
+                  <div>📺 哔哩哔哩 @砂金生贺组</div>
+                  <div>📢 微博 @砂金同人主页</div>
+                  <div style={{ marginTop: '6px', paddingTop: '6px', borderTop: '1px solid rgba(212,184,120,0.15)' }}>
+                    <div>🐧 砂金QQ游客1群：629357641</div>
+                    <div>🐧 砂金QQ游客2群：1095188922</div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setContactOpen(false)}
+                  style={{
+                    marginTop: '8px', width: '100%',
+                    background: 'rgba(212,184,120,0.1)', border: '1px solid rgba(212,184,120,0.2)',
+                    borderRadius: '4px', color: '#d4b878', fontSize: '11px', padding: '4px 0',
+                    cursor: 'pointer',
+                  }}
+                >
+                  关闭
+                </button>
+              </div>
+            )}
+          </div>
+
           {/* Admin button */}
           <button
             onClick={onOpenAdmin}
@@ -188,6 +240,21 @@ export default function Navbar({ currentPage, onNavigate, mobileMenuOpen, setMob
               ))}
             </div>
             <div className="flex gap-2 pt-2 border-t border-champagne">
+              {/* Mobile Contact Us button */}
+              <button
+                onClick={() => { setContactOpen(!contactOpen); }}
+                style={{
+                  color: '#d4b878',
+                  background: 'transparent',
+                  border: '1px solid rgba(212,184,120,0.4)',
+                  borderRadius: '4px',
+                  padding: '4px 10px',
+                  fontSize: '11px',
+                  cursor: 'pointer',
+                }}
+              >
+                {t('contact_us')}
+              </button>
               {langOptions.map(l => (
                 <button
                   key={l.code}
@@ -206,6 +273,49 @@ export default function Navbar({ currentPage, onNavigate, mobileMenuOpen, setMob
                 </button>
               ))}
             </div>
+          </div>
+        </div>
+      )}
+      {/* Contact overlay (mobile + fallback) */}
+      {contactOpen && (
+        <div
+          style={{
+            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)',
+            zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}
+          onClick={() => setContactOpen(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: '#1a1a1a', border: '1px solid rgba(212,184,120,0.3)',
+              borderRadius: '12px', padding: '24px', maxWidth: '320px', width: '90%',
+            }}
+          >
+            <div style={{ color: '#d4b878', fontSize: '16px', fontWeight: 600, marginBottom: '16px', borderBottom: '1px solid rgba(212,184,120,0.2)', paddingBottom: '10px' }}>
+              {t('contact_title')}
+            </div>
+            <div style={{ fontSize: '14px', color: '#f8f6f0', lineHeight: '2.2' }}>
+              <div>📕 小红书 @砂金生贺组</div>
+              <div>🎵 抖音 @砂金生贺组</div>
+              <div>📺 哔哩哔哩 @砂金生贺组</div>
+              <div>📢 微博 @砂金同人主页</div>
+              <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid rgba(212,184,120,0.15)' }}>
+                <div>🐧 砂金QQ游客1群：629357641</div>
+                <div>🐧 砂金QQ游客2群：1095188922</div>
+              </div>
+            </div>
+            <button
+              onClick={() => setContactOpen(false)}
+              style={{
+                marginTop: '16px', width: '100%',
+                background: 'rgba(212,184,120,0.15)', border: '1px solid rgba(212,184,120,0.3)',
+                borderRadius: '6px', color: '#d4b878', fontSize: '13px', padding: '8px 0',
+                cursor: 'pointer',
+              }}
+            >
+              关闭
+            </button>
           </div>
         </div>
       )}

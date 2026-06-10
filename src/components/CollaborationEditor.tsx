@@ -45,8 +45,9 @@ export default function CollaborationEditor({ content, onUpdate }: Collaboration
           { key: 'version', label: '版本' },
           { key: 'type', label: '类型' },
           { key: 'image', label: '图片', type: 'image' },
+          { key: 'taobaoUrl', label: '淘宝链接（米哈游旗舰店）' },
         ]}
-        onAdd={() => onUpdate('collaboration.merch', [...content.merch, { name: '', price: '', version: '', type: '', image: '' }])}
+        onAdd={() => onUpdate('collaboration.merch', [...content.merch, { name: '', price: '', version: '', type: '', image: '', taobaoUrl: '' }])}
         onChange={(items) => onUpdate('collaboration.merch', items)}
       />
     </div>

@@ -1,0 +1,65 @@
+{
+ "home": {
+ "bannerSlides": [
+ { "tagline": "世界的一次性赌注 · 从不食言的赌徒", "subtitle": "我们终将在卡卡瓦的极光下重逢", "accent": "#d4b878", "image": "" },
+ { "tagline": "IPC战略投资部长 · 匹诺康尼来客", "subtitle": "所有的命运都是早已注定的赌局", "accent": "#b0a0d8", "image": "" },
+ { "tagline": "亲爱的，你输定了 · 但是与我共赴盛宴", "subtitle": "砂金·Aventurine 全球粉丝应援", "accent": "#9cba8a", "image": "" }
+ ],
+ "navCards": [
+ { "key": "character", "icon": "◆", "label": "角色设定", "desc": "档案·剧情·台词·考据", "color": "#d4b878" },
+ { "key": "materials", "icon": "◇", "label": "角色物料", "desc": "官方原画·应援印刷品", "color": "#c4a868" },
+ { "key": "collaboration", "icon": "★", "label": "官方联动", "desc": "联名门店·周边图鉴", "color": "#d4b878" },
+ { "key": "chronicle", "icon": "◈", "label": "角色编年史", "desc": "时间轴·大事记", "color": "#9cba8a" },
+ { "key": "strength", "icon": "⚔", "label": "强度专区", "desc": "攻略·配队·遗器", "color": "#e0c060" },
+ { "key": "blackmud", "icon": "◉", "label": "黑泥区", "desc": "理性吐槽·有话好说", "color": "#888" },
+ { "key": "submit", "icon": "✉", "label": "投稿区", "desc": "最新动态·线下实拍·板块更新", "color": "#b0a0d8" },
+ { "key": "account", "icon": "⊡", "label": "账户中心", "desc": "登录·注册·设置", "color": "#d4b878" },
+ { "key": "profile", "icon": "⊙", "label": "个人中心", "desc": "投稿·收藏", "color": "#c4a868" },
+ { "key": "blessings", "icon": "♥", "label": "祝福区", "desc": "留下对砂金的祝福", "color": "#d4b878" }
+ ],
+ "updates": [
+ { "date": "2026.06.09", "text": "砂金线下大屏应援 · 上海IFC商圈投放", "tag": "线下" },
+ { "date": "2026.05.24", "text": "3.3版本限定UP池再次复刻，获取率提升", "tag": "游戏" },
+ { "date": "2026.04.18", "text": "匹诺康尼联名咖啡馆限定周边全线上架", "tag": "联动" },
+ { "date": "2026.03.30", "text": "角色专属立绘手幅第二批预售开始", "tag": "物料" }
+ ],
+ "aboutText": "这里是砂金·Aventurine 全球粉丝应援站，由世界各地的骰子守望者共同维护。\n我们在这里收录一切关于他的美好——从每一张立绘，到每一行台词。"
+ },
+ "siteConfig": {
+ "siteTitle": "砂金全球应援站",
+ "siteSubtitle": "我们终将在卡卡瓦的极光下重逢",
+ "logoUrl": "",
+ "headerImage": "",
+ "favicon": ""
+ },
+ "character": {
+ "intro": "砂金 Aventurine — 崩坏：星穹铁道 · 五星角色 · 虚数属性 · 存护命途",
+ "characterArt": "/images/wiki/character_art.png",
+ "basicInfo": {
+ "nameZh": "砂金", "nameEn": "Aventurine", "rarity": 5, "path": "存护", "element": "虚数",
+ "faction": "星际和平公司 · 石心十人", "world": "茨冈尼亚-Ⅳ", "gender": "男", "birthday": "未知",
+ "cvZh": "杨超然", "cvEn": "Camden Sutkowski", "cvJp": "河西健吾", "cvKo": "박준원"
+ },
+ "profileBoxes": [
+ {
+ "id": "basic-info", "title": "基本信息", "layout": "grid" , "titleColor": "#d4b878", "titleFontSize": 12,
+ "background": "rgba(212,184,120,0.05)", "border": "1px solid rgba(212,184,120,0.15)", "borderRadius": 10,
+ "fields": [
+ { "id": "f1", "label": "中文名", "value": "砂金", "labelColor": "#d4b878", "valueColor": "#f2e8d0", "fontSize": 15, "fontWeight": "600", "fontStyle": "normal", "textAlign": "left" },
+ { "id": "f2", "label": "外文名", "value": "Aventurine", "labelColor": "#d4b878", "valueColor": "#f2e8d0", "fontSize": 15, "fontWeight": "600", "fontStyle": "normal", "textAlign": "left" },
+ { "id": "f3", "label": "本名", "value": "卡卡瓦夏（Kakavasha）", "labelColor": "#d4b878", "valueColor": "#f2e8d0", "fontSize": 15, "fontWeight": "600", "fontStyle": "normal", "textAlign": "left" },
+ { "id": "f4", "label": "稀有度", "value": "★★★★★", "labelColor": "#d4b878", "valueColor": "#f2e8d0", "fontSize": 15, "fontWeight": "600", "fontStyle": "normal", "textAlign": "left" },
+ { "id": "f5", "label": "命途", "value": "存护（Preservation）", "labelColor": "#d4b878", "valueColor": "#f2e8d0", "fontSize": 15, "fontWeight": "600", "fontStyle": "normal", "textAlign": "left" },
+ { "id": "f6", "label": "战斗属性", "value": "虚数（Imaginary）", "labelColor": "#d4b878", "valueColor": "#f2e8d0", "fontSize": 15, "fontWeight": "600", "fontStyle": "normal", "textAlign": "left" }
+ ]
+ },
+ {
+ "id": "detail-info", "title": "详细信息", "layout": "list" , "titleColor": "#d4b878", "titleFontSize": 12,
+ "background": "rgba(212,184,120,0.05)", "border": "1px solid rgba(212,184,120,0.15)", "borderRadius": 10,
+ "fields": [
+ { "id": "f10", "label": "阵营", "value": "星际和平公司 · 石心十人", "labelColor": "rgba(242,232,208,0.9)", "valueColor": "rgba(242,232,208,0.9)", "fontSize": 13, "fontWeight": "normal", "fontStyle": "normal", "textAlign": "left" },
+ { "id": "f11", "label": "部门", "value": "战略投资部 · 高级干部", "labelColor": "rgba(242,232,208,0.9)", "valueColor": "rgba(242,232,208,0.9)", "fontSize": 13, "fontWeight": "normal", "fontStyle": "normal", "textAlign": "left" },
+ { "id": "f12", "label": "性别", "value": "男", "labelColor": "rgba(242,232,208,0.9)", "valueColor": "rgba(242,232,208,0.9)", "fontSize": 13, "fontWeight": "normal", "fontStyle": "normal", "textAlign": "left" },
+ { "id": "f13", "label": "种族", "value": "埃维金人", "labelColor": "rgba(242,232,208,0.9)", "valueColor": "rgba(242,232,208,0.9)", "fontSize": 13, "fontWeight": "normal", "fontStyle": "normal", "textAlign": "left" },
+ { "id": "f14", "label": "出身", "value": "茨冈尼亚-Ⅳ", "labelColor": "rgba(242,232,208,0.9)", "valueColor": "rgba(242,232,208,0.9)", "fontSize": 13, "fontWeight": "normal", "fontStyle": "normal", "textAlign": "left" },
+ { "id": "f15", "label": "实装日期", "value": "2024年04月17日（2.1版本）", "labelColor": "rgba(242,232,208,0.9)
