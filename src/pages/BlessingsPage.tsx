@@ -2,6 +2,14 @@ import { useState, useEffect, useRef } from 'react'
 import { useLang } from '../context/LanguageContext'
 import { useContent } from '../context/ContentContext'
 import type { Blessing } from '../context/ContentContext'
+import { fetchCloudData, saveCloudData, type CloudData } from '../services/CloudDataService'
+
+// 检测 URL 中是否有 admin=true 参数
+const isAdminMode = () => {
+  if (typeof window === 'undefined') return false
+  const params = new URLSearchParams(window.location.search)
+  return params.get('admin') === 'true'
+}
 
 function loadLocalBlessings(): Blessing[] {
   try {
@@ -91,6 +99,12 @@ function DanmuItem({ blessing, index }: { blessing: Blessing; index: number }) {
 export default function BlessingsPage() {
   const { t } = useLang()
   const { content, updateContent } = useContent()
+  const [isAdmin, setIsAdmin] = useState(false)
+  
+  // 检测 URL 参数是否为管理员模式
+  useEffect(() => {
+    setIsAdmin(isAdminMode())
+  }, [])
   
   // Merge published blessings + local blessings
   const [blessings, setBlessings] = useState<Blessing[]>(() => {
@@ -101,6 +115,8 @@ export default function BlessingsPage() {
   const [charCount, setCharCount] = useState(0)
   const [submitted, setSubmitted] = useState(false)
   const [showDanmu, setShowDanmu] = useState(true)
+  const [cloudSyncStatus, setCloudSyncStatus] = useState<'idle' | 'syncing' | 'error'>('idle')
+  const [lastSynced, setLastSynced] = useState<string>('')
 
   // Sync local history to localStorage on mount (for backward compat)
   useEffect(() => {
@@ -112,11 +128,39 @@ export default function BlessingsPage() {
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // 云端同步：加载时同步一次，然后每30秒同步一次
+  useEffect(() => {
+    const syncWithCloud = async () => {
+      setCloudSyncStatus('syncing')
+      try {
+        const cloudData = await fetchCloudData()
+        if (cloudData.blessings && cloudData.blessings.length > 0) {
+          setBlessings(prev => {
+            const merged = mergeBlessings(prev, cloudData.blessings)
+            saveLocalBlessings(merged)
+            return merged
+          })
+          setLastSynced(new Date().toLocaleTimeString())
+          setCloudSyncStatus('idle')
+        }
+      } catch (error) {
+        console.error('Failed to sync with cloud:', error)
+        setCloudSyncStatus('error')
+      }
+    }
+
+    syncWithCloud()
+    
+    const interval = setInterval(syncWithCloud, 30000)
+    
+    return () => clearInterval(interval)
+  }, [])
+
   useEffect(() => {
     setCharCount(text.length)
   }, [text])
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!text.trim()) return
 
@@ -135,10 +179,43 @@ export default function BlessingsPage() {
     saveLocalBlessings(updated)
     // Also sync to ContentContext so admin can publish to content.json
     updateContent('blessings.items', updated)
+    
+    // 保存到云端
+    try {
+      const cloudData = await fetchCloudData()
+      cloudData.blessings = updated
+      await saveCloudData(cloudData)
+      setLastSynced(new Date().toLocaleTimeString())
+      setCloudSyncStatus('idle')
+    } catch (error) {
+      console.error('保存到云端失败:', error)
+      setCloudSyncStatus('error')
+    }
+    
     setName('')
     setText('')
     setSubmitted(true)
     setTimeout(() => setSubmitted(false), 2500)
+  }
+
+  // 删除祝福（仅管理员可用）
+  const handleDeleteBlessing = async (blessingId: string) => {
+    if (!isAdmin) return
+    
+    const updated = blessings.filter(b => b.id !== blessingId)
+    setBlessings(updated)
+    saveLocalBlessings(updated)
+    updateContent('blessings.items', updated)
+    
+    // 同步到云端
+    try {
+      const cloudData = await fetchCloudData()
+      cloudData.blessings = updated
+      await saveCloudData(cloudData)
+      setLastSynced(new Date().toLocaleTimeString())
+    } catch (error) {
+      console.error('删除后同步云端失败:', error)
+    }
   }
 
   const sorted = [...blessings].sort(
@@ -217,6 +294,36 @@ export default function BlessingsPage() {
           >
             {showDanmu ? '🎆 弹幕开启' : '🎆 弹幕关闭'}
           </button>
+          
+          {/* 云端同步状态 */}
+          <div style={{
+            marginLeft: '12px',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '6px 12px',
+            background: cloudSyncStatus === 'syncing' ? 'rgba(124,92,191,0.15)' : 
+                       cloudSyncStatus === 'error' ? 'rgba(224,112,112,0.15)' : 
+                       'rgba(212,184,120,0.06)',
+            border: `1px solid ${
+              cloudSyncStatus === 'syncing' ? 'rgba(124,92,191,0.3)' : 
+              cloudSyncStatus === 'error' ? 'rgba(224,112,112,0.3)' : 
+              'rgba(212,184,120,0.2)'
+            }`,
+            borderRadius: '20px',
+            color: cloudSyncStatus === 'syncing' ? '#9b7dd8' : 
+                   cloudSyncStatus === 'error' ? '#e07070' : 
+                   'rgba(212,184,120,0.6)',
+            fontSize: '11px',
+          }}>
+            {cloudSyncStatus === 'syncing' ? (
+              <>🔄 同步中...</>
+            ) : cloudSyncStatus === 'error' ? (
+              <>⚠️ 同步失败</>
+            ) : (
+              <>✅ 已同步 {lastSynced && `(${lastSynced})`}</>
+            )}
+          </div>
         </div>
       </div>
 
@@ -403,12 +510,33 @@ export default function BlessingsPage() {
                     }}>
                       {b.name}
                     </span>
-                    <span style={{
-                      color: 'rgba(248,246,240,0.3)',
-                      fontSize: '10px',
-                    }}>
-                      {formatTime(b.time)}
-                    </span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{
+                        color: 'rgba(248,246,240,0.3)',
+                        fontSize: '10px',
+                      }}>
+                        {formatTime(b.time)}
+                      </span>
+                      {/* 删除按钮 - 仅管理员可见 */}
+                      {isAdmin && (
+                        <button
+                          onClick={() => handleDeleteBlessing(b.id)}
+                          style={{
+                            background: 'rgba(224,96,96,0.15)',
+                            border: '1px solid rgba(224,96,96,0.3)',
+                            borderRadius: '4px',
+                            color: '#e06060',
+                            fontSize: '10px',
+                            padding: '2px 6px',
+                            cursor: 'pointer',
+                            transition: 'all 0.3s',
+                          }}
+                          title="删除此祝福"
+                        >
+                          删除
+                        </button>
+                      )}
+                    </div>
                   </div>
 
                   <p style={{

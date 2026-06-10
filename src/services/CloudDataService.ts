@@ -1,10 +1,17 @@
 /**
  * 全球数据同步服务
  * 使用 JSONBin.io 作为云端存储，让所有用户看到相同的数据
+ * 
+ * 设置说明：
+ * 1. 访问 https://jsonbin.io 注册账号
+ * 2. 创建新的 Bin，记录 Bin ID
+ * 3. 获取 API Key (Master Key)
+ * 4. 替换下面的 BIN_ID 和 API_KEY
  */
 
-const BIN_ID = '68292066acd3cb34af8e3a4f' // 您需要在 jsonbin.io 创建 bin 并替换此 ID
-const API_KEY = '$2a$10$YourAPIKeyHere' // 可选：如果需要私有 bin
+// TODO: 用户需要创建自己的 JSONBin.io Bin 并替换下面的 ID 和 Key
+const BIN_ID = '68292066acd3cb34af8e3a4f' // 替换为你的 Bin ID
+const API_KEY = '$2a$10$YourAPIKeyHere' // 替换为你的 API Key
 
 const BIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`
 const HEADERS: Record<string, string> = {
@@ -45,7 +52,8 @@ export async function fetchCloudData(): Promise<CloudData> {
     })
     
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`)
+      console.warn(`Failed to fetch cloud data: ${response.status}`)
+      return DEFAULT_DATA
     }
     
     const result = await response.json()
@@ -70,7 +78,8 @@ export async function saveCloudData(data: CloudData): Promise<boolean> {
     })
     
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`)
+      console.warn(`Failed to save cloud data: ${response.status}`)
+      return false
     }
     
     return true
@@ -82,6 +91,7 @@ export async function saveCloudData(data: CloudData): Promise<boolean> {
 
 /**
  * 初始化云端数据（第一次使用时）
+ * 运行一次后，在控制台会输出 Bin ID，需要更新上面的 BIN_ID
  */
 export async function initCloudData(): Promise<void> {
   try {
@@ -96,22 +106,10 @@ export async function initCloudData(): Promise<void> {
     })
     
     const result = await response.json()
-    console.log('Cloud data initialized. Bin ID:', result.metadata.id)
-    console.log('请在代码中更新 BIN_ID 为:', result.metadata.id)
+    console.log('✅ Cloud data initialized!')
+    console.log('Bin ID:', result.metadata.id)
+    console.log('请在 CloudDataService.ts 中更新 BIN_ID 为:', result.metadata.id)
   } catch (error) {
     console.error('Failed to init cloud data:', error)
-  }
-}
-
-/**
- * 合并本地和云端数据（以云端为准）
- */
-export function mergeData(localData: CloudData, cloudData: CloudData): CloudData {
-  // 简单策略：云端数据优先
-  // 可以根据 timestamp 实现更智能的合并
-  return {
-    ...localData,
-    ...cloudData,
-    lastUpdated: cloudData.lastUpdated || localData.lastUpdated,
   }
 }
