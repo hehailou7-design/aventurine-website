@@ -1,15 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
 import { useLang } from '../context/LanguageContext'
+import { useContent } from '../context/ContentContext'
+import type { Blessing } from '../context/ContentContext'
 
-interface Blessing {
-  id: string
-  name: string
-  text: string
-  time: string
-  likes: number
-}
-
-function loadBlessings(): Blessing[] {
+function loadLocalBlessings(): Blessing[] {
   try {
     const raw = localStorage.getItem('aventurine_blessings')
     if (raw) return JSON.parse(raw)
@@ -17,8 +11,19 @@ function loadBlessings(): Blessing[] {
   return []
 }
 
-function saveBlessings(b: Blessing[]) {
+function saveLocalBlessings(b: Blessing[]) {
   localStorage.setItem('aventurine_blessings', JSON.stringify(b))
+}
+
+/** Merge published blessings (from content.json) with local blessings */
+function mergeBlessings(published: Blessing[], local: Blessing[]): Blessing[] {
+  const map = new Map<string, Blessing>()
+  // Published first, then local (local overrides with same ID)
+  published.forEach(b => map.set(b.id, b))
+  local.forEach(b => map.set(b.id, b))
+  return Array.from(map.values()).sort(
+    (a, b) => new Date(b.time).getTime() - new Date(a.time).getTime()
+  )
 }
 
 // 弹幕组件
@@ -85,16 +90,27 @@ function DanmuItem({ blessing, index }: { blessing: Blessing; index: number }) {
 
 export default function BlessingsPage() {
   const { t } = useLang()
-  const [blessings, setBlessings] = useState<Blessing[]>(loadBlessings)
+  const { content, updateContent } = useContent()
+  
+  // Merge published blessings + local blessings
+  const [blessings, setBlessings] = useState<Blessing[]>(() => {
+    return mergeBlessings(content.blessings.items, loadLocalBlessings())
+  })
   const [name, setName] = useState('')
   const [text, setText] = useState('')
   const [charCount, setCharCount] = useState(0)
   const [submitted, setSubmitted] = useState(false)
   const [showDanmu, setShowDanmu] = useState(true)
 
+  // Sync local history to localStorage on mount (for backward compat)
   useEffect(() => {
-    saveBlessings(blessings)
-  }, [blessings])
+    const local = loadLocalBlessings()
+    if (local.length > 0) {
+      // Merge local into ContentContext so admin can publish
+      const merged = mergeBlessings(content.blessings.items, local)
+      updateContent('blessings.items', merged)
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     setCharCount(text.length)
@@ -113,7 +129,12 @@ export default function BlessingsPage() {
       likes: 0,
     }
 
-    setBlessings(prev => [newBlessing, ...prev])
+    const updated = [newBlessing, ...blessings]
+    setBlessings(updated)
+    // Save to localStorage for immediate cross-page persistence
+    saveLocalBlessings(updated)
+    // Also sync to ContentContext so admin can publish to content.json
+    updateContent('blessings.items', updated)
     setName('')
     setText('')
     setSubmitted(true)

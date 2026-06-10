@@ -109,7 +109,7 @@ export default function HomePage({ onNavigate }: HomePageProps) {
             {t('slogan')}
           </div>
           <button
-            onClick={() => onNavigate('character')}
+            onClick={() => onNavigate('supportRecord')}
             className="btn-gold"
             style={{ fontSize: '13px', letterSpacing: '0.1em' }}
           >

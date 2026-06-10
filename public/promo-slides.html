@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>砂金全球应援站 — 开站公告 · 交互演示</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --gold: #d4b878;
+    --gold-light: #f0d68a;
+    --gold-dark: #a88850;
+    --bg: #08070b;
+    --card-bg: rgba(20,16,12,0.9);
+    --text: #e0d8c8;
+    --text-dim: rgba(200,190,170,0.6);
+  }
+
+  body {
+    font-family: 'Noto Sans SC', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  /* ── Particle Canvas ── */
+  #particles {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Slides Container ── */
+  .slides-wrapper {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .slide {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 80px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.6s ease, transform 0.6s ease;
+    transform: scale(0.95);
+    overflow-y: auto;
+  }
+
+  .slide.active {
+    opacity: 1;
+    pointer-events: all;
+    transform: scale(1);
+  }
+
+  .slide.exit-left {
+    opacity: 0;
+    transform: translateX(-60px) scale(0.95);
+  }
+
+  .slide.exit-right {
+    opacity: 0;
+    transform: translateX(60px) scale(0.95);
+  }
+
+  .slide.enter-left {
+    opacity: 0;
+    transform: translateX(-60px) scale(0.95);
+  }
+
+  .slide.enter-right {
+    opacity: 0;
+    transform: translateX(60px) scale(0.95);
+  }
+
+  /* ── Slide Inner ── */
+  .slide-inner {
+    max-width: 1100px;
+    width: 100%;
+    animation: contentIn 0.8s ease forwards;
+  }
+
+  @keyframes contentIn {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── COVER SLIDE ── */
+  .cover-title {
+    font-family: 'Noto Serif SC', serif;
+    font-size: clamp(42px, 7vw, 80px);
+    font-weight: 900;
+    background: linear-gradient(180deg, #f0d68a 0%, #d4b878 40%, #a88850 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 12px;
+    text-align: center;
+    line-height: 1.2;
+  }
+
+  .cover-subtitle {
+    font-family: 'Noto Serif SC', serif;
+    font-size: clamp(16px, 2.5vw, 24px);
+    color: rgba(212,184,120,0.6);
+    letter-spacing: 6px;
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .cover-badge {
+    display: inline-block;
+    padding: 8px 28px;
+    border: 1px solid rgba(212,184,120,0.35);
+    border-radius: 50px;
+    font-size: 13px;
+    color: var(--gold);
+    letter-spacing: 5px;
+    margin-bottom: 36px;
+    background: rgba(212,184,120,0.04);
+  }
+
+  .cover-divider {
+    width: 100px;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--gold), var(--gold-light), var(--gold), transparent);
+    margin: 24px auto;
+    border-radius: 2px;
+  }
+
+  .cover-diamond {
+    margin: 32px 0;
+    animation: diamondPulse 3s ease-in-out infinite;
+  }
+
+  @keyframes diamondPulse {
+    0%, 100% { opacity: 0.4; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(1.08); }
+  }
+
+  /* ── Section Headers ── */
+  .section-header {
+    text-align: center;
+    margin-bottom: 50px;
+  }
+
+  .section-number {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 80px;
+    font-weight: 900;
+    color: rgba(212,184,120,0.05);
+    line-height: 1;
+    margin-bottom: -24px;
+  }
+
+  .section-title {
+    font-family: 'Noto Serif SC', serif;
+    font-size: clamp(26px, 4.5vw, 40px);
+    font-weight: 700;
+    color: var(--gold);
+  }
+
+  .section-line {
+    width: 50px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--gold), var(--gold-light), var(--gold));
+    margin: 12px auto;
+    border-radius: 2px;
+  }
+
+  .section-en {
+    font-size: 13px;
+    color: rgba(212,184,120,0.4);
+    letter-spacing: 3px;
+  }
+
+  /* ── Stats ── */
+  .stats-row {
+    display: flex;
+    justify-content: center;
+    gap: 80px;
+    flex-wrap: wrap;
+    margin: 50px 0;
+  }
+
+  .stat-item {
+    text-align: center;
+  }
+
+  .stat-num {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 56px;
+    font-weight: 900;
+    background: linear-gradient(180deg, var(--gold-light), var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .stat-label {
+    font-size: 13px;
+    color: rgba(212,184,120,0.45);
+    letter-spacing: 3px;
+    margin-top: 6px;
+  }
+
+  .intro-text {
+    max-width: 700px;
+    margin: 0 auto;
+    text-align: center;
+    font-size: 17px;
+    line-height: 2.2;
+    color: rgba(200,190,170,0.65);
+  }
+
+  .intro-text strong {
+    color: var(--gold);
+    font-weight: 600;
+  }
+
+  /* ── Feature Grid ── */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    width: 100%;
+  }
+
+  @media (max-width: 1024px) {
+    .features-grid { grid-template-columns: repeat(2, 1fr); }
+    .slide { padding: 40px 30px; }
+    .stats-row { gap: 40px; }
+    .tutorial-grid { grid-template-columns: 1fr 1fr !important; }
+  }
+
+  @media (max-width: 600px) {
+    .features-grid { grid-template-columns: 1fr; }
+    .slide { padding: 30px 20px; overflow-y: auto; }
+    .stats-row { gap: 24px; }
+    .stat-num { font-size: 40px; }
+    .tutorial-grid { grid-template-columns: 1fr !important; }
+    .sig-dual { grid-template-columns: 1fr !important; }
+  }
+
+  .feat-card {
+    background: var(--card-bg);
+    border: 1px solid rgba(212,184,120,0.12);
+    border-radius: 16px;
+    padding: 28px 22px;
+    text-align: center;
+    transition: all 0.35s ease;
+    position: relative;
+    overflow: hidden;
+    cursor: default;
+  }
+
+  .feat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 20%; width: 60%; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(212,184,120,0.4), transparent);
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+
+  .feat-card:hover {
+    border-color: rgba(212,184,120,0.35);
+    transform: translateY(-4px);
+    box-shadow: 0 16px 48px rgba(212,184,120,0.07);
+  }
+
+  .feat-card:hover::before {
+    opacity: 1;
+  }
+
+  .feat-icon {
+    font-size: 38px;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .feat-card h4 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 17px;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+
+  .feat-card p {
+    font-size: 13px;
+    color: rgba(200,190,170,0.55);
+    line-height: 1.7;
+  }
+
+  /* ── Tutorial Timeline ── */
+  .tutorial-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+    width: 100%;
+  }
+
+  .tutorial-card {
+    background: var(--card-bg);
+    border: 1px solid rgba(212,184,120,0.1);
+    border-radius: 16px;
+    padding: 30px 24px;
+    position: relative;
+    transition: all 0.35s;
+  }
+
+  .tutorial-card:hover {
+    border-color: rgba(212,184,120,0.3);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 40px rgba(212,184,120,0.06);
+  }
+
+  .step-num {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 36px;
+    font-weight: 900;
+    color: rgba(212,184,120,0.12);
+    position: absolute;
+    top: 16px;
+    right: 20px;
+  }
+
+  .tutorial-card h4 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 18px;
+    color: var(--text);
+    margin-bottom: 8px;
+    padding-right: 40px;
+  }
+
+  .tutorial-card p {
+    font-size: 13px;
+    color: rgba(200,190,170,0.55);
+    line-height: 1.8;
+  }
+
+  .tutorial-card .tip-badge {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 4px 12px;
+    background: rgba(212,184,120,0.07);
+    border: 1px solid rgba(212,184,120,0.18);
+    border-radius: 14px;
+    font-size: 11px;
+    color: var(--gold);
+  }
+
+  /* ── Significance ── */
+  .sig-dual {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 36px;
+    width: 100%;
+  }
+
+  .sig-card {
+    padding: 40px 32px;
+    border-radius: 20px;
+    position: relative;
+  }
+
+  .sig-card.golden {
+    background: linear-gradient(135deg, rgba(35,25,15,0.95), rgba(20,16,12,0.98));
+    border: 1px solid rgba(212,184,120,0.18);
+  }
+
+  .sig-card.purple {
+    background: linear-gradient(135deg, rgba(22,18,32,0.95), rgba(16,14,22,0.98));
+    border: 1px solid rgba(170,150,210,0.18);
+  }
+
+  .sig-card .sig-icon {
+    font-size: 42px;
+    margin-bottom: 16px;
+  }
+
+  .sig-card h4 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 22px;
+  }
+
+  .sig-card.golden h4 { color: var(--gold); }
+  .sig-card.purple h4 { color: #b0a0d8; }
+
+  .sig-card .sig-line {
+    width: 36px;
+    height: 2px;
+    margin: 14px 0 20px;
+    border-radius: 1px;
+  }
+
+  .sig-card.golden .sig-line { background: var(--gold); }
+  .sig-card.purple .sig-line { background: #b0a0d8; }
+
+  .sig-card ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .sig-card li {
+    padding: 9px 0 9px 18px;
+    font-size: 13px;
+    color: rgba(200,190,170,0.6);
+    border-bottom: 1px solid rgba(255,255,255,0.02);
+    position: relative;
+    line-height: 1.7;
+  }
+
+  .sig-card li::before {
+    position: absolute;
+    left: 0;
+    font-size: 7px;
+    top: 14px;
+  }
+
+  .sig-card.golden li::before { content: '◆'; color: var(--gold); }
+  .sig-card.purple li::before { content: '◆'; color: #b0a0d8; }
+
+  /* ── Languages ── */
+  .lang-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    width: 100%;
+    margin: 24px 0;
+  }
+
+  @media (max-width: 600px) {
+    .lang-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .lang-card {
+    background: var(--card-bg);
+    border: 1px solid rgba(212,184,120,0.1);
+    border-radius: 16px;
+    padding: 32px 20px;
+    text-align: center;
+    transition: all 0.35s;
+  }
+
+  .lang-card:hover {
+    border-color: rgba(212,184,120,0.35);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 36px rgba(212,184,120,0.06);
+  }
+
+  .lang-flag {
+    font-size: 44px;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .lang-card h4 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 16px;
+    color: var(--gold);
+    margin-bottom: 6px;
+  }
+
+  .lang-card p {
+    font-size: 12px;
+    color: rgba(200,190,170,0.4);
+  }
+
+  /* ── CTA ── */
+  .cta-box {
+    text-align: center;
+    margin-top: 40px;
+  }
+
+  .cta-btn {
+    display: inline-block;
+    padding: 16px 44px;
+    background: linear-gradient(135deg, rgba(212,184,120,0.15), rgba(212,184,120,0.04));
+    border: 1px solid rgba(212,184,120,0.4);
+    border-radius: 50px;
+    font-family: 'Noto Serif SC', serif;
+    font-size: 18px;
+    color: var(--gold);
+    letter-spacing: 3px;
+    text-decoration: none;
+    transition: all 0.35s;
+    cursor: pointer;
+  }
+
+  .cta-btn:hover {
+    background: linear-gradient(135deg, rgba(212,184,120,0.25), rgba(212,184,120,0.08));
+    border-color: rgba(212,184,120,0.55);
+    box-shadow: 0 0 40px rgba(212,184,120,0.12);
+  }
+
+  /* ── Navigation ── */
+  .nav-arrow {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: rgba(20,16,12,0.6);
+    border: 1px solid rgba(212,184,120,0.2);
+    backdrop-filter: blur(10px);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+    color: var(--gold);
+    font-size: 20px;
+  }
+
+  .nav-arrow:hover {
+    background: rgba(30,24,18,0.8);
+    border-color: rgba(212,184,120,0.4);
+    box-shadow: 0 0 30px rgba(212,184,120,0.1);
+  }
+
+  .nav-arrow.left { left: 20px; }
+  .nav-arrow.right { right: 20px; }
+
+  .nav-arrow:disabled {
+    opacity: 0.2;
+    cursor: default;
+    pointer-events: none;
+  }
+
+  @media (max-width: 600px) {
+    .nav-arrow { width: 38px; height: 38px; font-size: 16px; }
+    .nav-arrow.left { left: 8px; }
+    .nav-arrow.right { right: 8px; }
+  }
+
+  /* ── Page Dots ── */
+  .page-dots {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    display: flex;
+    gap: 10px;
+  }
+
+  .page-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(212,184,120,0.2);
+    cursor: pointer;
+    transition: all 0.3s;
+    border: none;
+    padding: 0;
+  }
+
+  .page-dot.active {
+    background: var(--gold);
+    box-shadow: 0 0 12px rgba(212,184,120,0.4);
+    width: 28px;
+    border-radius: 10px;
+  }
+
+  .page-dot:hover {
+    background: rgba(212,184,120,0.5);
+  }
+
+  /* ── Keyboard Hint ── */
+  .kb-hint {
+    position: fixed;
+    bottom: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    font-size: 11px;
+    color: rgba(212,184,120,0.25);
+    letter-spacing: 2px;
+    transition: opacity 0.5s;
+    pointer-events: none;
+  }
+
+  /* ── Slide Number ── */
+  .slide-counter {
+    position: fixed;
+    top: 24px;
+    right: 30px;
+    z-index: 10;
+    font-family: 'Noto Serif SC', serif;
+    font-size: 13px;
+    color: rgba(212,184,120,0.35);
+    letter-spacing: 3px;
+  }
+</style>
+</head>
+<body>
+
+<canvas id="particles"></canvas>
+
+<!-- Navigation -->
+<button class="nav-arrow left" id="prevBtn" title="上一页 (←)">
+  <svg width="18" height="18" viewBox="0 0 18 18"><path d="M12 3 L5 9 L12 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</button>
+<button class="nav-arrow right" id="nextBtn" title="下一页 (→)">
+  <svg width="18" height="18" viewBox="0 0 18 18"><path d="M6 3 L13 9 L6 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</button>
+
+<!-- Page Dots -->
+<div class="page-dots" id="pageDots"></div>
+
+<!-- Keyboard Hint -->
+<div class="kb-hint" id="kbHint">← → 键翻页</div>
+
+<!-- Slide Counter -->
+<div class="slide-counter" id="slideCounter">01 / 06</div>
+
+<!-- ════════════ SLIDES ════════════ -->
+<div class="slides-wrapper" id="slidesWrapper">
+
+  <!-- SLIDE 0: COVER -->
+  <div class="slide active" data-index="0">
+    <div class="slide-inner" style="text-align:center;">
+      <div class="cover-badge">崩 坏 ：星 穹 铁 道</div>
+      <div class="cover-divider"></div>
+      <h1 class="cover-title">砂金 Aventurine<br>全球应援站</h1>
+      <p class="cover-subtitle">开 站 公 告</p>
+      <div class="cover-diamond">
+        <svg width="70" height="70" viewBox="0 0 70 70">
+          <defs>
+            <linearGradient id="dGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#f0d68a"/>
+              <stop offset="50%" stop-color="#d4b878"/>
+              <stop offset="100%" stop-color="#a88850"/>
+            </linearGradient>
+          </defs>
+          <polygon points="35,3 63,35 35,67 7,35" fill="none" stroke="url(#dGrad)" stroke-width="1.2" opacity="0.5"/>
+          <polygon points="35,10 56,35 35,60 14,35" fill="none" stroke="url(#dGrad)" stroke-width="0.8" opacity="0.3"/>
+          <circle cx="35" cy="35" r="3" fill="#d4b878" opacity="0.7"/>
+        </svg>
+      </div>
+      <p style="max-width:600px;margin:0 auto;color:rgba(200,190,170,0.45);font-size:15px;line-height:2;">
+        全方位砂金粉丝应援平台 · 角色资料 · 物料中心 · 应援记录 · 互动社区
+      </p>
+    </div>
+  </div>
+
+  <!-- SLIDE 1: 网站简介 + 数据 -->
+  <div class="slide" data-index="1">
+    <div class="slide-inner">
+      <div class="section-header">
+        <div class="section-number">01</div>
+        <div class="section-title">网站简介</div>
+        <div class="section-line"></div>
+        <div class="section-en">ABOUT THIS SITE</div>
+      </div>
+      <p class="intro-text">
+        这是为《崩坏：星穹铁道》中备受喜爱的角色——<strong>砂金（Aventurine）</strong>打造的专属粉丝应援网站。
+        集<strong>角色资料库</strong>、<strong>官方物料整理</strong>、<strong>线下应援记录</strong>、<strong>粉丝互动社区</strong>于一体，
+        是所有砂金厨的<strong>一站式精神家园</strong>。
+      </p>
+      <div class="stats-row">
+        <div class="stat-item">
+          <div class="stat-num">16+</div>
+          <div class="stat-label">功 能 页 面</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">4</div>
+          <div class="stat-label">语 言 支 持</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">23+</div>
+          <div class="stat-label">官 方 物 料</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">∞</div>
+          <div class="stat-label">粉 丝 热 爱</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: 核心功能 -->
+  <div class="slide" data-index="2">
+    <div class="slide-inner">
+      <div class="section-header">
+        <div class="section-number">02</div>
+        <div class="section-title">核心功能一览</div>
+        <div class="section-line"></div>
+        <div class="section-en">CORE FEATURES</div>
+      </div>
+      <div class="features-grid">
+        <div class="feat-card">
+          <span class="feat-icon">📋</span>
+          <h4>角色设定档案</h4>
+          <p>属性面板、技能、星魂、行迹、培养材料、故事与语音台词</p>
+        </div>
+        <div class="feat-card">
+          <span class="feat-icon">🎨</span>
+          <h4>角色物料中心</h4>
+          <p>高清立绘、宣传图、壁纸。详情页+大图预览+下载+留言板</p>
+        </div>
+        <div class="feat-card">
+          <span class="feat-icon">🤝</span>
+          <h4>官方联动追踪</h4>
+          <p>官方联名活动及周边商品目录，支持跳转官方购买渠道</p>
+        </div>
+        <div class="feat-card">
+          <span class="feat-icon">📅</span>
+          <h4>角色编年史</h4>
+          <p>优雅时间线：版本上线、剧情高光、生日庆典等重要时刻</p>
+        </div>
+        <div class="feat-card">
+          <span class="feat-icon">🎂</span>
+          <h4>生贺应援记录</h4>
+          <p>2025一周年、2026二周年全国线下应援，城市搜索+地图定位</p>
+        </div>
+        <div class="feat-card">
+          <span class="feat-icon">💬</span>
+          <h4>互动社区</h4>
+          <p>祝福弹幕墙、黑泥吐槽区、二创投稿、意见反馈</p>
+        </div>
+        <div class="feat-card">
+          <span class="feat-icon">🎮</span>
+          <h4>强度攻略专区</h4>
+          <p>命座提升、最优配队、遗器搭配、角色强度全面对比</p>
+        </div>
+        <div class="feat-card">
+          <span class="feat-icon">🌐</span>
+          <h4>多语言支持</h4>
+          <p>中文·English·日本語·한국어 四语切换，全球粉丝无障碍</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 3: 使用教程 -->
+  <div class="slide" data-index="3">
+    <div class="slide-inner">
+      <div class="section-header">
+        <div class="section-number">03</div>
+        <div class="section-title">使用教程</div>
+        <div class="section-line"></div>
+        <div class="section-en">HOW TO USE</div>
+      </div>
+      <div class="tutorial-grid">
+        <div class="tutorial-card">
+          <span class="step-num">01</span>
+          <h4>访问网站</h4>
+          <p>打开 aventurine0505.xyz，进入首页。Hero横幅 + 快捷导航 + 最新动态。</p>
+          <span class="tip-badge">💡 PC/手机自适应</span>
+        </div>
+        <div class="tutorial-card">
+          <span class="step-num">02</span>
+          <h4>浏览角色资料</h4>
+          <p>点击「角色设定」，9个标签页覆盖属性/技能/星魂/行迹/故事/语音。</p>
+          <span class="tip-badge">💡 9个标签页</span>
+        </div>
+        <div class="tutorial-card">
+          <span class="step-num">03</span>
+          <h4>查看下载物料</h4>
+          <p>进入「角色物料」，点击卡片查看高清大图、下载原图、留言交流。</p>
+          <span class="tip-badge">💡 独立留言板</span>
+        </div>
+        <div class="tutorial-card">
+          <span class="step-num">04</span>
+          <h4>参与粉丝互动</h4>
+          <p>祝福区发弹幕、黑泥区发帖吐槽、投稿区提交二创作品。</p>
+          <span class="tip-badge">💡 多种互动方式</span>
+        </div>
+        <div class="tutorial-card">
+          <span class="step-num">05</span>
+          <h4>加入线下应援</h4>
+          <p>生贺应援页 → 点击「加入应援」→ 填写信息 → 加入应援团队。</p>
+          <span class="tip-badge">💡 多选支持类型</span>
+        </div>
+        <div class="tutorial-card">
+          <span class="step-num">06</span>
+          <h4>切换语言</h4>
+          <p>导航栏右侧语言按钮：中文 / English / 日本語 / 한국어 自由切换。</p>
+          <span class="tip-badge">💡 全站四语支持</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: 意义与价值 -->
+  <div class="slide" data-index="4">
+    <div class="slide-inner">
+      <div class="section-header">
+        <div class="section-number">04</div>
+        <div class="section-title">意义与价值</div>
+        <div class="section-line"></div>
+        <div class="section-en">SIGNIFICANCE</div>
+      </div>
+      <div class="sig-dual">
+        <div class="sig-card golden">
+          <div class="sig-icon">💎</div>
+          <h4>对砂金角色的意义</h4>
+          <div class="sig-line"></div>
+          <ul>
+            <li><strong>角色影响力证明</strong> — 专属粉丝站本身就是人气的最佳见证</li>
+            <li><strong>信息聚合中心</strong> — 散落各平台的资料集中整理，形成完整知识库</li>
+            <li><strong>文化沉淀载体</strong> — 记录从登场到成长的每个节点，成为角色文化一部分</li>
+            <li><strong>官方与粉丝桥梁</strong> — 整理联动信息、周边商品，触达更多核心粉丝</li>
+            <li><strong>角色生命力延续</strong> — 即使版本更迭，热度永不消退</li>
+          </ul>
+        </div>
+        <div class="sig-card purple">
+          <div class="sig-icon">💜</div>
+          <h4>对粉丝群体的意义</h4>
+          <div class="sig-line"></div>
+          <ul>
+            <li><strong>精神归属地</strong> — 砂金厨专属的"家"，同好找到组织不再孤单</li>
+            <li><strong>一站式信息获取</strong> — 无需多平台跳转，一个网站满足全部需求</li>
+            <li><strong>创作交流平台</strong> — 投稿区、留言板、祝福弹幕激发创作热情</li>
+            <li><strong>线下活动枢纽</strong> — 应援报名、城市记录，线上热爱落到线下行动</li>
+            <li><strong>降低入门门槛</strong> — 新粉丝快速了解砂金的一切，轻松融入粉丝圈</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 5: 四语言 + CTA -->
+  <div class="slide" data-index="5">
+    <div class="slide-inner">
+      <div class="section-header">
+        <div class="section-number">05</div>
+        <div class="section-title">全球化语言支持</div>
+        <div class="section-line"></div>
+        <div class="section-en">MULTILINGUAL SUPPORT</div>
+      </div>
+      <div class="lang-grid">
+        <div class="lang-card">
+          <span class="lang-flag">🇨🇳</span>
+          <h4>简体中文</h4>
+          <p>Simplified Chinese</p>
+        </div>
+        <div class="lang-card">
+          <span class="lang-flag">🇺🇸</span>
+          <h4>English</h4>
+          <p>英语</p>
+        </div>
+        <div class="lang-card">
+          <span class="lang-flag">🇯🇵</span>
+          <h4>日本語</h4>
+          <p>日语</p>
+        </div>
+        <div class="lang-card">
+          <span class="lang-flag">🇰🇷</span>
+          <h4>한국어</h4>
+          <p>韩语</p>
+        </div>
+      </div>
+      <p style="text-align:center;color:rgba(200,190,170,0.45);font-size:14px;margin-top:8px;">
+        全站内容四语言覆盖，让全球砂金粉丝无障碍浏览
+      </p>
+
+      <div class="cta-box">
+        <div class="cover-divider" style="margin-bottom:32px;"></div>
+        <p style="color:rgba(200,190,170,0.5);margin-bottom:28px;font-size:15px;letter-spacing:2px;">
+          我们终将在卡卡瓦的极光下重逢
+        </p>
+        <a href="https://aventurine0505.xyz" target="_blank" class="cta-btn">
+          ✦ 立即访问 aventurine0505.xyz ✦
+        </a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ════════════ SCRIPTS ════════════ -->
+<script>
+// ── Particle Background ──
+(function() {
+  const canvas = document.getElementById('particles');
+  const ctx = canvas.getContext('2d');
+  let particles = [];
+  let animId;
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+
+  resize();
+  window.addEventListener('resize', resize);
+
+  function init() {
+    const count = Math.min(Math.floor((window.innerWidth * window.innerHeight) / 15000), 80);
+    particles = [];
+    for (let i = 0; i < count; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        vx: (Math.random() - 0.5) * 0.25,
+        vy: (Math.random() - 0.5) * 0.25,
+        size: Math.random() * 1.5 + 0.5,
+        opacity: Math.random() * 0.35 + 0.05
+      });
+    }
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    particles.forEach(p => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(212,184,120,${p.opacity})`;
+      ctx.fill();
+
+      const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 4);
+      grad.addColorStop(0, `rgba(212,184,120,${p.opacity * 0.5})`);
+      grad.addColorStop(1, 'rgba(212,184,120,0)');
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size * 4, 0, Math.PI * 2);
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      p.x += p.vx;
+      p.y += p.vy;
+      if (p.x < 0) p.x = canvas.width;
+      if (p.x > canvas.width) p.x = 0;
+      if (p.y < 0) p.y = canvas.height;
+      if (p.y > canvas.height) p.y = 0;
+    });
+
+    animId = requestAnimationFrame(draw);
+  }
+
+  init();
+  draw();
+})();
+
+// ── Slide Controller ──
+(function() {
+  const slides = document.querySelectorAll('.slide');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const dotsContainer = document.getElementById('pageDots');
+  const counter = document.getElementById('slideCounter');
+  const kbHint = document.getElementById('kbHint');
+  const total = slides.length;
+  let current = 0;
+  let isTransitioning = false;
+
+  // Create dots
+  for (let i = 0; i < total; i++) {
+    const dot = document.createElement('button');
+    dot.className = 'page-dot' + (i === 0 ? ' active' : '');
+    dot.addEventListener('click', () => goTo(i));
+    dotsContainer.appendChild(dot);
+  }
+
+  function updateDots() {
+    document.querySelectorAll('.page-dot').forEach((d, i) => {
+      d.classList.toggle('active', i === current);
+    });
+    counter.textContent = String(current + 1).padStart(2, '0') + ' / ' + String(total).padStart(2, '0');
+    prevBtn.disabled = current === 0;
+    nextBtn.disabled = current === total - 1;
+  }
+
+  function goTo(index) {
+    if (isTransitioning || index === current || index < 0 || index >= total) return;
+    isTransitioning = true;
+
+    const oldSlide = slides[current];
+    const newSlide = slides[index];
+    const goingRight = index > current;
+
+    // Clear old classes
+    slides.forEach(s => {
+      s.classList.remove('active', 'exit-left', 'exit-right', 'enter-left', 'enter-right');
+    });
+
+    // Animate old slide out
+    oldSlide.classList.add(goingRight ? 'exit-left' : 'exit-right');
+
+    // Animate new slide in
+    newSlide.classList.add(goingRight ? 'enter-right' : 'enter-left');
+
+    // Force reflow
+    void newSlide.offsetWidth;
+
+    // Kick off transition
+    requestAnimationFrame(() => {
+      newSlide.classList.remove(goingRight ? 'enter-right' : 'enter-left');
+      newSlide.classList.add('active');
+      oldSlide.classList.add(goingRight ? 'exit-left' : 'exit-right');
+    });
+
+    current = index;
+    updateDots();
+
+    // Reset slide-inner animation
+    const inner = newSlide.querySelector('.slide-inner');
+    if (inner) {
+      inner.style.animation = 'none';
+      void inner.offsetWidth;
+      inner.style.animation = 'contentIn 0.8s ease forwards';
+    }
+
+    setTimeout(() => {
+      isTransitioning = false;
+    }, 650);
+  }
+
+  prevBtn.addEventListener('click', () => goTo(current - 1));
+  nextBtn.addEventListener('click', () => goTo(current + 1));
+
+  // Keyboard
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') goTo(current - 1);
+    else if (e.key === 'ArrowRight') goTo(current + 1);
+    else if (e.key === 'ArrowUp') goTo(current - 1);
+    else if (e.key === 'ArrowDown') goTo(current + 1);
+    else if (e.key === 'Home') goTo(0);
+    else if (e.key === 'End') goTo(total - 1);
+
+    // Hide keyboard hint after first keypress
+    if (['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)) {
+      kbHint.style.opacity = '0';
+      setTimeout(() => { kbHint.style.opacity = '1'; }, 3000);
+    }
+  });
+
+  // Touch swipe
+  let touchStartX = 0;
+  let touchStartY = 0;
+  document.addEventListener('touchstart', (e) => {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+  });
+  document.addEventListener('touchend', (e) => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    const dy = e.changedTouches[0].clientY - touchStartY;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
+      if (dx > 0) goTo(current - 1);
+      else goTo(current + 1);
+    }
+  });
+
+  updateDots();
+})();
+</script>
+
+</body>
+</html>

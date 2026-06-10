@@ -3,7 +3,7 @@ import { useLang } from '../context/LanguageContext'
 import { useContent } from '../context/ContentContext'
 import type { CollabStore, MerchItem } from '../context/ContentContext'
 
-function StoreDetail({ store, onClose, allStores }: { store: CollabStore; onClose: () => void; allStores: CollabStore[] }) {
+function StoreDetail({ store, onClose, allStores, onSwitchStore }: { store: CollabStore; onClose: () => void; allStores: CollabStore[]; onSwitchStore?: (store: CollabStore) => void }) {
   const sameCity = allStores.filter(s => s.name !== store.name && s.city === store.city)
   
   return (
@@ -77,14 +77,20 @@ function StoreDetail({ store, onClose, allStores }: { store: CollabStore; onClos
                 </div>
                 <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                   {sameCity.slice(0, 4).map((s, idx) => (
-                    <span key={idx} style={{
-                      background: 'rgba(212,184,120,0.05)',
-                      border: '1px solid rgba(212,184,120,0.12)',
-                      borderRadius: '6px', padding: '4px 10px',
-                      color: 'rgba(248,246,240,0.55)', fontSize: '11px',
-                    }}>
+                    <button key={idx}
+                      onClick={() => onSwitchStore?.(s)}
+                      style={{
+                        background: 'rgba(212,184,120,0.05)',
+                        border: '1px solid rgba(212,184,120,0.12)',
+                        borderRadius: '6px', padding: '4px 10px',
+                        color: 'rgba(248,246,240,0.55)', fontSize: '11px',
+                        cursor: 'pointer', fontFamily: 'inherit',
+                      }}
+                      onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(212,184,120,0.4)'; e.currentTarget.style.color = '#d4b878' }}
+                      onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(212,184,120,0.12)'; e.currentTarget.style.color = 'rgba(248,246,240,0.55)' }}
+                    >
                       {s.name}
-                    </span>
+                    </button>
                   ))}
                 </div>
               </div>
@@ -96,7 +102,7 @@ function StoreDetail({ store, onClose, allStores }: { store: CollabStore; onClos
   )
 }
 
-function MerchDetail({ item, onClose, allMerch }: { item: MerchItem; onClose: () => void; allMerch: MerchItem[] }) {
+function MerchDetail({ item, onClose, allMerch, onSwitchMerch }: { item: MerchItem; onClose: () => void; allMerch: MerchItem[]; onSwitchMerch?: (item: MerchItem) => void }) {
   const sameType = allMerch.filter(m => m.name !== item.name && m.type === item.type)
   
   return (
@@ -194,14 +200,20 @@ function MerchDetail({ item, onClose, allMerch }: { item: MerchItem; onClose: ()
                 </div>
                 <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                   {sameType.slice(0, 4).map((m, idx) => (
-                    <span key={idx} style={{
-                      background: 'rgba(212,184,120,0.05)',
-                      border: '1px solid rgba(212,184,120,0.12)',
-                      borderRadius: '6px', padding: '4px 10px',
-                      color: 'rgba(248,246,240,0.55)', fontSize: '11px',
-                    }}>
+                    <button key={idx}
+                      onClick={() => onSwitchMerch?.(m)}
+                      style={{
+                        background: 'rgba(212,184,120,0.05)',
+                        border: '1px solid rgba(212,184,120,0.12)',
+                        borderRadius: '6px', padding: '4px 10px',
+                        color: 'rgba(248,246,240,0.55)', fontSize: '11px',
+                        cursor: 'pointer', fontFamily: 'inherit',
+                      }}
+                      onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(212,184,120,0.4)'; e.currentTarget.style.color = '#d4b878' }}
+                      onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(212,184,120,0.12)'; e.currentTarget.style.color = 'rgba(248,246,240,0.55)' }}
+                    >
                       {m.name} {m.price}
-                    </span>
+                    </button>
                   ))}
                 </div>
               </div>
@@ -322,8 +334,8 @@ export default function CollaborationPage() {
         </div>
 
         {/* Modals */}
-        {selectedStore && <StoreDetail store={selectedStore} onClose={() => setSelectedStore(null)} allStores={stores} />}
-        {selectedMerch && <MerchDetail item={selectedMerch} onClose={() => setSelectedMerch(null)} allMerch={merch} />}
+        {selectedStore && <StoreDetail store={selectedStore} onClose={() => setSelectedStore(null)} allStores={stores} onSwitchStore={(s) => setSelectedStore(s)} />}
+        {selectedMerch && <MerchDetail item={selectedMerch} onClose={() => setSelectedMerch(null)} allMerch={merch} onSwitchMerch={(m) => setSelectedMerch(m)} />}
 
         {/* Cute decoration */}
         <div style={{ position: 'relative', minHeight: '60px', marginTop: '20px', overflow: 'hidden' }}>

@@ -119,6 +119,14 @@ export interface CharacterStory {
   body_en: string;
 }
 
+export interface Blessing {
+  id: string;
+  name: string;
+  text: string;
+  time: string;
+  likes: number;
+}
+
 export interface FeedbackItem {
   id: string;
   nickname: string;
@@ -271,6 +279,7 @@ export type SiteContent = {
   blessings: {
     pageTitle: string;
     subtitle: string;
+    items: Blessing[];
   };
   supportRecord: {
     pageTitle: string;
@@ -302,11 +311,9 @@ const defaultContent: SiteContent = {
       { key: 'materials', icon: '◇', label: '角色物料', desc: '官方原画·应援印刷品', color: '#c4a868' },
       { key: 'collaboration', icon: '★', label: '官方联动', desc: '联名门店·周边图鉴', color: '#d4b878' },
       { key: 'chronicle', icon: '◈', label: '角色编年史', desc: '时间轴·大事记', color: '#9cba8a' },
-      { key: 'strength', icon: '⚔', label: '强度专区', desc: '攻略·配队·遗器', color: '#e0c060' },
       { key: 'blackmud', icon: '◉', label: '黑泥区', desc: '理性吐槽·有话好说', color: '#888' },
       { key: 'submit', icon: '✉', label: '投稿区', desc: '最新动态·线下实拍·板块更新', color: '#b0a0d8' },
-      { key: 'account', icon: '⊡', label: '账户中心', desc: '登录·注册·设置', color: '#d4b878' },
-      { key: 'profile', icon: '⊙', label: '个人中心', desc: '投稿·收藏', color: '#c4a868' },
+      { key: 'supportRecord', icon: '🎂', label: '生贺应援', desc: '线下应援·生贺记录', color: '#d4b878' },
       { key: 'blessings', icon: '♥', label: '祝福区', desc: '留下对砂金的祝福', color: '#d4b878' },
     ],
     updates: [
@@ -466,7 +473,7 @@ const defaultContent: SiteContent = {
   },
   blackMud: { pageTitle: '黑泥区 - 理性吐槽', warningText: '本区为理性讨论板块。禁止人身攻击、辱骂角色及制作组。如有严重违规行为，管理员将删除相关留言。', requireVerify: true },
   submit: { newsTitle: '最新动态投稿', photoTitle: '线下应援实拍投稿', updateTitle: '板块内容更新投稿', guidelines: '投稿须知：① 请确保内容真实有效 ② 审核通过后将展示于对应板块 ③ 恶意虚假信息将被拒稿 ④ 游客无需登录即可投稿 ⑤ 板块更新需注明修改理由' },
-  blessings: { pageTitle: '祝福区 - 愿极光照亮你的旅途', subtitle: '写下你想对砂金说的话，每一条祝福都是一片极光' },
+  blessings: { pageTitle: '祝福区 - 愿极光照亮你的旅途', subtitle: '写下你想对砂金说的话，每一条祝福都是一片极光', items: [] },
   supportRecord: {
     pageTitle: '眠于金色夏夜的过往 · 生贺应援',
     year2025Summary: `✦ 60城百屏\n✦ 240+棒超长产出接龙\n✦ 11城线下咖啡应援\n✦ 24城线下打卡活动\n✦ 5城生咖\n✦ 线下大型生日会\n✦ 线上生日会\n✦ 重庆痛楼\n✦ 星星命名\n✦ 多平台联动等更多活动\n\n携手200多位产出老师及多城线下共同庆祝砂金4.17入池一周年。与此同时等待着即将在5月5日立夏到来的卡卡瓦日。`,

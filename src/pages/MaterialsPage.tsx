@@ -62,7 +62,7 @@ function MaterialsDecor() {
 }
 
 // ============ Detail Page Overlay ============
-function DetailPage({ item, onClose, allItems }: { item: MaterialItem; onClose: () => void; allItems: MaterialItem[] }) {
+function DetailPage({ item, onClose, allItems, onSwitchItem }: { item: MaterialItem; onClose: () => void; allItems: MaterialItem[]; onSwitchItem?: (item: MaterialItem) => void }) {
   const [comments, setComments] = useState<Comment[]>(() => loadComments(item))
   const [newName, setNewName] = useState('')
   const [newText, setNewText] = useState('')
@@ -242,14 +242,18 @@ function DetailPage({ item, onClose, allItems }: { item: MaterialItem; onClose: 
             </div>
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
               {relatedItems.slice(0, 8).map((ri, idx) => (
-                <span key={idx} style={{
-                  background: 'rgba(212,184,120,0.05)',
-                  border: '1px solid rgba(212,184,120,0.1)',
-                  borderRadius: '8px', padding: '6px 14px',
-                  color: 'rgba(248,246,240,0.55)', fontSize: '13px',
-                }}>
+                <button
+                  key={idx}
+                  onClick={() => onSwitchItem?.(ri)}
+                  style={{
+                    background: 'rgba(212,184,120,0.05)',
+                    border: '1px solid rgba(212,184,120,0.12)',
+                    borderRadius: '6px', padding: '4px 10px',
+                    color: 'rgba(248,246,240,0.55)', fontSize: '11px',
+                    cursor: 'pointer', textAlign: 'left',
+                  }}>
                   {ri.title.length > 20 ? ri.title.slice(0, 20) + '...' : ri.title}
-                </span>
+                </button>
               ))}
             </div>
           </div>
@@ -481,6 +485,7 @@ export default function MaterialsPage() {
             item={selectedItem}
             onClose={() => setSelectedItem(null)}
             allItems={[...official, ...offline]}
+            onSwitchItem={(item) => setSelectedItem(item)}
           />
         )}
 
