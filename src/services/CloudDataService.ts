@@ -24,7 +24,8 @@ export interface CloudData {
   offlineFeedback: any[]
   feedbacks: any[]           // 意见反馈
   sponsorshipApps: any[]     // 生贺组应聘/赞助申请
-  knowledgePending: any[]    // 砂砂想说冷知识投稿
+  knowledge: any[]        // 砂砂想说冷知识（已发布）
+  knowledgePending: any[]    // 砂砂想说冷知识投稿（待审核，保留兼容）
   materialComments: Record<string, any[]> // 角色物料评论
   lastUpdated: string
 }
@@ -39,6 +40,7 @@ const DEFAULT_DATA: CloudData = {
   offlineFeedback: [],
   feedbacks: [],
   sponsorshipApps: [],
+  knowledge: [],
   knowledgePending: [],
   materialComments: {},
   lastUpdated: new Date().toISOString(),

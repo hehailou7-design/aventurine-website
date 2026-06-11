@@ -216,7 +216,8 @@ function SubmitKnowledge({ onClose, onSubmit }: { onClose: () => void; onSubmit:
         {submitted ? (
           <div style={{ textAlign: 'center', padding: '20px' }}>
             <div style={{ fontSize: '40px', marginBottom: '8px' }}>✅</div>
-            <div style={{ color: '#e898b8', fontSize: '16px' }}>投稿已提交！</div>
+            <div style={{ color: '#e898b8', fontSize: '16px' }}>投稿成功！</div>
+            <div style={{ color: 'rgba(248,246,240,0.4)', fontSize: '12px', marginTop: '4px' }}>已同步到云端，所有设备即刻可见</div>
           </div>
         ) : (
           <>
@@ -256,44 +257,78 @@ export default function SashaSayPage() {
   const [activeTab, setActiveTab] = useState<'knowledge' | 'gacha'>('knowledge')
   const [showSubmit, setShowSubmit] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [cloudError, setCloudError] = useState(false)
 
-  const knowledge = content.sashaSay?.knowledge || []
-  const gachaQuotes = content.sashaSay?.gachaQuotes || []
-  const gachaTitle = content.sashaSay?.gachaTitle || '🎰 扭蛋预言'
+  // 冷知识列表：优先使用云端同步的数据，fallback 到本地 content
+  const [knowledgeList, setKnowledgeList] = useState<SandKnowledge[]>([])
 
-  const handleSubmitKnowledge = async (text: string) => {
-    // Save to localStorage pending
-    try {
-      const pending = JSON.parse(localStorage.getItem('aventurine_knowledge_pending') || '[]')
-      pending.push({ id: 'k_' + Date.now(), text, submittedAt: new Date().toISOString(), submittedBy: '匿名' })
-      localStorage.setItem('aventurine_knowledge_pending', JSON.stringify(pending))
-      setSubmitted(true)
-      setTimeout(() => setSubmitted(false), 3000)
-      // 保存到云端
+  // 初始化：从云端加载 + 合并本地 content 中的知识
+  useEffect(() => {
+    const loadInitial = async () => {
       try {
         const cloud = await fetchCloudData()
-        const local = JSON.parse(localStorage.getItem('aventurine_knowledge_pending') || '[]')
-        cloud.knowledgePending = mergeArrays(local, cloud.knowledgePending)
-        await saveCloudData(cloud)
-      } catch {}
-    } catch { /* ignore */ }
+        const cloudList = cloud.knowledge || []
+
+        // 合并云端数据和本地 content 数据
+        const localList = content.sashaSay?.knowledge || []
+        const merged = mergeArrays(cloudList, localList)
+        setKnowledgeList(merged)
+        setCloudError(false)
+      } catch {
+        // 云端失败，使用本地数据
+        setKnowledgeList(content.sashaSay?.knowledge || [])
+        setCloudError(true)
+      }
+    }
+    loadInitial()
+  }, [content.sashaSay?.knowledge])
+
+  // 投稿处理：直接发布到云端 knowledge 数组
+  const handleSubmitKnowledge = async (text: string) => {
+    const newItem: SandKnowledge = {
+      id: 'k_' + Date.now(),
+      text,
+      source: '用户投稿',
+    }
+
+    // 立即更新本地显示
+    setKnowledgeList(prev => [newItem, ...prev])
+    setSubmitted(true)
+    setTimeout(() => setSubmitted(false), 3000)
+
+    // 保存到云端
+    try {
+      const cloud = await fetchCloudData()
+      const updated = [newItem, ...(cloud.knowledge || [])]
+      cloud.knowledge = updated
+      await saveCloudData(cloud)
+      setCloudError(false)
+    } catch {
+      setCloudError(true)
+    }
   }
 
+  // 云端同步：每 8 秒拉取最新数据
   useEffect(() => {
     const sync = async () => {
       try {
         const cloud = await fetchCloudData()
-        if (cloud.knowledgePending && cloud.knowledgePending.length > 0) {
-          const local = JSON.parse(localStorage.getItem('aventurine_knowledge_pending') || '[]')
-          const merged = mergeArrays(cloud.knowledgePending, local)
-          localStorage.setItem('aventurine_knowledge_pending', JSON.stringify(merged))
+        const cloudList = cloud.knowledge || []
+        if (cloudList.length > 0) {
+          setKnowledgeList(prev => mergeArrays(cloudList, prev))
+          setCloudError(false)
         }
-      } catch {}
+      } catch {
+        setCloudError(true)
+      }
     }
     sync()
     const interval = setInterval(sync, 8000)
     return () => clearInterval(interval)
   }, [])
+
+  const gachaQuotes = content.sashaSay?.gachaQuotes || []
+  const gachaTitle = content.sashaSay?.gachaTitle || '🎰 扭蛋预言'
 
   return (
     <div style={{ padding: '40px 0 100px', minHeight: '100vh' }}>
@@ -342,10 +377,18 @@ export default function SashaSayPage() {
                 background: 'rgba(156,186,138,0.1)', border: '1px solid rgba(156,186,138,0.2)',
                 borderRadius: '10px', padding: '10px 16px', textAlign: 'center', marginBottom: '16px',
                 color: '#9cba8a', fontSize: '12px',
-              }}>✅ 投稿已提交，管理员审核后将展示在此处</div>
+              }}>✅ 投稿成功！已同步到云端</div>
             )}
 
-            <WordCloud items={knowledge} onAdd={() => setShowSubmit(true)} />
+            {cloudError && (
+              <div style={{
+                background: 'rgba(232,152,184,0.1)', border: '1px solid rgba(232,152,184,0.2)',
+                borderRadius: '10px', padding: '8px 16px', textAlign: 'center', marginBottom: '16px',
+                color: '#e898b8', fontSize: '11px',
+              }}>⚠️ 云端同步暂时不可用，数据将保存在本地</div>
+            )}
+
+            <WordCloud items={knowledgeList} onAdd={() => setShowSubmit(true)} />
           </div>
         ) : (
           <div className="card-glass" style={{ borderRadius: '16px', padding: '24px' }}>
