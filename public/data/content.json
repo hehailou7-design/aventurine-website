@@ -52,6 +52,13 @@
         "color": "#b0a0d8"
       },
       {
+        "key": "profile",
+        "icon": "⊙",
+        "label": "个人中心",
+        "desc": "投稿·收藏",
+        "color": "#c4a868"
+      },
+      {
         "key": "blessings",
         "icon": "♥",
         "label": "祝福区",
@@ -1187,6 +1194,30 @@
         "type": "马口铁徽章",
         "image": "https://act-webstatic.mihoyo.com/upload/mall/2026/03/18/acf27a5def62570957312d08ac307850_3319652184529417868.jpg?x-oss-process=image/resize,m_lfit,w_1480,h_1480,limit_0/format,webp",
         "taobaoUrl": "https://e.tb.cn/h.RlkxllBCrqZ5YTL?tk=LqoPgdNO18h"
+      },
+      {
+        "name": "「崩坏：星穹铁道」宇宙糖果屋系列PET色纸（砂金）",
+        "price": "35",
+        "version": "2.0",
+        "type": "色纸明信片",
+        "image": "https://act-webstatic.mihoyo.com/upload/mall/2025/05/29/c140f5f5dd6d3cb563d41567a5889d22_6112947945302368609.jpeg?x-oss-process=image/resize,m_lfit,w_1480,h_1480,limit_0/format,webp",
+        "taobaoUrl": " https://e.tb.cn/h.RO68c4xivwx1Yu0?tk=kByBgWi37Pd"
+      },
+      {
+        "name": "「崩坏：星穹铁道」宇宙糖果屋系列亚克力摆件（砂金）",
+        "price": "48",
+        "version": "2.0",
+        "type": "亚克力摆件",
+        "image": "https://act-webstatic.mihoyo.com/upload/mall/2025/05/30/68b63ab00f3097b6bb8d057824fab6e5_4353661737470872724.jpeg?x-oss-process=image/resize,m_lfit,w_1480,h_1480,limit_0/format,webp",
+        "taobaoUrl": "https://e.tb.cn/h.Rkh6NcbiYBZ5ZLp?tk=VIO1gWiftJP"
+      },
+      {
+        "name": "「崩坏：星穹铁道」宇宙糖果屋系列马口铁徽章（砂金）",
+        "price": "15",
+        "version": "2.0",
+        "type": "马口铁徽章",
+        "image": "https://act-webstatic.mihoyo.com/upload/mall/2025/05/29/8ad08af18d90a589d3b3c901566ca17e_2761829467950987640.jpeg?x-oss-process=image/resize,m_lfit,w_1480,h_1480,limit_0/format,webp",
+        "taobaoUrl": "https://e.tb.cn/h.RO6jcqlbMxGbKyp?tk=Z5vFgWiVf95"
       }
     ]
   },
