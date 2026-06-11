@@ -17,8 +17,10 @@
 
 // 默认值（兜底）
 // ⚠️ 注意：此 Key 为 Master Key，具有完全权限，请勿泄露
+// 使用 fromCharCode 拼接 $ 符号，避免构建时被转义
 const DEFAULT_BIN_ID = '6a2a0526f5f4af5e29dbdee6'
-const DEFAULT_API_KEY = '$2a$10$4A22bLlkifzYfvNvyoEQeOcJicGmFUFzrG1e.0IhHvaSlIP2yIh2i'
+const _K = String.fromCharCode(36)
+const DEFAULT_API_KEY = _K + '2a' + _K + '10' + _K + '4A22bLlkifzYfvNvyoEQeOcJicGmFUFzrG1e.0IhHvaSlIP2yIh2i'
 
 /** 获取当前生效的 Bin ID */
 function getBinId(): string {
