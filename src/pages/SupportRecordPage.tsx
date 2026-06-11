@@ -176,11 +176,17 @@ export default function SupportRecordPage() {
       setCloudSyncStatus('syncing')
       try {
         const cloudData = await fetchCloudData()
-        if (cloudData.offlineFeedback && cloudData.offlineFeedback.length > 0) {
-          setOfflineFeedback(cloudData.offlineFeedback)
-          localStorage.setItem('aventurine_offline_feedback', JSON.stringify(cloudData.offlineFeedback))
-          setLastSynced(new Date().toLocaleTimeString())
-        }
+        // 无论云端是否有数据，都合并（云端优先）
+        const local = JSON.parse(localStorage.getItem('aventurine_offline_feedback') || '[]')
+        const cloudList = cloudData.offlineFeedback || []
+        // 合并：以 id 去重，云端优先
+        const map = new Map<string, any>()
+        cloudList.forEach((item: any) => map.set(item.id, item))
+        local.forEach((item: any) => { if (!map.has(item.id)) map.set(item.id, item) })
+        const merged = Array.from(map.values())
+        setOfflineFeedback(merged)
+        localStorage.setItem('aventurine_offline_feedback', JSON.stringify(merged))
+        setLastSynced(new Date().toLocaleTimeString())
         setCloudSyncStatus('idle')
       } catch (error) {
         console.error('从云端加载失败:', error)

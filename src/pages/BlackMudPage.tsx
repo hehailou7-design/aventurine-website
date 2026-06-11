@@ -42,8 +42,15 @@ const syncToCloud = async () => {
     const users = loadUsers()
     const posts = loadPosts()
     const cloudData = await fetchCloudData()
-    cloudData.blackMudUsers = users
-    cloudData.blackMudPosts = posts
+    // 合并：以 id 去重，本地优先（用户刚操作的数据最新）
+    const mergeById = (cloud: any[], local: any[]) => {
+      const map = new Map<string, any>()
+      cloud.forEach(item => map.set(item.id, item))
+      local.forEach(item => map.set(item.id, item)) // 本地覆盖云端
+      return Array.from(map.values())
+    }
+    cloudData.blackMudUsers = mergeById(cloudData.blackMudUsers || [], users)
+    cloudData.blackMudPosts = mergeById(cloudData.blackMudPosts || [], posts)
     await saveCloudData(cloudData)
     console.log('黑泥区数据已同步到云端')
   } catch (error) {
@@ -54,13 +61,20 @@ const syncToCloud = async () => {
 const loadFromCloud = async () => {
   try {
     const cloudData = await fetchCloudData()
-    if (cloudData.blackMudUsers && cloudData.blackMudUsers.length > 0) {
-      saveUsers(cloudData.blackMudUsers)
+    // 合并：云端和本地都保留，以 id 去重
+    const mergeById = (cloud: any[], local: any[]) => {
+      const map = new Map<string, any>()
+      local.forEach(item => map.set(item.id, item))
+      cloud.forEach(item => map.set(item.id, item)) // 云端覆盖本地（读取时云端优先）
+      return Array.from(map.values())
     }
-    if (cloudData.blackMudPosts && cloudData.blackMudPosts.length > 0) {
-      savePosts(cloudData.blackMudPosts)
-    }
-    console.log('黑泥区数据已从云端加载')
+    const localUsers = loadUsers()
+    const localPosts = loadPosts()
+    const mergedUsers = mergeById(cloudData.blackMudUsers || [], localUsers)
+    const mergedPosts = mergeById(cloudData.blackMudPosts || [], localPosts)
+    saveUsers(mergedUsers)
+    savePosts(mergedPosts)
+    console.log('黑泥区数据已从云端加载: 用户', mergedUsers.length, '条, 帖子', mergedPosts.length, '条')
     return true
   } catch (error) {
     console.error('从云端加载失败:', error)
