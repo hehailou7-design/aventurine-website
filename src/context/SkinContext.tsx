@@ -82,21 +82,21 @@ const SKINS: Record<string, SkinTheme> = {
   
   whiteLace: {
     id: 'whiteLace',
-    name: '白色雪人',
-    nameEn: 'White Snow',
-    nameJp: 'ホワイトスノー',
-    nameKr: '화이트 스노우',
+    name: '白色',
+    nameEn: 'Pure White',
+    nameJp: 'ピュアホワイト',
+    nameKr: '퓨어 화이트',
     primary: '#e8d0f2',
     secondary: '#b0a0d8',
-    background: '#1a1a2e',
-    backgroundGradient: 'linear-gradient(135deg, #1a1a2e 0%, #2e2e4a 50%, #1a1a2e 100%)',
-    text: '#f2e8f0',
-    textSecondary: 'rgba(232,208,242,0.6)',
+    background: '#f5f5f5',
+    backgroundGradient: 'linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 50%, #f5f5f5 100%)',
+    text: '#333333',
+    textSecondary: 'rgba(51,51,51,0.6)',
     border: 'rgba(232,208,242,0.3)',
-    cardBg: 'rgba(46,46,74,0.8)',
+    cardBg: 'rgba(255,255,255,0.9)',
     cardBorder: 'rgba(232,208,242,0.3)',
-    effect: 'snow',
-    decorations: ['bow', 'lace', 'snowman'],
+    effect: 'none',
+    decorations: ['bow', 'lace'],
   },
 }
 
@@ -150,8 +150,11 @@ export function SkinProvider({ children }: { children: ReactNode }) {
     }
     
     // 添加装饰
-    if (skin.decorations?.includes('snowman')) {
-      createSnowman()
+    if (skin.decorations?.includes('bow')) {
+      createBowDecoration()
+    }
+    if (skin.decorations?.includes('lace')) {
+      createLaceDecoration()
     }
   }
   
@@ -281,28 +284,77 @@ function createSnowEffect() {
   document.head.appendChild(style)
 }
 
-function createSnowman() {
-  const snowman = document.createElement('div')
-  snowman.className = 'skin-effect snowman'
-  snowman.style.cssText = `
+function createLaceDecoration() {
+  const lace = document.createElement('div')
+  lace.className = 'skin-effect lace-decoration'
+  lace.style.cssText = `
     position: fixed;
-    bottom: 20px;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 9998;
+    overflow: hidden;
+  `
+  
+  // 添加蕾丝边纹
+  for (let i = 0; i < 20; i++) {
+    const laceItem = document.createElement('div')
+    laceItem.style.cssText = `
+      position: absolute;
+      width: ${20 + Math.random() * 30}px;
+      height: ${20 + Math.random() * 30}px;
+      background: radial-gradient(circle at center, rgba(255,255,255,0.8) 0%, rgba(232,208,242,0.3) 70%, transparent 100%);
+      border-radius: 50%;
+      top: ${Math.random() * 100}vh;
+      left: ${Math.random() * 100}vw;
+      opacity: ${0.2 + Math.random() * 0.3};
+      animation: laceFloat ${10 + Math.random() * 10}s ease-in-out infinite;
+      animation-delay: ${Math.random() * 5}s;
+    `
+    lace.appendChild(laceItem)
+  }
+  
+  document.body.appendChild(lace)
+  
+  const style = document.createElement('style')
+  style.textContent = `
+    @keyframes laceFloat {
+      0%, 100% {
+        transform: translate(0, 0) rotate(0deg);
+      }
+      25% {
+        transform: translate(10px, -10px) rotate(5deg);
+      }
+      50% {
+        transform: translate(-5px, 5px) rotate(-3deg);
+      }
+      75% {
+        transform: translate(5px, 10px) rotate(3deg);
+      }
+    }
+  `
+  document.head.appendChild(style)
+}
+
+function createBowDecoration() {
+  const bow = document.createElement('div')
+  bow.className = 'skin-effect bow-decoration'
+  bow.style.cssText = `
+    position: fixed;
+    top: 20px;
     right: 20px;
-    width: 80px;
-    height: 120px;
+    width: 60px;
+    height: 40px;
     z-index: 9998;
     pointer-events: none;
   `
-  snowman.innerHTML = `
-    <div style="position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 60px; height: 50px; background: white; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></div>
-    <div style="position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); width: 45px; height: 40px; background: white; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"></div>
-    <div style="position: absolute; bottom: 70px; left: 50%; transform: translateX(-50%); width: 35px; height: 35px; background: white; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
-      <div style="position: absolute; top: 10px; left: 8px; width: 5px; height: 5px; background: #333; border-radius: 50%;"></div>
-      <div style="position: absolute; top: 10px; right: 8px; width: 5px; height: 5px; background: #333; border-radius: 50%;"></div>
-      <div style="position: absolute; top: 18px; left: 50%; transform: translateX(-50%); width: 8px; height: 4px; background: #ff8fad; border-radius: 50%;"></div>
-    </div>
-    <div style="position: absolute; bottom: 85px; left: 5px; width: 15px; height: 3px; background: #8b6f47; border-radius: 2px; transform: rotate(-30deg);"></div>
-    <div style="position: absolute; bottom: 85px; right: 5px; width: 15px; height: 3px; background: #8b6f47; border-radius: 2px; transform: rotate(30deg);"></div>
+  bow.innerHTML = `
+    <div style="position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 20px; height: 15px; background: #e8d0f2; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></div>
+    <div style="position: absolute; top: 5px; left: 10px; width: 15px; height: 10px; background: #d4b878; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></div>
+    <div style="position: absolute; top: 5px; right: 10px; width: 15px; height: 10px; background: #d4b878; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></div>
+    <div style="position: absolute; top: 15px; left: 50%; transform: translateX(-50%); width: 8px; height: 15px; background: #e8d0f2; border-radius: 0 0 4px 4px;"></div>
   `
-  document.body.appendChild(snowman)
+  document.body.appendChild(bow)
 }
