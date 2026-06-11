@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>JSONBin 连接诊断</title></head>
+<body>
+<h1>JSONBin API 连接诊断</h1>
+<div id="log" style="font-family: monospace; white-space: pre-wrap; background: #111; color: #0f0; padding: 20px;"></div>
+<script>
+const BIN_ID = '6a2a0526f5f4af5e29dbdee6';
+const API_KEY = '$2a$10$4A22bLlkifzYfvNvyoEQeOcJicGmFUFzrG1e.0IhHvaSlIP2yIh2i';
+const log = document.getElementById('log');
+
+function addLog(msg) { log.textContent += msg + '\n'; }
+
+async function testRead() {
+  addLog('--- 测试读取云端数据 ---');
+  try {
+    const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+      headers: { 'X-Master-Key': API_KEY }
+    });
+    addLog('读取状态码: ' + res.status);
+    const data = await res.json();
+    addLog('blessings 数量: ' + (data.record?.blessings?.length || 0));
+    addLog('✅ 读取成功');
+  } catch (e) {
+    addLog('❌ 读取失败: ' + e.message);
+  }
+}
+
+async function testWrite() {
+  addLog('--- 测试写入云端数据 ---');
+  try {
+    const testData = {
+      blessings: [{ id: 'browser_test_' + Date.now(), name: '浏览器测试', text: '这是从浏览器直接写入的测试祝福', time: new Date().toISOString(), likes: 0 }],
+      blackMudPosts: [], blackMudUsers: [], pendingSubmits: [], approvedSubmits: [], rejectedSubmits: [],
+      offlineFeedback: [], feedbacks: [], sponsorshipApps: [], knowledgePending: [], materialComments: {},
+      lastUpdated: new Date().toISOString()
+    };
+    const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY },
+      body: JSON.stringify(testData)
+    });
+    addLog('写入状态码: ' + res.status);
+    if (res.ok) addLog('✅ 写入成功');
+    else addLog('❌ 写入失败: ' + await res.text());
+  } catch (e) {
+    addLog('❌ 写入失败: ' + e.message);
+  }
+}
+
+async function testFullFlow() {
+  addLog('=== JSONBin API 诊断开始 ===');
+  addLog('页面 URL: ' + location.href);
+  addLog('协议: ' + location.protocol);
+  await testRead();
+  await testWrite();
+  await testRead();
+  addLog('=== 诊断完成 ===');
+}
+
+testFullFlow();
+</script>
+</body>
+</html>

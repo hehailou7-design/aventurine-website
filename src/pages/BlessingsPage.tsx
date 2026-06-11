@@ -117,6 +117,7 @@ export default function BlessingsPage() {
   const [showDanmu, setShowDanmu] = useState(true)
   const [cloudSyncStatus, setCloudSyncStatus] = useState<'idle' | 'syncing' | 'error'>('idle')
   const [lastSynced, setLastSynced] = useState<string>('')
+  const [cloudError, setCloudError] = useState<string>('')
 
   // Sync local history to localStorage on mount (for backward compat)
   useEffect(() => {
@@ -134,6 +135,7 @@ export default function BlessingsPage() {
       setCloudSyncStatus('syncing')
       try {
         const cloudData = await fetchCloudData()
+        console.log('🔄 [祝福区同步] 云端数据:', cloudData.blessings?.length || 0, '条祝福')
         // 无论云端是否有数据，都进行合并
         setBlessings(prev => {
           const merged = mergeBlessings(prev, cloudData.blessings || [])
@@ -142,9 +144,11 @@ export default function BlessingsPage() {
         })
         setLastSynced(new Date().toLocaleTimeString())
         setCloudSyncStatus('idle')
-      } catch (error) {
+        setCloudError('')
+      } catch (error: any) {
         console.error('Failed to sync with cloud:', error)
         setCloudSyncStatus('error')
+        setCloudError(`同步失败: ${error?.message || '网络错误'}`)
       }
     }
 
@@ -181,14 +185,26 @@ export default function BlessingsPage() {
     
     // 保存到云端
     try {
+      console.log('☁️ [祝福区] 开始读取云端数据...')
       const cloudData = await fetchCloudData()
+      console.log('☁️ [祝福区] 云端数据读取成功, blessings 数量:', cloudData.blessings?.length || 0)
       cloudData.blessings = updated
-      await saveCloudData(cloudData)
-      setLastSynced(new Date().toLocaleTimeString())
-      setCloudSyncStatus('idle')
-    } catch (error) {
-      console.error('保存到云端失败:', error)
+      console.log('☁️ [祝福区] 开始保存到云端, 共计', updated.length, '条祝福')
+      const saved = await saveCloudData(cloudData)
+      if (saved) {
+        console.log('☁️ [祝福区] ✅ 保存到云端成功！')
+        setLastSynced(new Date().toLocaleTimeString())
+        setCloudSyncStatus('idle')
+        setCloudError('')
+      } else {
+        console.error('☁️ [祝福区] ❌ saveCloudData 返回 false')
+        setCloudSyncStatus('error')
+        setCloudError('保存失败，请检查网络连接')
+      }
+    } catch (error: any) {
+      console.error('☁️ [祝福区] ❌ 保存到云端失败:', error)
       setCloudSyncStatus('error')
+      setCloudError(`同步失败: ${error?.message || '未知错误'}`)
     }
     
     setName('')
@@ -303,6 +319,11 @@ export default function BlessingsPage() {
           <div style={{
             marginLeft: '12px',
             display: 'inline-flex',
+            flexDirection: 'column',
+            gap: '4px',
+          }}>
+          <div style={{
+            display: 'inline-flex',
             alignItems: 'center',
             gap: '6px',
             padding: '6px 12px',
@@ -327,6 +348,17 @@ export default function BlessingsPage() {
             ) : (
               <>✅ 已同步 {lastSynced && `(${lastSynced})`}</>
             )}
+          </div>
+          {cloudError && cloudSyncStatus === 'error' && (
+            <span style={{
+              color: '#e07070',
+              fontSize: '10px',
+              textAlign: 'center',
+              maxWidth: '300px',
+            }}>
+              {cloudError}
+            </span>
+          )}
           </div>
         </div>
       </div>
