@@ -1,17 +1,18 @@
 /**
  * 全球数据同步服务
- * 使用 jsonblob.com 作为云端存储，让所有用户看到相同的数据
+ * 使用 JSONBin.io 公开 Bin 作为云端存储
  * 
  * 特点：
- * - 无需 API Key，无需注册账号
- * - 原生 CORS 支持，浏览器直接请求
- * - 简单 REST API (GET/PUT)
+ * - 公开 Bin 无需认证（X-Bin-Private: false）
+ * - 完整 CORS 支持（Access-Control-Allow-Origin: *）
+ * - 浏览器直接读写，无 401 问题
  * 
- * Blob URL: https://jsonblob.com/api/jsonBlob/019eb45f-fbbc-7ef7-af71-2ae7db1ff938
+ * Bin ID: 6a2a1fccf5f4af5e29dc4391
+ * Bin URL: https://api.jsonbin.io/v3/b/6a2a1fccf5f4af5e29dc4391
  */
 
-const BLOB_ID = '019eb45f-fbbc-7ef7-af71-2ae7db1ff938'
-const BLOB_URL = `https://jsonblob.com/api/jsonBlob/${BLOB_ID}`
+const BIN_ID = '6a2a1fccf5f4af5e29dc4391'
+const BIN_BASE_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`
 
 export interface CloudData {
   blessings: any[]
@@ -44,17 +45,18 @@ const DEFAULT_DATA: CloudData = {
 }
 
 /**
- * 从云端读取数据
+ * 从云端读取数据（公开 Bin，无需认证）
  */
 export async function fetchCloudData(): Promise<CloudData> {
   try {
-    console.log('☁️ [CloudData] GET 请求:', BLOB_URL)
-    const response = await fetch(BLOB_URL, {
+    const url = `${BIN_BASE_URL}/latest`
+    console.log('☁️ [CloudData] GET:', url)
+    const response = await fetch(url, {
       method: 'GET',
-      headers: { 'Accept': 'application/json' },
+      headers: { 'X-Bin-Meta': 'false' },
     })
     
-    console.log('☁️ [CloudData] GET 响应状态:', response.status)
+    console.log('☁️ [CloudData] GET 状态:', response.status)
     
     if (!response.ok) {
       console.warn(`⚠️ [CloudData] 读取失败: ${response.status}`)
@@ -62,8 +64,10 @@ export async function fetchCloudData(): Promise<CloudData> {
     }
     
     const data = await response.json()
-    console.log('☁️ [CloudData] 读取成功, blessings:', data.blessings?.length || 0, '条')
-    return data || DEFAULT_DATA
+    // JSONBin 返回格式：{ record: {...}, metadata: {...} }
+    const record = data.record || data
+    console.log('☁️ [CloudData] 读取成功, blessings:', record.blessings?.length || 0, '条')
+    return { ...DEFAULT_DATA, ...record }
   } catch (error) {
     console.error('❌ [CloudData] 读取异常:', error)
     return DEFAULT_DATA
@@ -71,25 +75,24 @@ export async function fetchCloudData(): Promise<CloudData> {
 }
 
 /**
- * 保存数据到云端（完整替换）
+ * 保存数据到云端（完整替换，公开 Bin 无需认证）
  */
 export async function saveCloudData(data: CloudData): Promise<boolean> {
   try {
     data.lastUpdated = new Date().toISOString()
     
     const body = JSON.stringify(data)
-    console.log('☁️ [CloudData] PUT 请求, 数据大小:', body.length, 'bytes, blessings:', data.blessings?.length, '条')
+    console.log('☁️ [CloudData] PUT 请求, blessings:', data.blessings?.length, '条')
     
-    const response = await fetch(BLOB_URL, {
+    const response = await fetch(BIN_BASE_URL, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        'Accept': 'application/json',
       },
       body: body,
     })
     
-    console.log('☁️ [CloudData] PUT 响应状态:', response.status)
+    console.log('☁️ [CloudData] PUT 状态:', response.status)
     
     if (!response.ok) {
       const text = await response.text().catch(() => '')
@@ -129,24 +132,24 @@ export function mergeObjects<T extends Record<string, any>>(cloud: T, local: T):
   return result as T
 }
 
-// ===== 兼容旧 API（向后兼容，这些函数是之前 JSONBin 时代留下的，保留避免编译报错）=====
+// ===== 兼容旧 API（向后兼容）=====
 
-/** @deprecated jsonblob 不需要 API Key，保留此函数仅为向后兼容 */
+/** @deprecated 保留仅为向后兼容 */
 export function setCloudConfig(_binId: string, _apiKey: string): void {
-  // no-op，jsonblob 不需要配置
+  // no-op
 }
 
-/** @deprecated jsonblob 不需要配置，始终返回已配置 */
+/** @deprecated 保留仅为向后兼容 */
 export function getCloudConfig(): { binId: string; apiKey: string } {
-  return { binId: BLOB_ID, apiKey: '(jsonblob无需API Key)' }
+  return { binId: BIN_ID, apiKey: '(公开Bin，无需Key)' }
 }
 
-/** @deprecated jsonblob 不需要配置，始终返回 true */
+/** 始终返回 true */
 export function isCloudConfigured(): boolean {
-  return true // jsonblob 总是可用的
+  return true
 }
 
-/** @deprecated jsonblob 不需要初始化 */
+/** @deprecated 无需初始化 */
 export async function initCloudData(): Promise<void> {
   // no-op
 }

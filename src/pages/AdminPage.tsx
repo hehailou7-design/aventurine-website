@@ -903,7 +903,7 @@ export default function AdminPage({ onLogout }: { onLogout?: () => void }) {
               </div>
               
               <div style={{ fontSize: '12px', color: 'rgba(248,246,240,0.6)', lineHeight: '1.8' }}>
-                当前使用 <strong style={{ color: '#88c8d8' }}>jsonblob.com</strong> 作为云端存储<br/>
+                当前使用 <strong style={{ color: '#88c8d8' }}>JSONBin.io 公开 Bin</strong> 作为云端存储<br/>
                 无需 API Key，浏览器直接读写，自动同步<br/>
                 每 8 秒自动同步一次，多设备实时共享数据
               </div>
@@ -911,7 +911,7 @@ export default function AdminPage({ onLogout }: { onLogout?: () => void }) {
               <button
                 onClick={async () => {
                   try {
-                    const response = await fetch('https://jsonblob.com/api/jsonBlob/019eb45f-fbbc-7ef7-af71-2ae7db1ff938', {
+                    const response = await fetch('https://api.jsonbin.io/v3/b/6a2a1fccf5f4af5e29dc4391/latest', {
                       headers: { 'Accept': 'application/json' },
                     })
                     if (response.ok) {
