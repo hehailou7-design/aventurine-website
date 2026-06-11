@@ -17,7 +17,6 @@ import CustomPage from './pages/CustomPage'
 import AdminPage from './pages/AdminPage'
 import LoginPage from './pages/LoginPage'
 import ParticleBackground from './components/ParticleBackground'
-import SkinSwitcher from './components/SkinSwitcher'
 import { LanguageProvider } from './context/LanguageContext'
 import { ContentProvider } from './context/ContentContext'
 import './index.css'
@@ -146,9 +145,6 @@ function AppContent() {
         <div className="min-h-screen aurora-bg text-champagne-light flex flex-col" style={{ position: 'relative' }}>
           {/* 粒子背景 */}
           <ParticleBackground />
-          
-          {/* 皮肤切换器 */}
-          <SkinSwitcher />
           
           {/* 主要内容 */}
           <div style={{ position: 'relative', zIndex: 1 }}>
