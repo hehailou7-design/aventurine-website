@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useLang } from '../context/LanguageContext'
 import { useContent } from '../context/ContentContext'
 import { fetchCloudData, saveCloudData, type CloudData } from '../services/CloudDataService'
@@ -10,6 +10,7 @@ interface BlackMudUser {
   password: string
   verifyType: 'purchase' | 'character' | 'social'
   verifyDetail: string
+  verifyImages: string[]  // 上传的验证图片（base64压缩后）
   verified: boolean
   muted: boolean
   banned: boolean
@@ -152,6 +153,75 @@ export default function BlackMudPage() {
   const [regVerifyDetail, setRegVerifyDetail] = useState('')
   const [regError, setRegError] = useState('')
   const [regSuccess, setRegSuccess] = useState(false)
+  const [regImages, setRegImages] = useState<string[]>([])
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // 压缩图片函数
+  const compressImage = (file: File, maxWidth: number = 800, maxSizeKB: number = 200): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        const img = new Image()
+        img.onload = () => {
+          const canvas = document.createElement('canvas')
+          let { width, height } = img
+          
+          // 按比例缩放
+          if (width > maxWidth) {
+            height = (height * maxWidth) / width
+            width = maxWidth
+          }
+          
+          canvas.width = width
+          canvas.height = height
+          const ctx = canvas.getContext('2d')
+          if (!ctx) { reject(new Error('Canvas not supported')); return }
+          ctx.drawImage(img, 0, 0, width, height)
+          
+          // 尝试压缩到目标大小
+          let quality = 0.7
+          let result = canvas.toDataURL('image/jpeg', quality)
+          
+          // 如果还太大，继续降低质量
+          while (result.length > maxSizeKB * 1024 && quality > 0.1) {
+            quality -= 0.1
+            result = canvas.toDataURL('image/jpeg', quality)
+          }
+          
+          resolve(result)
+        }
+        img.onerror = () => reject(new Error('Image load failed'))
+        img.src = e.target?.result as string
+      }
+      reader.onerror = () => reject(new Error('File read failed'))
+      reader.readAsDataURL(file)
+    })
+  }
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (!files || files.length === 0) return
+    
+    if (regImages.length >= 5) {
+      setRegError('最多上传 5 张图片')
+      return
+    }
+    
+    setRegError('')
+    try {
+      const compressed = await compressImage(files[0])
+      setRegImages(prev => [...prev, compressed])
+    } catch (err) {
+      setRegError('图片上传失败，请重试')
+    }
+    
+    // 清除 input 以便重复选择同一文件
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
+  const removeImage = (index: number) => {
+    setRegImages(prev => prev.filter((_, i) => i !== index))
+  }
 
   const handleRegister = () => {
     setRegError('')
@@ -173,6 +243,7 @@ export default function BlackMudPage() {
       password: regPassword,
       verifyType: regVerifyType,
       verifyDetail: regVerifyDetail.trim(),
+      verifyImages: regImages,
       verified: true, // 前端自动通过，实际可改为需审核
       muted: false,
       banned: false,
@@ -190,6 +261,7 @@ export default function BlackMudPage() {
       setRegNickname('')
       setRegPassword('')
       setRegVerifyDetail('')
+      setRegImages([])
     }, 1500)
   }
 
@@ -344,7 +416,7 @@ export default function BlackMudPage() {
                   </label>
                   <div style={{ display: 'flex', gap: '6px', marginBottom: '10px', flexWrap: 'wrap' }}>
                     {(['purchase', 'character', 'social'] as const).map(vt => (
-                      <button key={vt} onClick={() => setRegVerifyType(vt)}
+                      <button key={vt} onClick={() => { setRegVerifyType(vt); setRegImages([]); setRegError('') }}
                         style={{
                           padding: '6px 12px', fontSize: '11px', borderRadius: '8px', cursor: 'pointer', fontFamily: 'inherit',
                           background: regVerifyType === vt ? 'rgba(212,184,120,0.15)' : 'transparent',
@@ -357,17 +429,90 @@ export default function BlackMudPage() {
                   </div>
                   <input type="text" value={regVerifyDetail} onChange={e => setRegVerifyDetail(e.target.value)}
                     placeholder={
-                      regVerifyType === 'purchase' ? '请输入周边购买记录（商品名/订单号）' :
-                      regVerifyType === 'character' ? '请输入角色练度截图链接' :
-                      '请输入小红书/微博账号'
+                      regVerifyType === 'purchase' ? '请输入周边购买记录（商品名/订单号/平台）' :
+                      regVerifyType === 'character' ? '请输入角色练度描述（等级/光锥/遗器）' :
+                      '请输入小红书或微博账号主页链接'
                     }
                     style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', background: 'rgba(14,14,14,0.8)', border: '1px solid rgba(212,184,120,0.25)', color: '#f2e8d0', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
                   />
-                  <div style={{ color: 'rgba(248,246,240,0.25)', fontSize: '10px', marginTop: '6px' }}>
-                    {regVerifyType === 'purchase' && '💡 可在订单详情截图上传至图床，此处填写链接'}
-                    {regVerifyType === 'character' && '💡 游戏内角色练度截图，上传至图床后填写链接'}
-                    {regVerifyType === 'social' && '💡 填写你的小红书或微博账号主页链接'}
-                  </div>
+                  
+                  {/* 图片上传区域 — 仅 purchase 和 character */}
+                  {(regVerifyType === 'purchase' || regVerifyType === 'character') && (
+                    <div style={{ marginTop: '10px' }}>
+                      {/* 上传按钮 */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                        <button
+                          type="button"
+                          onClick={() => fileInputRef.current?.click()}
+                          disabled={regImages.length >= 5}
+                          style={{
+                            padding: '8px 16px', borderRadius: '8px', cursor: regImages.length >= 5 ? 'default' : 'pointer',
+                            background: regImages.length >= 5 ? 'rgba(255,255,255,0.03)' : 'rgba(212,184,120,0.1)',
+                            border: `1px solid ${regImages.length >= 5 ? 'rgba(255,255,255,0.08)' : 'rgba(212,184,120,0.3)'}`,
+                            color: regImages.length >= 5 ? 'rgba(255,255,255,0.3)' : '#d4b878',
+                            fontSize: '12px', fontFamily: 'inherit',
+                            display: 'flex', alignItems: 'center', gap: '6px',
+                          }}
+                        >
+                          📷 上传{regVerifyType === 'purchase' ? '购买记录' : '练度'}截图
+                        </button>
+                        <span style={{ color: 'rgba(248,246,240,0.3)', fontSize: '11px' }}>
+                          {regImages.length}/5 张
+                        </span>
+                      </div>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        style={{ display: 'none' }}
+                      />
+                      
+                      {/* 图片预览 */}
+                      {regImages.length > 0 && (
+                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                          {regImages.map((img, idx) => (
+                            <div key={idx} style={{
+                              position: 'relative',
+                              width: '80px', height: '80px',
+                              borderRadius: '8px', overflow: 'hidden',
+                              border: '1px solid rgba(212,184,120,0.2)',
+                            }}>
+                              <img src={img} alt={`验证图片 ${idx + 1}`} style={{
+                                width: '100%', height: '100%', objectFit: 'cover',
+                              }} />
+                              <button
+                                type="button"
+                                onClick={() => removeImage(idx)}
+                                style={{
+                                  position: 'absolute', top: '2px', right: '2px',
+                                  width: '20px', height: '20px', borderRadius: '50%',
+                                  background: 'rgba(0,0,0,0.7)', border: 'none',
+                                  color: '#e06060', fontSize: '12px', cursor: 'pointer',
+                                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                  lineHeight: 1,
+                                }}
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      
+                      <div style={{ color: 'rgba(248,246,240,0.25)', fontSize: '10px', marginTop: '6px' }}>
+                        {regVerifyType === 'purchase' && '💡 上传周边订单截图或购买记录照片（支持 jpg/png，自动压缩）'}
+                        {regVerifyType === 'character' && '💡 上传游戏内角色练度截图（角色面板/光锥/遗器，支持多张）'}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* 社会账号提示 — 仅 social */}
+                  {regVerifyType === 'social' && (
+                    <div style={{ color: 'rgba(248,246,240,0.25)', fontSize: '10px', marginTop: '6px' }}>
+                      💡 填写你的小红书或微博账号主页链接
+                    </div>
+                  )}
                 </div>
 
                 {regError && (
@@ -480,7 +625,10 @@ export default function BlackMudPage() {
                 <div key={u.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: 'rgba(14,14,14,0.5)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.03)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <span style={{ color: '#d4b878', fontSize: '12px', fontWeight: 600 }}>{u.nickname}</span>
-                    <span style={{ fontSize: '10px', padding: '1px 6px', borderRadius: '4px', background: `rgba(${verifyTypeColors[u.verifyType].slice(1)},0.1)`, color: verifyTypeColors[u.verifyType] }}>{verifyTypeLabels[u.verifyType]}</span>
+                    <span style={{ fontSize: '10px', padding: '1px 6px', borderRadius: '4px', background: `rgba(${verifyTypeColors[u.verifyType]?.slice(1) || '212,184,120'},0.1)`, color: verifyTypeColors[u.verifyType] || '#d4b878' }}>
+                      {verifyTypeLabels[u.verifyType]?.replace(/ 🛒|🎮|📱 /, '') || ''}
+                      {u.verifyImages && u.verifyImages.length > 0 && ` 📷×${u.verifyImages.length}`}
+                    </span>
                     {u.muted && <span style={{ color: '#e0b43c', fontSize: '10px' }}>禁言</span>}
                     {u.banned && <span style={{ color: '#e06060', fontSize: '10px' }}>封禁</span>}
                   </div>
@@ -515,7 +663,16 @@ export default function BlackMudPage() {
                   <div style={{ color: 'rgba(248,246,240,0.7)', fontSize: '13px', marginBottom: '6px' }}>{post.text}</div>
                   {author && (
                     <div style={{ color: 'rgba(248,246,240,0.25)', fontSize: '10px', marginBottom: '8px' }}>
-                      验证方式：{verifyTypeLabels[author.verifyType]} / 详情：{author.verifyDetail}
+                      <div>验证方式：{verifyTypeLabels[author.verifyType]} / 详情：{author.verifyDetail}</div>
+                      {author.verifyImages && author.verifyImages.length > 0 && (
+                        <div style={{ display: 'flex', gap: '4px', marginTop: '4px', flexWrap: 'wrap' }}>
+                          {author.verifyImages.map((img, idx) => (
+                            <a key={idx} href={img} target="_blank" rel="noopener noreferrer" style={{ display: 'block' }}>
+                              <img src={img} alt={`验证图${idx+1}`} style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.1)' }} />
+                            </a>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   )}
                   <div style={{ display: 'flex', gap: '8px' }}>

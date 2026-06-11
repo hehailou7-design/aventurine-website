@@ -13,6 +13,7 @@ import SupportRecordEditor from '../components/SupportRecordEditor'
 import PageBuilder from '../components/pageBuilder/PageBuilder'
 import ImageCropper from '../components/ImageCropper'
 import { getGitHubToken, setGitHubToken } from '../lib/github-publish'
+import { setCloudConfig, getCloudConfig, isCloudConfigured } from '../services/CloudDataService'
 
 // —— 类型 ———
 type PageSection =
@@ -25,6 +26,7 @@ type PageSection =
   | 'siteConfig'
   | 'pageBuilder'
   | 'calendar' | 'sashaSay' | 'materialTable' | 'countdown'
+  | 'cloudConfig'
 
 // —— 通用组件 ———
 export function FormGroup({ label, children }: { label: string; children: React.ReactNode }) {
@@ -543,6 +545,10 @@ export default function AdminPage({ onLogout }: { onLogout?: () => void }) {
   const [publishMsg, setPublishMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [ghToken, setGhToken] = useState(() => getGitHubToken())
   const [showTokenInput, setShowTokenInput] = useState(false)
+  const [cloudConfig, setCloudConfigState] = useState(() => getCloudConfig())
+  const [cloudBinId, setCloudBinId] = useState(() => getCloudConfig().binId)
+  const [cloudApiKey, setCloudApiKey] = useState(() => getCloudConfig().apiKey)
+  const [cloudConfigured, setCloudConfigured] = useState(() => isCloudConfigured())
 
   const handleSyncAndPublish = async () => {
     syncToSite()
@@ -640,7 +646,16 @@ export default function AdminPage({ onLogout }: { onLogout?: () => void }) {
     { key: 'countdown', label: '倒计时', icon: '⏳' },
     // 页面构建器
     { key: 'pageBuilder', label: '页面构建器', icon: '🎨' },
+    { key: 'cloudConfig', label: '云同步设置', icon: '☁️' },
   ]
+  // "云同步设置"特殊处理：点击打开 Token 面板
+  const handleSectionClick = (key: PageSection) => {
+    if (key === 'cloudConfig') {
+      setShowTokenInput(true)
+      return
+    }
+    setActiveSection(key)
+  }
   // ============ 线下返图管理 ============
   function OfflineFeedbackEditor() {
     const [items, setItems] = useState<any[]>(() => {
@@ -764,30 +779,18 @@ export default function AdminPage({ onLogout }: { onLogout?: () => void }) {
             </button>
 
             {/* Token 设置 & 发布按钮 */}
-            {!ghToken && (
-              <button
-                onClick={() => setShowTokenInput(!showTokenInput)}
-                style={{
-                  background: 'rgba(224,180,80,0.15)', border: '1px solid rgba(224,180,80,0.3)',
-                  borderRadius: '6px', color: '#e0b450', fontSize: '12px',
-                  padding: '6px 12px', cursor: 'pointer', fontWeight: 600,
-                }}
-              >
-                🔑 设置 Token
-              </button>
-            )}
-            {ghToken && (
-              <button
-                onClick={() => setShowTokenInput(!showTokenInput)}
-                style={{
-                  background: 'rgba(100,180,120,0.15)', border: '1px solid rgba(100,180,120,0.3)',
-                  borderRadius: '6px', color: '#8cba6a', fontSize: '12px',
-                  padding: '6px 12px', cursor: 'pointer', fontWeight: 600,
-                }}
-              >
-                ✅ Token 已配置
-              </button>
-            )}
+            <button
+              onClick={() => setShowTokenInput(!showTokenInput)}
+              style={{
+                background: (ghToken || cloudConfigured) ? 'rgba(100,180,120,0.15)' : 'rgba(224,180,80,0.15)',
+                border: (ghToken || cloudConfigured) ? '1px solid rgba(100,180,120,0.3)' : '1px solid rgba(224,180,80,0.3)',
+                borderRadius: '6px',
+                color: (ghToken || cloudConfigured) ? '#8cba6a' : '#e0b450',
+                fontSize: '12px', padding: '6px 12px', cursor: 'pointer', fontWeight: 600,
+              }}
+            >
+              🔑 设置 Token {cloudConfigured ? '✅' : ''}
+            </button>
 
             {/* 保存并发布到全站 */}
             <button
@@ -846,40 +849,145 @@ export default function AdminPage({ onLogout }: { onLogout?: () => void }) {
         {/* Token 设置面板 */}
         {showTokenInput && (
           <div style={{
-            padding: '12px 16px', borderRadius: '8px', marginBottom: '16px',
-            background: 'rgba(224,180,80,0.06)', border: '1px solid rgba(224,180,80,0.2)',
+            padding: '16px', borderRadius: '10px', marginBottom: '16px',
+            background: 'rgba(224,180,80,0.04)', border: '1px solid rgba(224,180,80,0.15)',
           }}>
-            <div style={{ fontSize: '13px', color: '#e0b450', marginBottom: '8px' }}>
-              🔑 GitHub Personal Access Token（一键发布必需）
+            <div style={{ fontSize: '14px', color: '#e0b450', marginBottom: '14px', fontWeight: 600 }}>
+              🔑 Token 配置中心
             </div>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <input
-                type="password"
-                value={ghToken}
-                onChange={(e) => setGhToken(e.target.value)}
-                placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
-                style={{
-                  flex: 1, padding: '8px 12px', borderRadius: '6px',
-                  background: 'rgba(20,20,20,0.6)', border: '1px solid rgba(255,255,255,0.1)',
-                  color: '#f8f6f0', fontSize: '13px', fontFamily: 'monospace',
-                }}
-              />
-              <button
-                onClick={() => {
-                  setGitHubToken(ghToken)
-                  setShowTokenInput(false)
-                }}
-                style={{
-                  padding: '8px 16px', borderRadius: '6px', cursor: 'pointer',
-                  background: 'linear-gradient(135deg, #64b878, #4a9a5a)',
-                  border: 'none', color: '#121212', fontSize: '13px', fontWeight: 600,
-                }}
-              >
-                保存
-              </button>
+
+            {/* —— GitHub Token —— */}
+            <div style={{
+              padding: '12px', borderRadius: '8px', marginBottom: '12px',
+              background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)',
+            }}>
+              <div style={{ fontSize: '13px', color: 'rgba(248,246,240,0.7)', marginBottom: '6px' }}>
+                🚀 GitHub Personal Access Token（一键发布到 aventurine0505.xyz）
+              </div>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <input
+                  type="password"
+                  value={ghToken}
+                  onChange={(e) => setGhToken(e.target.value)}
+                  placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
+                  style={{
+                    flex: 1, padding: '8px 12px', borderRadius: '6px',
+                    background: 'rgba(20,20,20,0.6)', border: '1px solid rgba(255,255,255,0.1)',
+                    color: '#f8f6f0', fontSize: '13px', fontFamily: 'monospace',
+                  }}
+                />
+                <button
+                  onClick={() => { setGitHubToken(ghToken) }}
+                  style={{
+                    padding: '8px 16px', borderRadius: '6px', cursor: 'pointer',
+                    background: 'linear-gradient(135deg, #64b878, #4a9a5a)',
+                    border: 'none', color: '#121212', fontSize: '13px', fontWeight: 600,
+                  }}
+                >
+                  保存
+                </button>
+              </div>
+              <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', marginTop: '4px' }}>
+                获取：github.com → Settings → Developer settings → Tokens (classic) → 勾选 repo
+              </div>
             </div>
-            <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginTop: '6px' }}>
-              如何获取？访问 github.com → Settings → Developer settings → Personal access tokens → Tokens (classic) → 勾选 repo 权限
+
+            {/* —— JSONBin.io 配置 —— */}
+            <div style={{
+              padding: '12px', borderRadius: '8px',
+              background: cloudConfigured ? 'rgba(100,180,120,0.05)' : 'rgba(136,200,216,0.05)',
+              border: cloudConfigured ? '1px solid rgba(100,180,120,0.15)' : '1px solid rgba(136,200,216,0.15)',
+            }}>
+              <div style={{ fontSize: '13px', color: cloudConfigured ? '#8cba6a' : '#88c8d8', marginBottom: '6px', fontWeight: 600 }}>
+                ☁️ JSONBin.io 云端同步配置 {cloudConfigured ? '✅ 已配置' : ''}
+              </div>
+              
+              <div style={{ marginBottom: '10px' }}>
+                <div style={{ color: 'rgba(248,246,240,0.4)', fontSize: '11px', marginBottom: '4px' }}>
+                  Bin ID（从 jsonbin.io 控制台获取）
+                </div>
+                <input
+                  type="text"
+                  value={cloudBinId}
+                  onChange={(e) => setCloudBinId(e.target.value)}
+                  placeholder="68292066acd3cb34af8e3a4f"
+                  style={{
+                    width: '100%', padding: '8px 12px', borderRadius: '6px', boxSizing: 'border-box',
+                    background: 'rgba(20,20,20,0.6)', border: '1px solid rgba(255,255,255,0.1)',
+                    color: '#f8f6f0', fontSize: '13px', fontFamily: 'monospace',
+                  }}
+                />
+              </div>
+
+              <div style={{ marginBottom: '12px' }}>
+                <div style={{ color: 'rgba(248,246,240,0.4)', fontSize: '11px', marginBottom: '4px' }}>
+                  API Key（Master Key，从 jsonbin.io → API KEYS 获取）
+                </div>
+                <input
+                  type="password"
+                  value={cloudApiKey}
+                  onChange={(e) => setCloudApiKey(e.target.value)}
+                  placeholder="$2a$10$xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                  style={{
+                    width: '100%', padding: '8px 12px', borderRadius: '6px', boxSizing: 'border-box',
+                    background: 'rgba(20,20,20,0.6)', border: '1px solid rgba(255,255,255,0.1)',
+                    color: '#f8f6f0', fontSize: '13px', fontFamily: 'monospace',
+                  }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                <button
+                  onClick={() => {
+                    // 保存到 localStorage（当前浏览器立即生效）
+                    setCloudConfig(cloudBinId, cloudApiKey)
+                    // 同步到 content 中（发布后全站生效）
+                    updateContent('siteConfig.jsonBinApiKey', cloudApiKey)
+                    updateContent('siteConfig.jsonBinBinId', cloudBinId)
+                    setCloudConfigured(isCloudConfigured())
+                    setSaved(true)
+                    setTimeout(() => setSaved(false), 2000)
+                  }}
+                  style={{
+                    padding: '8px 16px', borderRadius: '6px', cursor: 'pointer',
+                    background: 'linear-gradient(135deg, #88c8d8, #64a0b8)',
+                    border: 'none', color: '#121212', fontSize: '13px', fontWeight: 600,
+                  }}
+                >
+                  💾 保存配置
+                </button>
+                <button
+                  onClick={async () => {
+                    try {
+                      const response = await fetch(`https://api.jsonbin.io/v3/b/${cloudBinId}/latest`, {
+                        headers: { 'X-Master-Key': cloudApiKey },
+                      })
+                      if (response.ok) {
+                        alert('✅ JSONBin.io 连接成功！云端数据正常。')
+                      } else {
+                        alert(`❌ 连接失败：HTTP ${response.status}。请检查 Bin ID 和 API Key 是否正确。`)
+                      }
+                    } catch (e: any) {
+                      alert(`❌ 连接失败：${e.message}`)
+                    }
+                  }}
+                  style={{
+                    padding: '8px 16px', borderRadius: '6px', cursor: 'pointer',
+                    background: 'rgba(100,180,120,0.15)', border: '1px solid rgba(100,180,120,0.3)',
+                    color: '#8cba6a', fontSize: '13px', fontWeight: 600,
+                  }}
+                >
+                  🔗 测试连接
+                </button>
+              </div>
+
+              <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', marginTop: '8px', lineHeight: '1.6' }}>
+                📌 配置说明：<br/>
+                ① 注册 jsonbin.io → 创建 Bin → 获取 Master Key<br/>
+                ② 在此填写 Bin ID 和 API Key → 点击"保存配置"<br/>
+                ③ 点击顶部「🚀 保存并发布到全站」→ 发布后所有用户自动使用该配置<br/>
+                ④ 发布后，任何人访问网站都能实时同步云端数据（不需要自己填 Token）
+              </div>
             </div>
           </div>
         )}
@@ -901,7 +1009,7 @@ export default function AdminPage({ onLogout }: { onLogout?: () => void }) {
           {/* 侧边栏 */}
           <div style={{ background: 'rgba(26,26,26,0.6)', border: '1px solid rgba(212,184,120,0.1)', borderRadius: '12px', padding: '12px', maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' }}>
             {sections.map(s => (
-              <div key={s.key} onClick={() => setActiveSection(s.key)}
+              <div key={s.key} onClick={() => handleSectionClick(s.key)}
                 style={{
                   padding: '8px 12px', borderRadius: '6px', cursor: 'pointer', marginBottom: '4px',
                   background: activeSection === s.key ? 'rgba(212,184,120,0.15)' : 'transparent',

@@ -262,6 +262,10 @@ export interface SiteConfig {
   logoUrl: string;
   headerImage: string;
   favicon: string;
+  /** JSONBin.io API Key（发布到全站后所有用户共用） */
+  jsonBinApiKey?: string;
+  /** JSONBin.io Bin ID（发布到全站后所有用户共用） */
+  jsonBinBinId?: string;
 }
 
 export type SiteContent = {
@@ -403,6 +407,8 @@ const defaultContent: SiteContent = {
     logoUrl: '',
     headerImage: '',
     favicon: '',
+    jsonBinApiKey: '',
+    jsonBinBinId: '',
   },
   character: {
     intro: '砂金 Aventurine — 崩坏：星穹铁道 · 五星角色 · 虚数属性 · 存护命途',

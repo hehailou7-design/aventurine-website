@@ -2,21 +2,111 @@
  * 全球数据同步服务
  * 使用 JSONBin.io 作为云端存储，让所有用户看到相同的数据
  * 
- * 设置说明：
+ * 配置说明：
  * 1. 访问 https://jsonbin.io 注册账号
  * 2. 创建新的 Bin，记录 Bin ID
  * 3. 获取 API Key (Master Key)
- * 4. 替换下面的 BIN_ID 和 API_KEY
+ * 4. 在管理后台（⚙ → 设置 Token）填写 Bin ID 和 API Key
+ * 5. 发布到全站后，所有用户自动使用该配置
+ * 
+ * 配置优先级：
+ * 1. localStorage（管理员本地的 aventurine_cloud_config）
+ * 2. content.json 中的 siteConfig.jsonBinApiKey / siteConfig.jsonBinBinId
+ * 3. 硬编码默认值（兜底）
  */
 
-// TODO: 用户需要创建自己的 JSONBin.io Bin 并替换下面的 ID 和 Key
-const BIN_ID = '68292066acd3cb34af8e3a4f' // 替换为你的 Bin ID
-const API_KEY = '$2a$10$YourAPIKeyHere' // 替换为你的 API Key
+// 默认值（兜底）
+const DEFAULT_BIN_ID = '68292066acd3cb34af8e3a4f'
+const DEFAULT_API_KEY = '$2a$10$YourAPIKeyHere'
 
-const BIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`
-const HEADERS: Record<string, string> = {
-  'Content-Type': 'application/json',
-  'X-Master-Key': API_KEY,
+/** 获取当前生效的 Bin ID */
+function getBinId(): string {
+  // 1. 本地直接配置优先
+  try {
+    const local = localStorage.getItem('aventurine_cloud_config')
+    if (local) {
+      const cfg = JSON.parse(local)
+      if (cfg.jsonBinBinId) return cfg.jsonBinBinId
+    }
+  } catch {}
+  // 2. content.json 中的 siteConfig
+  try {
+    const published = localStorage.getItem('aventurine_published_content')
+    if (published) {
+      const data = JSON.parse(published)
+      if (data?.siteConfig?.jsonBinBinId) return data.siteConfig.jsonBinBinId
+    }
+  } catch {}
+  // 3. localStorage diff 中的 siteConfig
+  try {
+    const diff = localStorage.getItem('aventurine_site_content')
+    if (diff) {
+      const data = JSON.parse(diff)
+      if (data?.siteConfig?.jsonBinBinId) return data.siteConfig.jsonBinBinId
+    }
+  } catch {}
+  return DEFAULT_BIN_ID
+}
+
+/** 获取当前生效的 API Key */
+function getApiKey(): string {
+  // 1. 本地直接配置优先
+  try {
+    const local = localStorage.getItem('aventurine_cloud_config')
+    if (local) {
+      const cfg = JSON.parse(local)
+      if (cfg.jsonBinApiKey) return cfg.jsonBinApiKey
+    }
+  } catch {}
+  // 2. content.json 中的 siteConfig
+  try {
+    const published = localStorage.getItem('aventurine_published_content')
+    if (published) {
+      const data = JSON.parse(published)
+      if (data?.siteConfig?.jsonBinApiKey) return data.siteConfig.jsonBinApiKey
+    }
+  } catch {}
+  // 3. localStorage diff 中的 siteConfig
+  try {
+    const diff = localStorage.getItem('aventurine_site_content')
+    if (diff) {
+      const data = JSON.parse(diff)
+      if (data?.siteConfig?.jsonBinApiKey) return data.siteConfig.jsonBinApiKey
+    }
+  } catch {}
+  return DEFAULT_API_KEY
+}
+
+/** 设置云端配置（管理员在后台配置时调用） */
+export function setCloudConfig(binId: string, apiKey: string): void {
+  try {
+    localStorage.setItem('aventurine_cloud_config', JSON.stringify({
+      jsonBinBinId: binId,
+      jsonBinApiKey: apiKey,
+    }))
+  } catch {}
+}
+
+/** 获取当前云端配置 */
+export function getCloudConfig(): { binId: string; apiKey: string } {
+  return { binId: getBinId(), apiKey: getApiKey() }
+}
+
+/** 检查是否已正确配置 */
+export function isCloudConfigured(): boolean {
+  const key = getApiKey()
+  return key !== DEFAULT_API_KEY && key.length > 10
+}
+
+function getBinUrl() {
+  return `https://api.jsonbin.io/v3/b/${getBinId()}`
+}
+
+function getHeaders(): Record<string, string> {
+  return {
+    'Content-Type': 'application/json',
+    'X-Master-Key': getApiKey(),
+  }
 }
 
 export interface CloudData {
@@ -45,10 +135,13 @@ const DEFAULT_DATA: CloudData = {
  * 从云端读取数据
  */
 export async function fetchCloudData(): Promise<CloudData> {
+  const key = getApiKey()
+  if (key === DEFAULT_API_KEY) return DEFAULT_DATA // 未配置则跳过
+
   try {
-    const response = await fetch(`${BIN_URL}/latest`, {
+    const response = await fetch(`${getBinUrl()}/latest`, {
       method: 'GET',
-      headers: HEADERS,
+      headers: getHeaders(),
     })
     
     if (!response.ok) {
@@ -68,12 +161,15 @@ export async function fetchCloudData(): Promise<CloudData> {
  * 保存数据到云端
  */
 export async function saveCloudData(data: CloudData): Promise<boolean> {
+  const key = getApiKey()
+  if (key === DEFAULT_API_KEY) return false // 未配置则跳过
+
   try {
     data.lastUpdated = new Date().toISOString()
     
-    const response = await fetch(BIN_URL, {
+    const response = await fetch(getBinUrl(), {
       method: 'PUT',
-      headers: HEADERS,
+      headers: getHeaders(),
       body: JSON.stringify(data),
     })
     
@@ -94,12 +190,17 @@ export async function saveCloudData(data: CloudData): Promise<boolean> {
  * 运行一次后，在控制台会输出 Bin ID，需要更新上面的 BIN_ID
  */
 export async function initCloudData(): Promise<void> {
+  const key = getApiKey()
+  if (key === DEFAULT_API_KEY) {
+    console.warn('未配置 JSONBin API Key，无法初始化云端数据')
+    return
+  }
   try {
     const response = await fetch('https://api.jsonbin.io/v3/b', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-Master-Key': API_KEY,
+        'X-Master-Key': key,
         'X-Bin-Name': 'aventurine-fan-site-data',
       },
       body: JSON.stringify(DEFAULT_DATA),
@@ -108,7 +209,7 @@ export async function initCloudData(): Promise<void> {
     const result = await response.json()
     console.log('✅ Cloud data initialized!')
     console.log('Bin ID:', result.metadata.id)
-    console.log('请在 CloudDataService.ts 中更新 BIN_ID 为:', result.metadata.id)
+    console.log('请在管理后台中设置 Bin ID 为:', result.metadata.id)
   } catch (error) {
     console.error('Failed to init cloud data:', error)
   }
