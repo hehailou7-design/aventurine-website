@@ -157,11 +157,11 @@ export function mergeArrays(cloud: any[], local: any[]): any[] {
 
 /** 合并 object 类型（如 materialComments） */
 export function mergeObjects<T extends Record<string, any>>(cloud: T, local: T): T {
-  const result = { ...local }
+  const result: any = { ...local }
   for (const key of Object.keys(cloud)) {
-    result[key] = cloud[key] || result[key] || []
+    result[key] = (cloud as any)[key] || result[key] || []
   }
-  return result
+  return result as T
 }
 
 /**

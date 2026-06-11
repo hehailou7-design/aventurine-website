@@ -15,10 +15,13 @@ function commentKey(item: MaterialItem): string {
 
 interface Comment { name: string; text: string; time: string }
 function loadComments(item: MaterialItem): Comment[] {
-  try { return JSON.parse(localStorage.getItem(commentKey(item)) || '[]') } catch { return [] }
+  try { 
+    const raw = localStorage.getItem(commentKey(item))
+    return raw ? JSON.parse(raw) : [] 
+  } catch { return [] }
 }
 function saveComments(item: MaterialItem, comments: Comment[]) {
-  localStorage.setItem(commentKey(item), JSON.stringify(comments))
+  localStorage.setItem(commentKey(item), JSON.stringify(comments));
   // 同步到云端
   (async () => {
     try {

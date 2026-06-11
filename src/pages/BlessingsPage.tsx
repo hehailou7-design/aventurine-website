@@ -128,21 +128,20 @@ export default function BlessingsPage() {
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // 云端同步：加载时同步一次，然后每30秒同步一次
+  // 云端同步：加载时同步一次，然后每8秒同步一次
   useEffect(() => {
     const syncWithCloud = async () => {
       setCloudSyncStatus('syncing')
       try {
         const cloudData = await fetchCloudData()
-        if (cloudData.blessings && cloudData.blessings.length > 0) {
-          setBlessings(prev => {
-            const merged = mergeBlessings(prev, cloudData.blessings)
-            saveLocalBlessings(merged)
-            return merged
-          })
-          setLastSynced(new Date().toLocaleTimeString())
-          setCloudSyncStatus('idle')
-        }
+        // 无论云端是否有数据，都进行合并
+        setBlessings(prev => {
+          const merged = mergeBlessings(prev, cloudData.blessings || [])
+          saveLocalBlessings(merged)
+          return merged
+        })
+        setLastSynced(new Date().toLocaleTimeString())
+        setCloudSyncStatus('idle')
       } catch (error) {
         console.error('Failed to sync with cloud:', error)
         setCloudSyncStatus('error')
