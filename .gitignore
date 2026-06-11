@@ -29,3 +29,4 @@ npm-debug.log*
 create-repo.json
 nul
 repo-config.json
+dist-deploy/
