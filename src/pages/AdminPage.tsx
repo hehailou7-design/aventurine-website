@@ -892,101 +892,49 @@ export default function AdminPage({ onLogout }: { onLogout?: () => void }) {
               </div>
             </div>
 
-            {/* —— JSONBin.io 配置 —— */}
+            {/* —— 云端同步状态 —— */}
             <div style={{
               padding: '12px', borderRadius: '8px',
-              background: cloudConfigured ? 'rgba(100,180,120,0.05)' : 'rgba(136,200,216,0.05)',
-              border: cloudConfigured ? '1px solid rgba(100,180,120,0.15)' : '1px solid rgba(136,200,216,0.15)',
+              background: 'rgba(100,180,120,0.05)',
+              border: '1px solid rgba(100,180,120,0.15)',
             }}>
-              <div style={{ fontSize: '13px', color: cloudConfigured ? '#8cba6a' : '#88c8d8', marginBottom: '6px', fontWeight: 600 }}>
-                ☁️ JSONBin.io 云端同步配置 {cloudConfigured ? '✅ 已配置' : ''}
+              <div style={{ fontSize: '13px', color: '#8cba6a', marginBottom: '6px', fontWeight: 600 }}>
+                ☁️ 云端同步状态 ✅ 已启用
               </div>
               
-              <div style={{ marginBottom: '10px' }}>
-                <div style={{ color: 'rgba(248,246,240,0.4)', fontSize: '11px', marginBottom: '4px' }}>
-                  Bin ID（从 jsonbin.io 控制台获取）
-                </div>
-                <input
-                  type="text"
-                  value={cloudBinId}
-                  onChange={(e) => setCloudBinId(e.target.value)}
-                  placeholder="68292066acd3cb34af8e3a4f"
-                  style={{
-                    width: '100%', padding: '8px 12px', borderRadius: '6px', boxSizing: 'border-box',
-                    background: 'rgba(20,20,20,0.6)', border: '1px solid rgba(255,255,255,0.1)',
-                    color: '#f8f6f0', fontSize: '13px', fontFamily: 'monospace',
-                  }}
-                />
+              <div style={{ fontSize: '12px', color: 'rgba(248,246,240,0.6)', lineHeight: '1.8' }}>
+                当前使用 <strong style={{ color: '#88c8d8' }}>jsonblob.com</strong> 作为云端存储<br/>
+                无需 API Key，浏览器直接读写，自动同步<br/>
+                每 8 秒自动同步一次，多设备实时共享数据
               </div>
 
-              <div style={{ marginBottom: '12px' }}>
-                <div style={{ color: 'rgba(248,246,240,0.4)', fontSize: '11px', marginBottom: '4px' }}>
-                  API Key（Master Key，从 jsonbin.io → API KEYS 获取）
-                </div>
-                <input
-                  type="password"
-                  value={cloudApiKey}
-                  onChange={(e) => setCloudApiKey(e.target.value)}
-                  placeholder="$2a$10$xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-                  style={{
-                    width: '100%', padding: '8px 12px', borderRadius: '6px', boxSizing: 'border-box',
-                    background: 'rgba(20,20,20,0.6)', border: '1px solid rgba(255,255,255,0.1)',
-                    color: '#f8f6f0', fontSize: '13px', fontFamily: 'monospace',
-                  }}
-                />
-              </div>
-
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                <button
-                  onClick={() => {
-                    // 保存到 localStorage（当前浏览器立即生效）
-                    setCloudConfig(cloudBinId, cloudApiKey)
-                    // 同步到 content 中（发布后全站生效）
-                    updateContent('siteConfig.jsonBinApiKey', cloudApiKey)
-                    updateContent('siteConfig.jsonBinBinId', cloudBinId)
-                    setCloudConfigured(isCloudConfigured())
-                    setSaved(true)
-                    setTimeout(() => setSaved(false), 2000)
-                  }}
-                  style={{
-                    padding: '8px 16px', borderRadius: '6px', cursor: 'pointer',
-                    background: 'linear-gradient(135deg, #88c8d8, #64a0b8)',
-                    border: 'none', color: '#121212', fontSize: '13px', fontWeight: 600,
-                  }}
-                >
-                  💾 保存配置
-                </button>
-                <button
-                  onClick={async () => {
-                    try {
-                      const response = await fetch(`https://api.jsonbin.io/v3/b/${cloudBinId}/latest`, {
-                        headers: { 'X-Master-Key': cloudApiKey },
-                      })
-                      if (response.ok) {
-                        alert('✅ JSONBin.io 连接成功！云端数据正常。')
-                      } else {
-                        alert(`❌ 连接失败：HTTP ${response.status}。请检查 Bin ID 和 API Key 是否正确。`)
-                      }
-                    } catch (e: any) {
-                      alert(`❌ 连接失败：${e.message}`)
+              <button
+                onClick={async () => {
+                  try {
+                    const response = await fetch('https://jsonblob.com/api/jsonBlob/019eb45f-fbbc-7ef7-af71-2ae7db1ff938', {
+                      headers: { 'Accept': 'application/json' },
+                    })
+                    if (response.ok) {
+                      const data = await response.json()
+                      alert(`✅ 云端连接正常！\n当前数据：祝福 ${data.blessings?.length || 0} 条，黑泥 ${data.blackMudPosts?.length || 0} 条`)
+                    } else {
+                      alert(`❌ 连接失败：HTTP ${response.status}`)
                     }
-                  }}
-                  style={{
-                    padding: '8px 16px', borderRadius: '6px', cursor: 'pointer',
-                    background: 'rgba(100,180,120,0.15)', border: '1px solid rgba(100,180,120,0.3)',
-                    color: '#8cba6a', fontSize: '13px', fontWeight: 600,
-                  }}
-                >
-                  🔗 测试连接
-                </button>
-              </div>
+                  } catch (e: any) {
+                    alert(`❌ 连接失败：${e.message}`)
+                  }
+                }}
+                style={{
+                  marginTop: '10px', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer',
+                  background: 'rgba(100,180,120,0.15)', border: '1px solid rgba(100,180,120,0.3)',
+                  color: '#8cba6a', fontSize: '13px', fontWeight: 600,
+                }}
+              >
+                🔗 测试云端连接
+              </button>
 
               <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', marginTop: '8px', lineHeight: '1.6' }}>
-                📌 配置说明：<br/>
-                ① 注册 jsonbin.io → 创建 Bin → 获取 Master Key<br/>
-                ② 在此填写 Bin ID 和 API Key → 点击"保存配置"<br/>
-                ③ 点击顶部「🚀 保存并发布到全站」→ 发布后所有用户自动使用该配置<br/>
-                ④ 发布后，任何人访问网站都能实时同步云端数据（不需要自己填 Token）
+                📌 所有用户自动共享同一份云端数据，无需任何配置
               </div>
             </div>
           </div>
