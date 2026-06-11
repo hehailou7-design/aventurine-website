@@ -67,15 +67,15 @@ const SKINS: Record<string, SkinTheme> = {
     nameEn: 'Mint Chocolate',
     nameJp: 'ミントチョコレート',
     nameKr: '민트 초콜릿',
-    primary: '#7ecba1',
-    secondary: '#8b6f47',
-    background: '#0e1a14',
-    backgroundGradient: 'linear-gradient(135deg, #0e1a14 0%, #1a2d1e 50%, #0e1a14 100%)',
-    text: '#e0f2e9',
-    textSecondary: 'rgba(126,203,161,0.6)',
-    border: 'rgba(126,203,161,0.3)',
-    cardBg: 'rgba(26,45,30,0.8)',
-    cardBorder: 'rgba(126,203,161,0.3)',
+    primary: '#8fd4a6',
+    secondary: '#7b4a2a',
+    background: '#1a100c',
+    backgroundGradient: 'linear-gradient(135deg, #1a100c 0%, #1e2a18 60%, #1a100c 100%)',
+    text: '#e8f5e9',
+    textSecondary: 'rgba(143,212,166,0.6)',
+    border: 'rgba(143,212,166,0.3)',
+    cardBg: 'rgba(26,16,12,0.85)',
+    cardBorder: 'rgba(143,212,166,0.25)',
     effect: 'none',
     decorations: ['mint-leaves', 'chocolate-chips'],
   },
@@ -155,6 +155,12 @@ export function SkinProvider({ children }: { children: ReactNode }) {
     }
     if (skin.decorations?.includes('lace')) {
       createLaceDecoration()
+    }
+    if (skin.decorations?.includes('mint-leaves')) {
+      createMintLeaves()
+    }
+    if (skin.decorations?.includes('chocolate-chips')) {
+      createChocolateChips()
     }
   }
   
@@ -357,4 +363,119 @@ function createBowDecoration() {
     <div style="position: absolute; top: 15px; left: 50%; transform: translateX(-50%); width: 8px; height: 15px; background: #e8d0f2; border-radius: 0 0 4px 4px;"></div>
   `
   document.body.appendChild(bow)
+}
+
+function createMintLeaves() {
+  const container = document.createElement('div')
+  container.className = 'skin-effect mint-leaves-container'
+  container.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 9998;
+    overflow: hidden;
+  `
+  
+  for (let i = 0; i < 15; i++) {
+    const leaf = document.createElement('div')
+    const size = 15 + Math.random() * 20
+    leaf.style.cssText = `
+      position: absolute;
+      width: ${size}px;
+      height: ${size * 0.6}px;
+      background: radial-gradient(ellipse at 30% 50%, #8fd4a6 0%, #5cb878 100%);
+      border-radius: 50% 0 50% 0;
+      opacity: ${0.3 + Math.random() * 0.3};
+      animation: mintLeafFloat ${12 + Math.random() * 10}s ease-in-out infinite;
+      animation-delay: ${Math.random() * 8}s;
+      top: -20px;
+      left: ${Math.random() * 100}vw;
+      transform: rotate(${Math.random() * 360}deg);
+    `
+    container.appendChild(leaf)
+  }
+  
+  document.body.appendChild(container)
+  
+  const style = document.createElement('style')
+  style.textContent = `
+    @keyframes mintLeafFloat {
+      0% {
+        transform: translateY(-20px) rotate(0deg);
+        opacity: 0;
+      }
+      10% {
+        opacity: 0.6;
+      }
+      90% {
+        opacity: 0.6;
+      }
+      100% {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+  `
+  document.head.appendChild(style)
+}
+
+function createChocolateChips() {
+  const container = document.createElement('div')
+  container.className = 'skin-effect chocolate-chips-container'
+  container.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 9997;
+    overflow: hidden;
+  `
+  
+  for (let i = 0; i < 12; i++) {
+    const chip = document.createElement('div')
+    const size = 4 + Math.random() * 6
+    chip.style.cssText = `
+      position: absolute;
+      width: ${size}px;
+      height: ${size}px;
+      background: radial-gradient(circle at 40% 40%, #9b6b4a 0%, #5a3020 100%);
+      border-radius: 2px;
+      opacity: ${0.3 + Math.random() * 0.4};
+      animation: chipFall ${15 + Math.random() * 12}s linear infinite;
+      animation-delay: ${Math.random() * 10}s;
+      top: -10px;
+      left: ${Math.random() * 100}vw;
+      transform: rotate(${Math.random() * 360}deg);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    `
+    container.appendChild(chip)
+  }
+  
+  document.body.appendChild(container)
+  
+  const style = document.createElement('style')
+  style.textContent = `
+    @keyframes chipFall {
+      0% {
+        transform: translateY(-10px) rotate(0deg);
+        opacity: 0;
+      }
+      10% {
+        opacity: 0.7;
+      }
+      90% {
+        opacity: 0.7;
+      }
+      100% {
+        transform: translateY(100vh) rotate(540deg);
+        opacity: 0;
+      }
+    }
+  `
+  document.head.appendChild(style)
 }
