@@ -194,20 +194,43 @@ export async function saveCloudData(data: CloudData): Promise<boolean> {
   try {
     data.lastUpdated = new Date().toISOString()
     
-    const response = await fetch(getBinUrl(), {
+    const url = getBinUrl()
+    const body = JSON.stringify(data)
+    console.log('🔍 [CloudData] PUT 请求 URL:', url)
+    console.log('🔍 [CloudData] 数据大小:', body.length, 'bytes, blessings:', data.blessings?.length, '条')
+    
+    const response = await fetch(url, {
       method: 'PUT',
       headers: getHeaders(),
-      body: JSON.stringify(data),
+      body: body,
     })
     
+    console.log('🔍 [CloudData] PUT 响应状态:', response.status, response.statusText)
+    
+    // 也读取响应体，查看是否有错误信息
+    const responseBody = await response.text()
+    if (responseBody) {
+      console.log('🔍 [CloudData] PUT 响应体(前200字符):', responseBody.substring(0, 200))
+    }
+    
     if (!response.ok) {
-      console.warn(`Failed to save cloud data: ${response.status}`)
+      console.warn(`❌ [CloudData] 保存失败: ${response.status} - ${responseBody}`)
       return false
+    }
+    
+    // 验证：读取云端确认
+    const verifyResp = await fetch(`${url}/latest`, {
+      method: 'GET',
+      headers: getHeaders(),
+    })
+    if (verifyResp.ok) {
+      const verifyData = await verifyResp.json()
+      console.log('🔍 [CloudData] 验证 - 云端 blessings:', verifyData.record?.blessings?.length, '条')
     }
     
     return true
   } catch (error) {
-    console.error('Failed to save cloud data:', error)
+    console.error('❌ [CloudData] 保存异常:', error)
     return false
   }
 }

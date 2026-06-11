@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>JSONBin 写入测试</title></head>
+<body style="font-family:monospace;padding:20px;background:#111;color:#0f0;">
+<h1>JSONBin 写入测试</h1>
+<div id="log"></div>
+<script>
+const BIN_ID = '6a2a0526f5f4af5e29dbdee6';
+const API_KEY = '$2a$10$4A22bLlkifzYfvNvyoEQeOcJicGmFUFzrG1e.0IhHvaSlIP2yIh2i';
+const log = document.getElementById('log');
+
+function addLog(msg) { log.textContent += msg + '\n'; }
+
+async function test() {
+  addLog('=== 浏览器内写入测试 ===');
+  
+  // 先读
+  addLog('1. 读取云端数据...');
+  try {
+    const r1 = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+      headers: { 'X-Master-Key': API_KEY }
+    });
+    addLog('   状态码: ' + r1.status);
+    const d1 = await r1.json();
+    addLog('   当前 blessings: ' + (d1.record?.blessings?.length || 0) + ' 条');
+  } catch(e) {
+    addLog('   ❌ 读取失败: ' + e.message);
+  }
+  
+  // 再写
+  addLog('2. 写入测试数据...');
+  try {
+    const testData = {
+      blessings: [{ id: 'browser_put_' + Date.now(), name: '浏览器PUT测试', text: '验证浏览器PUT请求是否成功 - ' + new Date().toLocaleTimeString(), time: new Date().toISOString(), likes: 0 }],
+      blackMudPosts: [], blackMudUsers: [], pendingSubmits: [], approvedSubmits: [], rejectedSubmits: [],
+      offlineFeedback: [], feedbacks: [], sponsorshipApps: [], knowledgePending: [], materialComments: {},
+      lastUpdated: new Date().toISOString()
+    };
+    const r2 = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY },
+      body: JSON.stringify(testData)
+    });
+    addLog('   状态码: ' + r2.status);
+    if (r2.ok) {
+      const d2 = await r2.json();
+      addLog('   ✅ 写入成功! 新blessings: ' + d2.record.blessings.length + ' 条');
+      addLog('   (若云端真是1条，说明写入有效)');
+    } else {
+      addLog('   ❌ 写入失败: ' + await r2.text());
+    }
+  } catch(e) {
+    addLog('   ❌ 写入异常: ' + e.message);
+  }
+  
+  // 再读确认
+  addLog('3. 再次读取确认...');
+  try {
+    const r3 = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+      headers: { 'X-Master-Key': API_KEY }
+    });
+    const d3 = await r3.json();
+    addLog('   确认 blessings: ' + (d3.record?.blessings?.length || 0) + ' 条');
+    if (d3.record?.blessings?.length > 0) {
+      addLog('   最新: ' + d3.record.blessings[0].name + ': ' + d3.record.blessings[0].text);
+    }
+  } catch(e) {
+    addLog('   ❌: ' + e.message);
+  }
+  
+  addLog('=== 测试完成 ===');
+  addLog('');
+  addLog('如果上述测试全部成功，说明浏览器>JSONBin 的通信是正常的。');
+  addLog('如果失败，说明浏览器环境有问题（CORS、网络等）。');
+}
+
+test();
+</script>
+</body>
+</html>
