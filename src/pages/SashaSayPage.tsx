@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useContent } from '../context/ContentContext'
 import type { SandKnowledge } from '../context/ContentContext'
+import { fetchCloudData, saveCloudData, mergeArrays } from '../services/CloudDataService'
 
 // ============ 云词展现组件 ============
 function WordCloud({ items, onAdd }: { items: SandKnowledge[]; onAdd: () => void }) {
@@ -260,7 +261,7 @@ export default function SashaSayPage() {
   const gachaQuotes = content.sashaSay?.gachaQuotes || []
   const gachaTitle = content.sashaSay?.gachaTitle || '🎰 扭蛋预言'
 
-  const handleSubmitKnowledge = (text: string) => {
+  const handleSubmitKnowledge = async (text: string) => {
     // Save to localStorage pending
     try {
       const pending = JSON.parse(localStorage.getItem('aventurine_knowledge_pending') || '[]')
@@ -268,8 +269,31 @@ export default function SashaSayPage() {
       localStorage.setItem('aventurine_knowledge_pending', JSON.stringify(pending))
       setSubmitted(true)
       setTimeout(() => setSubmitted(false), 3000)
+      // 保存到云端
+      try {
+        const cloud = await fetchCloudData()
+        const local = JSON.parse(localStorage.getItem('aventurine_knowledge_pending') || '[]')
+        cloud.knowledgePending = mergeArrays(local, cloud.knowledgePending)
+        await saveCloudData(cloud)
+      } catch {}
     } catch { /* ignore */ }
   }
+
+  useEffect(() => {
+    const sync = async () => {
+      try {
+        const cloud = await fetchCloudData()
+        if (cloud.knowledgePending && cloud.knowledgePending.length > 0) {
+          const local = JSON.parse(localStorage.getItem('aventurine_knowledge_pending') || '[]')
+          const merged = mergeArrays(cloud.knowledgePending, local)
+          localStorage.setItem('aventurine_knowledge_pending', JSON.stringify(merged))
+        }
+      } catch {}
+    }
+    sync()
+    const interval = setInterval(sync, 8000)
+    return () => clearInterval(interval)
+  }, [])
 
   return (
     <div style={{ padding: '40px 0 100px', minHeight: '100vh' }}>

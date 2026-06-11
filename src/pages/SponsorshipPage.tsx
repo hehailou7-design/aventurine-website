@@ -1,4 +1,14 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { fetchCloudData, saveCloudData, mergeArrays } from '../services/CloudDataService'
+
+const APP_KEY = 'aventurine_sponsorship_pending'
+
+function loadLocal(): any[] {
+  try { return JSON.parse(localStorage.getItem(APP_KEY) || '[]') } catch { return [] }
+}
+function saveLocal(data: any[]) {
+  localStorage.setItem(APP_KEY, JSON.stringify(data))
+}
 
 export default function SponsorshipPage() {
   const [form, setForm] = useState({
@@ -10,12 +20,37 @@ export default function SponsorshipPage() {
   })
   const [submitted, setSubmitted] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // 云端同步
+  useEffect(() => {
+    const sync = async () => {
+      try {
+        const cloud = await fetchCloudData()
+        if (cloud.sponsorshipApps && cloud.sponsorshipApps.length > 0) {
+          const merged = mergeArrays(cloud.sponsorshipApps, loadLocal())
+          saveLocal(merged)
+        }
+      } catch {}
+    }
+    sync()
+    const interval = setInterval(sync, 8000)
+    return () => clearInterval(interval)
+  }, [])
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!form.name.trim() || !form.content.trim()) return
-    const applications = JSON.parse(localStorage.getItem('aventurine_applications') || '[]')
-    applications.push({ ...form, time: new Date().toISOString(), status: 'pending' })
-    localStorage.setItem('aventurine_applications', JSON.stringify(applications))
+    const item = { id: 'sp_' + Date.now(), ...form, time: new Date().toISOString(), status: 'pending' }
+    const list = loadLocal()
+    list.push(item)
+    saveLocal(list)
+    
+    // 保存到云端
+    try {
+      const cloud = await fetchCloudData()
+      cloud.sponsorshipApps = mergeArrays(list, cloud.sponsorshipApps)
+      await saveCloudData(cloud)
+    } catch {}
+    
     setSubmitted(true)
     setTimeout(() => setSubmitted(false), 3000)
     setForm({ name: '', contact: '', type: 'shenghe', experience: '', content: '' })

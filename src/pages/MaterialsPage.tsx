@@ -1,18 +1,34 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { useContent } from '../context/ContentContext'
 import type { MaterialItem, CalendarEvent } from '../context/ContentContext'
+import { fetchCloudData, saveCloudData } from '../services/CloudDataService'
 
-function commentKey(item: MaterialItem): string {
+function hashForItem(item: MaterialItem): string {
   const raw = `${item.title}_${item.tag}`; let hash = 0
   for (let i = 0; i < raw.length; i++) { hash = ((hash << 5) - hash) + raw.charCodeAt(i); hash |= 0 }
-  return `aventurine_comment_${Math.abs(hash)}`
+  return String(Math.abs(hash))
+}
+
+function commentKey(item: MaterialItem): string {
+  return `aventurine_comment_${hashForItem(item)}`
 }
 
 interface Comment { name: string; text: string; time: string }
 function loadComments(item: MaterialItem): Comment[] {
   try { return JSON.parse(localStorage.getItem(commentKey(item)) || '[]') } catch { return [] }
 }
-function saveComments(item: MaterialItem, comments: Comment[]) { localStorage.setItem(commentKey(item), JSON.stringify(comments)) }
+function saveComments(item: MaterialItem, comments: Comment[]) {
+  localStorage.setItem(commentKey(item), JSON.stringify(comments))
+  // 同步到云端
+  (async () => {
+    try {
+      const cloud = await fetchCloudData()
+      if (!cloud.materialComments) cloud.materialComments = {}
+      cloud.materialComments[hashForItem(item)] = comments
+      await saveCloudData(cloud)
+    } catch {}
+  })()
+}
 
 function DetailPage({ item, onClose, allItems, onSwitchItem }: { item: MaterialItem; onClose: () => void; allItems: MaterialItem[]; onSwitchItem?: (item: MaterialItem) => void }) {
   const [comments, setComments] = useState<Comment[]>(() => loadComments(item))
@@ -329,6 +345,30 @@ export default function MaterialsPage() {
     syncToCalendar(offline)
     return events
   }, [calendarEvents, official, offline])
+
+  // 云端同步：每 8 秒从云端拉取物料评论并合并到本地
+  useEffect(() => {
+    const sync = async () => {
+      try {
+        const cloud = await fetchCloudData()
+        if (cloud.materialComments) {
+          for (const [hashKey, cloudComments] of Object.entries(cloud.materialComments)) {
+            if (!Array.isArray(cloudComments) || cloudComments.length === 0) continue
+            const localKey = `aventurine_comment_${hashKey}`
+            try {
+              const local = JSON.parse(localStorage.getItem(localKey) || '[]')
+              const cloudIds = new Set(cloudComments.map((c: any) => c.time + c.name + c.text))
+              const uniqueLocal = local.filter((c: any) => !cloudIds.has(c.time + c.name + c.text))
+              localStorage.setItem(localKey, JSON.stringify([...cloudComments, ...uniqueLocal]))
+            } catch {}
+          }
+        }
+      } catch {}
+    }
+    sync()
+    const interval = setInterval(sync, 8000)
+    return () => clearInterval(interval)
+  }, [])
 
   return (
     <div style={{ padding: '40px 0 100px', minHeight: '100vh' }}>

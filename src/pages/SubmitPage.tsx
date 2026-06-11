@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { fetchCloudData, saveCloudData, mergeArrays } from '../services/CloudDataService'
 
 type SubmitType = 'news' | 'photo' | 'update'
 
@@ -19,36 +20,91 @@ export default function SubmitPage() {
   })
   const [submitted, setSubmitted] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // 云端同步：立即执行一次，然后每 8 秒同步一次
+  useEffect(() => {
+    let intervalId: number
+
+    async function syncFromCloud() {
+      try {
+        const cloud = await fetchCloudData()
+
+        // 1. 同步最新动态/线下实拍投稿 (aventurine_pending_submits)
+        const localPending = JSON.parse(localStorage.getItem('aventurine_pending_submits') || '[]')
+        const mergedPending = mergeArrays(cloud.pendingSubmits || [], localPending)
+        localStorage.setItem('aventurine_pending_submits', JSON.stringify(mergedPending))
+
+        // 2. 同步板块更新投稿 (aventurine_content_update_pending)
+        //    云端暂无独立字段，暂通过 pendingSubmits 中 type==='update' 的项识别
+        const localUpdates = JSON.parse(localStorage.getItem(CONTENT_UPDATE_PENDING_KEY) || '[]')
+        const cloudUpdates = (cloud.pendingSubmits || []).filter(
+          (item: any) => item.type === 'update' || (item as any).section
+        )
+        const mergedUpdates = mergeArrays(cloudUpdates, localUpdates)
+        localStorage.setItem(CONTENT_UPDATE_PENDING_KEY, JSON.stringify(mergedUpdates))
+      } catch (err) {
+        console.warn('云端同步失败（不影响本地使用）', err)
+      }
+    }
+
+    // 立即执行一次
+    syncFromCloud()
+
+    // 每 8 秒执行一次
+    intervalId = window.setInterval(syncFromCloud, 8000)
+
+    return () => window.clearInterval(intervalId)
+  }, [])
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!form.content.trim()) return
 
+    // 本地保存（始终执行）
     if (type === 'update') {
       // 板块更新
       const pending = JSON.parse(localStorage.getItem(CONTENT_UPDATE_PENDING_KEY) || '[]')
-      pending.push({
+      const newItem = {
         id: 'update_' + Date.now().toString(36),
         nickname: form.name || '匿名',
         section: form.targetPage,
         field: form.title || undefined,
-        oldValue: '',  // 用户不知道原值，留空
+        oldValue: '',
         newValue: form.content,
         reason: form.reason || '',
         submittedAt: new Date().toISOString(),
         status: 'pending',
-      })
+      }
+      pending.push(newItem)
       localStorage.setItem(CONTENT_UPDATE_PENDING_KEY, JSON.stringify(pending))
     } else {
       // 最新动态和线下实拍投稿（保留原有逻辑）
       const pending = JSON.parse(localStorage.getItem('aventurine_pending_submits') || '[]')
-      pending.push({
+      const newItem = {
         id: 'submit_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 7),
         ...form,
         type,
         time: new Date().toISOString(),
         status: 'pending',
-      })
+      }
+      pending.push(newItem)
       localStorage.setItem('aventurine_pending_submits', JSON.stringify(pending))
+    }
+
+    // 云端同步（失败不影响本地）
+    try {
+      const cloud = await fetchCloudData()
+
+      // 读取最新本地数据（刚写入的）
+      const localPending = JSON.parse(localStorage.getItem('aventurine_pending_submits') || '[]')
+      const localUpdates = JSON.parse(localStorage.getItem(CONTENT_UPDATE_PENDING_KEY) || '[]')
+
+      // 将本地板块更新也合并进 cloud.pendingSubmits（云端暂用此字段承载）
+      const allLocalForCloud = [...localPending, ...localUpdates]
+      cloud.pendingSubmits = mergeArrays(allLocalForCloud, cloud.pendingSubmits || [])
+
+      await saveCloudData(cloud)
+    } catch (err) {
+      console.warn('云端同步失败（不影响本地提交）', err)
     }
 
     setSubmitted(true)

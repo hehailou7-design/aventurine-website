@@ -118,6 +118,10 @@ export interface CloudData {
   approvedSubmits: any[]
   rejectedSubmits: any[]
   offlineFeedback: any[]
+  feedbacks: any[]           // 意见反馈
+  sponsorshipApps: any[]     // 生贺组应聘/赞助申请
+  knowledgePending: any[]    // 砂砂想说冷知识投稿
+  materialComments: Record<string, any[]> // 角色物料评论
   lastUpdated: string
 }
 
@@ -129,7 +133,35 @@ const DEFAULT_DATA: CloudData = {
   approvedSubmits: [],
   rejectedSubmits: [],
   offlineFeedback: [],
+  feedbacks: [],
+  sponsorshipApps: [],
+  knowledgePending: [],
+  materialComments: {},
   lastUpdated: new Date().toISOString(),
+}
+
+/** 合并函数：云端数据优先（保留未冲突的本地数据） */
+export function mergeById(cloud: any[], local: any[]): any[] {
+  const map = new Map<string, any>()
+  cloud.forEach(item => map.set(item.id, item))
+  local.forEach(item => { if (!map.has(item.id)) map.set(item.id, item) })
+  return Array.from(map.values())
+}
+
+/** 合并对象数组，云端覆盖本地同 id */
+export function mergeArrays(cloud: any[], local: any[]): any[] {
+  if (!cloud || cloud.length === 0) return local
+  if (!local || local.length === 0) return cloud
+  return mergeById(cloud, local)
+}
+
+/** 合并 object 类型（如 materialComments） */
+export function mergeObjects<T extends Record<string, any>>(cloud: T, local: T): T {
+  const result = { ...local }
+  for (const key of Object.keys(cloud)) {
+    result[key] = cloud[key] || result[key] || []
+  }
+  return result
 }
 
 /**

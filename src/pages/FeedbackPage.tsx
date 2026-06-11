@@ -1,15 +1,50 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { fetchCloudData, saveCloudData, mergeArrays } from '../services/CloudDataService'
+
+const FEEDBACK_KEY = 'aventurine_feedback_pending'
+
+function loadLocal(): any[] {
+  try { return JSON.parse(localStorage.getItem(FEEDBACK_KEY) || '[]') } catch { return [] }
+}
+function saveLocal(data: any[]) {
+  localStorage.setItem(FEEDBACK_KEY, JSON.stringify(data))
+}
 
 export default function FeedbackPage() {
   const [form, setForm] = useState({ name: '', contact: '', content: '', type: 'suggestion' })
   const [submitted, setSubmitted] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // 云端同步
+  useEffect(() => {
+    const sync = async () => {
+      try {
+        const cloud = await fetchCloudData()
+        if (cloud.feedbacks && cloud.feedbacks.length > 0) {
+          const merged = mergeArrays(cloud.feedbacks, loadLocal())
+          saveLocal(merged)
+        }
+      } catch {}
+    }
+    sync()
+    const interval = setInterval(sync, 8000)
+    return () => clearInterval(interval)
+  }, [])
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!form.content.trim()) return
-    const feedbacks = JSON.parse(localStorage.getItem('aventurine_feedbacks') || '[]')
-    feedbacks.push({ ...form, time: new Date().toISOString(), status: 'pending' })
-    localStorage.setItem('aventurine_feedbacks', JSON.stringify(feedbacks))
+    const item = { id: 'fb_' + Date.now(), ...form, time: new Date().toISOString(), status: 'pending' }
+    const list = loadLocal()
+    list.push(item)
+    saveLocal(list)
+    
+    // 保存到云端
+    try {
+      const cloud = await fetchCloudData()
+      cloud.feedbacks = mergeArrays(list, cloud.feedbacks)
+      await saveCloudData(cloud)
+    } catch {}
+    
     setSubmitted(true)
     setTimeout(() => setSubmitted(false), 3000)
     setForm({ name: '', contact: '', content: '', type: 'suggestion' })
