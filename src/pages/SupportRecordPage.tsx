@@ -1,6 +1,7 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useContent } from '../context/ContentContext'
 import { useLang } from '../context/LanguageContext'
+import { fetchCloudData, saveCloudData, type CloudData } from '../services/CloudDataService'
 
 const joinOptions = [
   { key: 'screen', icon: '🖥️', labelKey: 'join_support_1', color: '#f0c060' },
@@ -166,8 +167,49 @@ export default function SupportRecordPage() {
   const [feedbackForm, setFeedbackForm] = useState({ nickname: '', imageUrl: '', desc: '' })
   const [feedbackSubmitting, setFeedbackSubmitting] = useState(false)
   const [feedbackSubmitMsg, setFeedbackSubmitMsg] = useState('')
+  const [cloudSyncStatus, setCloudSyncStatus] = useState<'idle' | 'syncing' | 'error'>('idle')
+  const [lastSynced, setLastSynced] = useState('')
 
-  const handleFeedbackSubmit = () => {
+  // 云端同步：从云端加载线下返图数据
+  useEffect(() => {
+    const syncWithCloud = async () => {
+      setCloudSyncStatus('syncing')
+      try {
+        const cloudData = await fetchCloudData()
+        if (cloudData.offlineFeedback && cloudData.offlineFeedback.length > 0) {
+          setOfflineFeedback(cloudData.offlineFeedback)
+          localStorage.setItem('aventurine_offline_feedback', JSON.stringify(cloudData.offlineFeedback))
+          setLastSynced(new Date().toLocaleTimeString())
+        }
+        setCloudSyncStatus('idle')
+      } catch (error) {
+        console.error('从云端加载失败:', error)
+        setCloudSyncStatus('error')
+      }
+    }
+
+    syncWithCloud()
+    
+    // 每30秒同步一次
+    const interval = setInterval(syncWithCloud, 30000)
+    return () => clearInterval(interval)
+  }, [])
+
+  // 同步到云端
+  const syncFeedbackToCloud = async (data: any[]) => {
+    try {
+      const cloudData = await fetchCloudData()
+      cloudData.offlineFeedback = data
+      await saveCloudData(cloudData)
+      setLastSynced(new Date().toLocaleTimeString())
+      setCloudSyncStatus('idle')
+    } catch (error) {
+      console.error('同步到云端失败:', error)
+      setCloudSyncStatus('error')
+    }
+  }
+
+  const handleFeedbackSubmit = async () => {
     if (!feedbackForm.imageUrl.trim()) return
     setFeedbackSubmitting(true)
     try {
@@ -178,6 +220,10 @@ export default function SupportRecordPage() {
       localStorage.setItem('aventurine_offline_feedback', JSON.stringify(next))
       setOfflineFeedback(next)
       setFeedbackSubmitMsg('✅ 提交成功！感谢你的返图～')
+      
+      // 同步到云端
+      await syncFeedbackToCloud(next)
+      
       setTimeout(() => { setFeedbackModalOpen(false); setFeedbackSubmitMsg(''); setFeedbackForm({ nickname: '', imageUrl: '', desc: '' }) }, 1500)
     } catch {
       setFeedbackSubmitMsg('❌ 提交失败，请重试')
