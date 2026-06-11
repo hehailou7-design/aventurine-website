@@ -151,7 +151,7 @@ export default function BlessingsPage() {
 
     syncWithCloud()
     
-    const interval = setInterval(syncWithCloud, 30000)
+    const interval = setInterval(syncWithCloud, 8000)
     
     return () => clearInterval(interval)
   }, [])

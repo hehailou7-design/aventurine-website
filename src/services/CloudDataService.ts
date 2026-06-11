@@ -16,8 +16,9 @@
  */
 
 // 默认值（兜底）
-const DEFAULT_BIN_ID = '68292066acd3cb34af8e3a4f'
-const DEFAULT_API_KEY = '$2a$10$YourAPIKeyHere'
+// ⚠️ 注意：此 Key 为 Master Key，具有完全权限，请勿泄露
+const DEFAULT_BIN_ID = '6a2a0526f5f4af5e29dbdee6'
+const DEFAULT_API_KEY = '$2a$10$4A22bLlkifzYfvNvyoEQeOcJicGmFUFzrG1e.0IhHvaSlIP2yIh2i'
 
 /** 获取当前生效的 Bin ID */
 function getBinId(): string {

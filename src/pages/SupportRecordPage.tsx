@@ -191,7 +191,7 @@ export default function SupportRecordPage() {
     syncWithCloud()
     
     // 每30秒同步一次
-    const interval = setInterval(syncWithCloud, 30000)
+    const interval = setInterval(syncWithCloud, 8000)
     return () => clearInterval(interval)
   }, [])
 

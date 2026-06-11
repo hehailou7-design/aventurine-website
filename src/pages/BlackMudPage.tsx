@@ -142,7 +142,7 @@ export default function BlackMudPage() {
     }
     syncData()
     
-    const interval = setInterval(syncData, 30000)
+    const interval = setInterval(syncData, 8000)
     return () => clearInterval(interval)
   }, [])
 
@@ -365,7 +365,7 @@ export default function BlackMudPage() {
         else display = Math.floor(ago / 86400) + '天前'
         return { ...p, time: display }
       }))
-    }, 30000)
+    }, 15000)
     return () => clearInterval(timer)
   }, [])
 
