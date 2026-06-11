@@ -132,12 +132,70 @@ export function SkinProvider({ children }: { children: ReactNode }) {
   
   const applySkinToDOM = (skin: SkinTheme) => {
     const root = document.documentElement
+    
+    // 设置 CSS 变量（供组件内联样式使用）
     root.style.setProperty('--color-primary', skin.primary)
     root.style.setProperty('--color-secondary', skin.secondary)
     root.style.setProperty('--color-background', skin.background)
     root.style.setProperty('--color-text', skin.text)
     root.style.setProperty('--color-border', skin.border)
     root.style.setProperty('--color-card-bg', skin.cardBg)
+    
+    // 注入 skin-css 覆盖全局样式
+    const oldStyle = document.getElementById('skin-override-css')
+    if (oldStyle) oldStyle.remove()
+    
+    const isLight = skin.id === 'whiteLace'
+    const styleEl = document.createElement('style')
+    styleEl.id = 'skin-override-css'
+    styleEl.textContent = `
+      /* === 皮肤CSS覆盖 === */
+      body {
+        background: ${skin.backgroundGradient} !important;
+        background-attachment: fixed !important;
+        color: ${skin.text} !important;
+        min-height: 100vh;
+      }
+      .aurora-bg {
+        background: ${skin.backgroundGradient} !important;
+        background-attachment: fixed !important;
+      }
+      .card-glass {
+        background: ${skin.cardBg} !important;
+        border: 1px solid ${skin.cardBorder} !important;
+      }
+      .section-title {
+        color: ${skin.primary} !important;
+        border-left-color: ${skin.primary} !important;
+      }
+      .btn-gold {
+        background: linear-gradient(135deg, ${skin.primary}, ${isLight ? skin.secondary : skin.primary}dd) !important;
+        color: ${isLight ? '#fff' : '#121212'} !important;
+      }
+      .btn-gold:hover {
+        background: linear-gradient(135deg, ${isLight ? skin.secondary : skin.text}, ${skin.primary}) !important;
+        box-shadow: 0 4px 16px ${skin.primary}66 !important;
+      }
+      .text-champagne { color: ${skin.primary} !important; }
+      .text-champagne-light { color: ${skin.text} !important; }
+      .bg-charcoal { background-color: ${skin.background} !important; }
+      .bg-card { background-color: ${skin.cardBg} !important; }
+      .border-champagne { border-color: ${skin.border} !important; }
+      .timeline-line {
+        background: linear-gradient(to bottom, ${skin.primary}, ${skin.primary}1a) !important;
+      }
+      .scrollbar-gold::-webkit-scrollbar-track { background: ${skin.cardBg} !important; }
+      .scrollbar-gold::-webkit-scrollbar-thumb { background: ${skin.primary} !important; }
+      .card-hover:hover {
+        border-color: ${skin.primary}80 !important;
+        box-shadow: 0 8px 32px ${skin.primary}1f, 0 2px 8px rgba(0,0,0,0.4) !important;
+      }
+      .aurora-border {
+        border-color: ${skin.border} !important;
+        box-shadow: 0 0 20px ${skin.primary}14, 0 0 40px ${skin.secondary}0d !important;
+      }
+    `
+    document.head.appendChild(styleEl)
     
     // 移除旧特效
     document.querySelectorAll('.skin-effect').forEach(el => el.remove())
