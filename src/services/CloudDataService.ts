@@ -93,10 +93,10 @@ export function getCloudConfig(): { binId: string; apiKey: string } {
   return { binId: getBinId(), apiKey: getApiKey() }
 }
 
-/** 检查是否已正确配置 */
+/** 检查是否已正确配置（Key 是否为有效的 bcrypt 格式） */
 export function isCloudConfigured(): boolean {
   const key = getApiKey()
-  return key !== DEFAULT_API_KEY && key.length > 10
+  return key.startsWith('$2a$') && key.length > 50
 }
 
 function getBinUrl() {
@@ -136,9 +136,6 @@ const DEFAULT_DATA: CloudData = {
  * 从云端读取数据
  */
 export async function fetchCloudData(): Promise<CloudData> {
-  const key = getApiKey()
-  if (key === DEFAULT_API_KEY) return DEFAULT_DATA // 未配置则跳过
-
   try {
     const response = await fetch(`${getBinUrl()}/latest`, {
       method: 'GET',
@@ -162,9 +159,6 @@ export async function fetchCloudData(): Promise<CloudData> {
  * 保存数据到云端
  */
 export async function saveCloudData(data: CloudData): Promise<boolean> {
-  const key = getApiKey()
-  if (key === DEFAULT_API_KEY) return false // 未配置则跳过
-
   try {
     data.lastUpdated = new Date().toISOString()
     
@@ -191,17 +185,12 @@ export async function saveCloudData(data: CloudData): Promise<boolean> {
  * 运行一次后，在控制台会输出 Bin ID，需要更新上面的 BIN_ID
  */
 export async function initCloudData(): Promise<void> {
-  const key = getApiKey()
-  if (key === DEFAULT_API_KEY) {
-    console.warn('未配置 JSONBin API Key，无法初始化云端数据')
-    return
-  }
   try {
     const response = await fetch('https://api.jsonbin.io/v3/b', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-Master-Key': key,
+        'X-Master-Key': getApiKey(),
         'X-Bin-Name': 'aventurine-fan-site-data',
       },
       body: JSON.stringify(DEFAULT_DATA),
