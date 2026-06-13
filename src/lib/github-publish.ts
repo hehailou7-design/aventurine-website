@@ -1,15 +1,12 @@
 /**
- * Prepares site content for publishing by stripping non-serializable parts
- * and returning a formatted JSON string ready for download.
+ * GitHub 发布相关工具函数
  */
+
 export function preparePublishContent(content: Record<string, unknown>): string {
   const clean = JSON.parse(JSON.stringify(content))
   return JSON.stringify(clean, null, 2)
 }
 
-/**
- * Triggers a browser download of the content JSON file.
- */
 export function downloadContentJson(jsonStr: string): void {
   const blob = new Blob([jsonStr], { type: 'application/json' })
   const url = URL.createObjectURL(blob)
@@ -31,10 +28,10 @@ const GITHUB_REPO = {
   filePath: 'public/data/content.json',
 }
 
-// GitHub token 存储 key — 用户需在 CMS 设置中配置
+// GitHub token 本地存储 key
 const GH_TOKEN_KEY = 'aventurine_gh_token'
 
-function getToken(): string {
+function getTokenFromStorage(): string {
   return localStorage.getItem(GH_TOKEN_KEY) || ''
 }
 
@@ -47,8 +44,40 @@ export function setGitHubToken(token: string) {
 }
 
 export function getGitHubToken(): string {
-  return getToken()
+  return getTokenFromStorage()
 }
+
+// ============ Token 同步（Base64 编码存储到 content.json） ============
+
+/**
+ * 将 token 编码后存到 content._sync.ghToken
+ * 注意：Base64 不是加密，content.json 是公开文件，任何人都可读取。
+ */
+export function encodeTokenForSync(token: string): string {
+  if (!token) return ''
+  return btoa(unescape(encodeURIComponent(token)))
+}
+
+export function decodeTokenFromSync(encoded: string): string {
+  if (!encoded) return ''
+  try {
+    return decodeURIComponent(escape(atob(encoded)))
+  } catch {
+    return ''
+  }
+}
+
+/**
+ * 获取 token：优先本地 storage，其次 content._sync.ghToken
+ */
+export function getGitHubTokenWithSync(content: Record<string, unknown>): string {
+  const local = getTokenFromStorage()
+  if (local) return local
+  const encoded = (content as any)?._sync?.ghToken || ''
+  return decodeTokenFromSync(encoded)
+}
+
+// ============ GitHub API 发布 ============
 
 interface PublishResult {
   success: boolean
@@ -56,12 +85,8 @@ interface PublishResult {
   commitUrl?: string
 }
 
-/**
- * 一键发布：将 content.json 推送至 GitHub 仓库
- * GitHub Actions 会自动检测推送 → 构建 → 部署到 aventurine0505.xyz
- */
-export async function publishToGitHub(jsonStr: string): Promise<PublishResult> {
-  const token = getToken()
+export async function publishToGitHub(jsonStr: string, tokenOverride?: string): Promise<PublishResult> {
+  const token = tokenOverride || getTokenFromStorage()
   if (!token) {
     return { success: false, message: '未配置 GitHub Token，请在 CMS 设置中输入' }
   }
@@ -70,7 +95,6 @@ export async function publishToGitHub(jsonStr: string): Promise<PublishResult> {
   const fileUrl = `${apiBase}/contents/${GITHUB_REPO.filePath}`
 
   try {
-    // 步骤1：获取当前文件的 SHA（GitHub API 更新文件需要）
     const getRes = await fetch(`${fileUrl}?ref=${GITHUB_REPO.branch}`, {
       headers: {
         Authorization: `token ${token}`,
@@ -83,12 +107,9 @@ export async function publishToGitHub(jsonStr: string): Promise<PublishResult> {
       const data = await getRes.json()
       sha = data.sha
     }
-    // 如果文件不存在（404），sha 为空字符串，GitHub API 会创建新文件
 
-    // 步骤2：Base64 编码内容
     const base64Content = btoa(unescape(encodeURIComponent(jsonStr)))
 
-    // 步骤3：PUT 推送
     const putBody: Record<string, string> = {
       message: 'CMS: 发布内容更新',
       content: base64Content,

@@ -1,33 +1,44 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { useLang } from '../context/LanguageContext'
 import { useContent } from '../context/ContentContext'
 import type { CollabStore, MerchItem } from '../context/ContentContext'
 
 function StoreDetail({ store, onClose, allStores, onSwitchStore }: { store: CollabStore; onClose: () => void; allStores: CollabStore[]; onSwitchStore?: (store: CollabStore) => void }) {
   const sameCity = allStores.filter(s => s.name !== store.name && s.city === store.city)
-  
-  return (
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [onClose])
+
+  return createPortal(
     <div
+      onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
       style={{
         position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)',
-        zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: '20px',
+        zIndex: 1000, backdropFilter: 'blur(2px)',
       }}
-      onClick={onClose}
     >
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
+          position: 'fixed',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
           background: '#1a1a1a', border: '2px solid rgba(212,184,120,0.25)',
-          borderRadius: '20px', maxWidth: '700px', width: '100%', maxHeight: '90vh',
-          overflow: 'hidden', display: 'flex', flexDirection: 'column',
+          borderRadius: '20px', maxWidth: '700px', width: 'calc(100% - 40px)',
+          maxHeight: '85vh', overflowY: 'auto',
+          boxShadow: '0 16px 64px rgba(0,0,0,0.5)',
         }}
       >
         <div style={{
           background: 'linear-gradient(135deg, rgba(212,184,120,0.12), rgba(160,140,210,0.08))',
           padding: '20px 24px', display: 'flex', justifyContent: 'space-between',
           alignItems: 'flex-start', borderBottom: '1px solid rgba(212,184,120,0.12)',
-          flexShrink: 0,
+          position: 'sticky', top: 0, zIndex: 1,
         }}>
           <div>
             <div style={{ color: '#d4b878', fontSize: '18px', fontWeight: 600 }}>{store.name}</div>
@@ -42,11 +53,11 @@ function StoreDetail({ store, onClose, allStores, onSwitchStore }: { store: Coll
             flexShrink: 0,
           }}>✕</button>
         </div>
-        <div style={{ flex: '1', overflow: 'auto' }}>
+        <div style={{ padding: '24px' }}>
           <div style={{
             height: '280px',
             background: store.image ? `url(${store.image}) center/cover` : 'linear-gradient(135deg, rgba(212,184,120,0.06), #0a0a0a)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            borderRadius: '12px', marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center',
             position: 'relative',
           }}>
             {!store.image && (
@@ -56,77 +67,86 @@ function StoreDetail({ store, onClose, allStores, onSwitchStore }: { store: Coll
               </div>
             )}
           </div>
-          <div style={{ padding: '24px' }}>
-            <div style={{ display: 'flex', gap: '10px', marginBottom: '16px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '10px', marginBottom: '16px', flexWrap: 'wrap' }}>
               <span style={{ background: 'rgba(212,184,120,0.1)', color: '#d4b878', padding: '6px 14px', borderRadius: '8px', fontSize: '13px', border: '1px solid rgba(212,184,120,0.2)' }}>🏙️ {store.city}</span>
               <span style={{ background: 'rgba(160,140,210,0.1)', color: '#b0a0d8', padding: '6px 14px', borderRadius: '8px', fontSize: '13px', border: '1px solid rgba(160,140,210,0.2)' }}>🕐 {store.time}</span>
               <span style={{ background: 'rgba(156,186,138,0.1)', color: '#9cba8a', padding: '6px 14px', borderRadius: '8px', fontSize: '13px', border: '1px solid rgba(156,186,138,0.2)' }}>🏷️ {store.category}</span>
-            </div>
-            <div style={{ color: 'rgba(248,246,240,0.7)', fontSize: '14px', lineHeight: '1.8' }}>
-              欢迎来到 {store.name}！这里是砂金粉丝的线下联名空间，快来和志同道合的小伙伴一起打卡吧~ 位于{store.city}，活动时间{store.time}。具体参与方式请关注砂金生贺组公告。
-            </div>
-            
-            {/* Same city stores */}
-            {sameCity.length > 0 && (
-              <div style={{
-                marginTop: '20px', borderTop: '1px solid rgba(212,184,120,0.12)',
-                paddingTop: '16px',
-              }}>
-                <div style={{ color: 'rgba(248,246,240,0.5)', fontSize: '12px', marginBottom: '8px', fontWeight: 600 }}>
-                  🏙️ {store.city}更多门店
-                </div>
-                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                  {sameCity.slice(0, 4).map((s, idx) => (
-                    <button key={idx}
-                      onClick={() => onSwitchStore?.(s)}
-                      style={{
-                        background: 'rgba(212,184,120,0.05)',
-                        border: '1px solid rgba(212,184,120,0.12)',
-                        borderRadius: '6px', padding: '4px 10px',
-                        color: 'rgba(248,246,240,0.55)', fontSize: '11px',
-                        cursor: 'pointer', fontFamily: 'inherit',
-                      }}
-                      onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(212,184,120,0.4)'; e.currentTarget.style.color = '#d4b878' }}
-                      onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(212,184,120,0.12)'; e.currentTarget.style.color = 'rgba(248,246,240,0.55)' }}
-                    >
-                      {s.name}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
+          <div style={{ color: 'rgba(248,246,240,0.7)', fontSize: '14px', lineHeight: '1.8' }}>
+            欢迎来到 {store.name}！这里是砂金粉丝的线下联名空间，快来和志同道合的小伙伴一起打卡吧~ 位于{store.city}，活动时间{store.time}。具体参与方式请关注砂金生贺组公告。
+          </div>
+          
+          {/* Same city stores */}
+          {sameCity.length > 0 && (
+            <div style={{
+              marginTop: '20px', borderTop: '1px solid rgba(212,184,120,0.12)',
+              paddingTop: '16px',
+            }}>
+              <div style={{ color: 'rgba(248,246,240,0.5)', fontSize: '12px', marginBottom: '8px', fontWeight: 600 }}>
+                🏙️ {store.city}更多门店
+              </div>
+              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                {sameCity.slice(0, 4).map((s, idx) => (
+                  <button key={idx}
+                    onClick={() => onSwitchStore?.(s)}
+                    style={{
+                      background: 'rgba(212,184,120,0.05)',
+                      border: '1px solid rgba(212,184,120,0.12)',
+                      borderRadius: '6px', padding: '4px 10px',
+                      color: 'rgba(248,246,240,0.55)', fontSize: '11px',
+                      cursor: 'pointer', fontFamily: 'inherit',
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(212,184,120,0.4)'; e.currentTarget.style.color = '#d4b878' }}
+                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(212,184,120,0.12)'; e.currentTarget.style.color = 'rgba(248,246,240,0.55)' }}
+                  >
+                    {s.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
 
 function MerchDetail({ item, onClose, allMerch, onSwitchMerch }: { item: MerchItem; onClose: () => void; allMerch: MerchItem[]; onSwitchMerch?: (item: MerchItem) => void }) {
   const sameType = allMerch.filter(m => m.name !== item.name && m.type === item.type)
-  
-  return (
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [onClose])
+
+  return createPortal(
     <div
+      onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
       style={{
         position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)',
-        zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: '20px',
+        zIndex: 1000, backdropFilter: 'blur(2px)',
       }}
-      onClick={onClose}
     >
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
+          position: 'fixed',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
           background: '#1a1a1a', border: '2px solid rgba(212,184,120,0.25)',
-          borderRadius: '20px', maxWidth: '600px', width: '100%', maxHeight: '90vh',
-          overflow: 'hidden', display: 'flex', flexDirection: 'column',
+          borderRadius: '20px', maxWidth: '600px', width: 'calc(100% - 40px)',
+          maxHeight: '85vh', overflowY: 'auto',
+          boxShadow: '0 16px 64px rgba(0,0,0,0.5)',
         }}
       >
         <div style={{
           background: 'linear-gradient(135deg, rgba(232,152,184,0.1), rgba(212,184,120,0.08))',
           padding: '20px 24px', display: 'flex', justifyContent: 'space-between',
           alignItems: 'flex-start', borderBottom: '1px solid rgba(212,184,120,0.12)',
-          flexShrink: 0,
+          position: 'sticky', top: 0, zIndex: 1,
         }}>
           <div>
             <div style={{ color: '#d4b878', fontSize: '18px', fontWeight: 600 }}>{item.name}</div>
@@ -147,81 +167,67 @@ function MerchDetail({ item, onClose, allMerch, onSwitchMerch }: { item: MerchIt
             flexShrink: 0,
           }}>✕</button>
         </div>
-        <div style={{ flex: '1', overflow: 'auto' }}>
-          <div style={{
-            height: '280px',
-            background: item.image ? `url(${item.image}) center/contain no-repeat` : 'linear-gradient(135deg, rgba(232,152,184,0.06), #0a0a0a)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            position: 'relative',
-          }}>
-            {!item.image && (
-              <div style={{ textAlign: 'center', opacity: 0.15 }}>
-                <span style={{ fontSize: '48px', display: 'block' }}>★</span>
-                <span style={{ color: '#d4b878', fontSize: '12px', marginTop: '8px', display: 'block' }}>周边图片待更新</span>
-              </div>
-            )}
+        <div style={{ padding: '24px' }}>
+          <div style={{ color: '#d4b878', fontSize: '24px', fontWeight: 700, marginBottom: '12px' }}>{item.price}</div>
+          
+          {/* 淘宝链接跳转 */}
+          {item.taobaoUrl && (
+            <a
+              href={item.taobaoUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: '6px',
+                padding: '10px 20px', borderRadius: '10px',
+                background: 'linear-gradient(135deg, #ff5000, #ff6a20)',
+                color: '#fff', fontSize: '14px', fontWeight: 600,
+                textDecoration: 'none', cursor: 'pointer',
+                marginBottom: '12px', transition: 'all 0.2s',
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.03)' }}
+              onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)' }}
+            >
+              🛒 去淘宝官方店购买
+            </a>
+          )}
+
+          <div style={{ color: 'rgba(248,246,240,0.5)', fontSize: '13px', marginBottom: '16px' }}>
+            以上价格仅供参考，具体以官方渠道实际售价为准
           </div>
-          <div style={{ padding: '24px' }}>
-            <div style={{ color: '#d4b878', fontSize: '24px', fontWeight: 700, marginBottom: '12px' }}>{item.price}</div>
 
-            {/* 淘宝链接跳转 */}
-            {item.taobaoUrl && (
-              <a
-                href={item.taobaoUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  display: 'inline-flex', alignItems: 'center', gap: '6px',
-                  padding: '10px 20px', borderRadius: '10px',
-                  background: 'linear-gradient(135deg, #ff5000, #ff6a20)',
-                  color: '#fff', fontSize: '14px', fontWeight: 600,
-                  textDecoration: 'none', cursor: 'pointer',
-                  marginBottom: '12px', transition: 'all 0.2s',
-                }}
-                onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.03)' }}
-                onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)' }}
-              >
-                🛒 去淘宝官方店购买
-              </a>
-            )}
-
-            <div style={{ color: 'rgba(248,246,240,0.5)', fontSize: '13px' }}>
-              以上价格仅供参考，具体以官方渠道实际售价为准
+          {/* Same type items */}
+          {sameType.length > 0 && (
+            <div style={{
+              marginTop: '20px', borderTop: '1px solid rgba(212,184,120,0.12)',
+              paddingTop: '16px',
+            }}>
+              <div style={{ color: 'rgba(248,246,240,0.5)', fontSize: '12px', marginBottom: '8px', fontWeight: 600 }}>
+                🛍️ 更多{item.type}
+              </div>
+              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                {sameType.slice(0, 4).map((m, idx) => (
+                  <button key={idx}
+                    onClick={() => onSwitchMerch?.(m)}
+                    style={{
+                      background: 'rgba(212,184,120,0.05)',
+                      border: '1px solid rgba(212,184,120,0.12)',
+                      borderRadius: '6px', padding: '4px 10px',
+                      color: 'rgba(248,246,240,0.55)', fontSize: '11px',
+                      cursor: 'pointer', fontFamily: 'inherit',
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(212,184,120,0.4)'; e.currentTarget.style.color = '#d4b878' }}
+                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(212,184,120,0.12)'; e.currentTarget.style.color = 'rgba(248,246,240,0.55)' }}
+                  >
+                    {m.name} {m.price}
+                  </button>
+                ))}
+              </div>
             </div>
-
-            {/* Same type items */}
-            {sameType.length > 0 && (
-              <div style={{
-                marginTop: '20px', borderTop: '1px solid rgba(212,184,120,0.12)',
-                paddingTop: '16px',
-              }}>
-                <div style={{ color: 'rgba(248,246,240,0.5)', fontSize: '12px', marginBottom: '8px', fontWeight: 600 }}>
-                  🛍️ 更多{item.type}
-                </div>
-                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                  {sameType.slice(0, 4).map((m, idx) => (
-                    <button key={idx}
-                      onClick={() => onSwitchMerch?.(m)}
-                      style={{
-                        background: 'rgba(212,184,120,0.05)',
-                        border: '1px solid rgba(212,184,120,0.12)',
-                        borderRadius: '6px', padding: '4px 10px',
-                        color: 'rgba(248,246,240,0.55)', fontSize: '11px',
-                        cursor: 'pointer', fontFamily: 'inherit',
-                      }}
-                      onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(212,184,120,0.4)'; e.currentTarget.style.color = '#d4b878' }}
-                      onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(212,184,120,0.12)'; e.currentTarget.style.color = 'rgba(248,246,240,0.55)' }}
-                    >
-                      {m.name} {m.price}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
+          )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
 

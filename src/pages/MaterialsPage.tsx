@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
+import { createPortal } from 'react-dom'
 import { useContent } from '../context/ContentContext'
 import type { MaterialItem, CalendarEvent } from '../context/ContentContext'
 import { fetchCloudData, saveCloudData } from '../services/CloudDataService'
@@ -51,14 +52,51 @@ function DetailPage({ item, onClose, allItems, onSwitchItem }: { item: MaterialI
   const displayDesc = item.detailDesc || item.desc
   const relatedItems = allItems.filter(i => i.title !== item.title && i.tag === item.tag)
 
-  // 打开详情页时，滚动到顶部让它可见
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }, [item])
+  // 点击背景遮罩关闭
+  const handleOverlayClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) onClose()
+  }
 
-  return (
-    <div style={{ background: 'rgba(0,0,0,0.6)', borderRadius: '16px', padding: '24px', marginBottom: '24px', border: '1px solid rgba(212,184,120,0.15)' }}>
-      <button onClick={onClose} style={{ float: 'right', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', padding: '6px 14px', color: '#f8f6f0', fontSize: '13px', cursor: 'pointer' }}>✕ 关闭</button>
+  // ESC 关闭
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [onClose])
+
+  return createPortal(
+    <div
+      onClick={handleOverlayClick}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 9999,
+        background: 'rgba(0,0,0,0.75)',
+        backdropFilter: 'blur(4px)',
+      }}
+    >
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{
+          position: 'fixed',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          background: '#14141e',
+          borderRadius: '16px',
+          padding: '24px',
+          border: '1px solid rgba(212,184,120,0.15)',
+          maxWidth: '720px',
+          width: 'calc(100% - 40px)',
+          maxHeight: '85vh',
+          overflowY: 'auto',
+          boxShadow: '0 16px 64px rgba(0,0,0,0.5)',
+        }}
+      >
+        <button onClick={onClose} style={{ float: 'right', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', padding: '6px 14px', color: '#f8f6f0', fontSize: '13px', cursor: 'pointer' }}>✕ 关闭</button>
       <div style={{ width: '100%', borderRadius: '12px', overflow: 'hidden', marginBottom: '24px', background: 'linear-gradient(135deg, rgba(212,184,120,0.06), rgba(180,150,100,0.03))', border: '1px solid rgba(212,184,120,0.12)', minHeight: '250px', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
         {item.image ? <img src={item.image} alt={item.title} style={{ width: '100%', maxHeight: '450px', objectFit: 'contain' }} /> : <div style={{ textAlign: 'center', opacity: 0.12 }}><span style={{ fontSize: '64px' }}>◆</span></div>}
         {item.clickAction === 'video' && <div onClick={() => item.videoUrl && window.open(item.videoUrl, '_blank')} style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', background: 'rgba(0,0,0,0.7)', color: '#fff', fontSize: '36px', width: '72px', height: '72px', borderRadius: '50%', border: '2px solid rgba(212,184,120,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>▶</div>}
@@ -110,7 +148,9 @@ function DetailPage({ item, onClose, allItems, onSwitchItem }: { item: MaterialI
           </div>
         }
       </div>
+      </div>
     </div>
+    , document.body
   )
 }
 

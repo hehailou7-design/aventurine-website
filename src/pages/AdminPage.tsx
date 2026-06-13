@@ -12,7 +12,7 @@ import SubmitReview from '../components/SubmitReview'
 import SupportRecordEditor from '../components/SupportRecordEditor'
 import PageBuilder from '../components/pageBuilder/PageBuilder'
 import ImageCropper from '../components/ImageCropper'
-import { getGitHubToken, setGitHubToken } from '../lib/github-publish'
+import { getGitHubToken, setGitHubToken, encodeTokenForSync, decodeTokenFromSync } from '../lib/github-publish'
 import { setCloudConfig, getCloudConfig, isCloudConfigured } from '../services/CloudDataService'
 
 // —— 类型 ———
@@ -614,12 +614,31 @@ export default function AdminPage({ onLogout }: { onLogout?: () => void }) {
   const [activeSection, setActiveSection] = useState<PageSection>('home')
   const [saved, setSaved] = useState(false)
   const [publishMsg, setPublishMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
-  const [ghToken, setGhToken] = useState(() => getGitHubToken())
+  const [ghToken, setGhToken] = useState('')
+  const [syncToken, setSyncToken] = useState(false)  // 是否同步 token 到全站
   const [showTokenInput, setShowTokenInput] = useState(false)
   const [cloudConfig, setCloudConfigState] = useState(() => getCloudConfig())
   const [cloudBinId, setCloudBinId] = useState(() => getCloudConfig().binId)
   const [cloudApiKey, setCloudApiKey] = useState(() => getCloudConfig().apiKey)
   const [cloudConfigured, setCloudConfigured] = useState(() => isCloudConfigured())
+
+  // 初始化 token：优先本地，其次从 content._sync.ghToken 读取
+  useEffect(() => {
+    const local = getGitHubToken()
+    if (local) {
+      setGhToken(local)
+      return
+    }
+    // 从 content._sync.ghToken 读取
+    const encoded = (content as any)?._sync?.ghToken || ''
+    if (encoded) {
+      const decoded = decodeTokenFromSync(encoded)
+      if (decoded) {
+        setGhToken(decoded)
+        setGitHubToken(decoded) // 存到本地 storage
+      }
+    }
+  }, [content])
 
   const handleSyncAndPublish = async () => {
     syncToSite()
@@ -949,7 +968,14 @@ export default function AdminPage({ onLogout }: { onLogout?: () => void }) {
                   }}
                 />
                 <button
-                  onClick={() => { setGitHubToken(ghToken) }}
+                  onClick={() => {
+                    setGitHubToken(ghToken)
+                    // 如果勾选了同步到全站，把 token 编码后存到 content._sync.ghToken
+                    if (syncToken && ghToken) {
+                      const encoded = encodeTokenForSync(ghToken)
+                      updateContent('_sync.ghToken', encoded)
+                    }
+                  }}
                   style={{
                     padding: '8px 16px', borderRadius: '6px', cursor: 'pointer',
                     background: 'linear-gradient(135deg, #64b878, #4a9a5a)',
@@ -962,6 +988,19 @@ export default function AdminPage({ onLogout }: { onLogout?: () => void }) {
               <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', marginTop: '4px' }}>
                 获取：github.com → Settings → Developer settings → Tokens (classic) → 勾选 repo
               </div>
+              <label style={{
+                display: 'flex', alignItems: 'center', gap: '6px',
+                marginTop: '8px', fontSize: '12px', color: 'rgba(248,246,240,0.6)',
+                cursor: 'pointer',
+              }}>
+                <input
+                  type="checkbox"
+                  checked={syncToken}
+                  onChange={(e) => setSyncToken(e.target.checked)}
+                  style={{ accentColor: '#d4b878' }}
+                />
+                同步 Token 到全站（其他设备打开后自动获取，Base64 编码存储）
+              </label>
             </div>
 
             {/* —— 云端同步状态 —— */}
