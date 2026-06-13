@@ -51,11 +51,38 @@ function DetailPage({ item, onClose, allItems, onSwitchItem }: { item: MaterialI
   const displayDesc = item.detailDesc || item.desc
   const relatedItems = allItems.filter(i => i.title !== item.title && i.tag === item.tag)
 
-  // 锁定 body 滚动，防止详情页打开时背景页面滚动
+  // 锁定滚动：同时锁定 html 和 body，防止详情页打开时背景页面滚动
   useEffect(() => {
-    const originalOverflow = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    return () => { document.body.style.overflow = originalOverflow }
+    const html = document.documentElement
+    const body = document.body
+    const origHtmlOverflow = html.style.overflow
+    const origBodyOverflow = body.style.overflow
+    const origHtmlHeight = html.style.height
+    const origBodyHeight = body.style.height
+    const origBodyPosition = body.style.position
+    // 记录当前滚动位置
+    const scrollY = window.scrollY
+    // 锁定
+    html.style.overflow = 'hidden'
+    html.style.height = '100%'
+    body.style.overflow = 'hidden'
+    body.style.height = '100%'
+    body.style.position = 'fixed'
+    body.style.top = `-${scrollY}px`
+    body.style.left = '0'
+    body.style.right = '0'
+    return () => {
+      html.style.overflow = origHtmlOverflow
+      html.style.height = origHtmlHeight
+      body.style.overflow = origBodyOverflow
+      body.style.height = origBodyHeight
+      body.style.position = origBodyPosition
+      body.style.top = ''
+      body.style.left = ''
+      body.style.right = ''
+      // 恢复滚动位置
+      window.scrollTo(0, scrollY)
+    }
   }, [])
 
   return (
