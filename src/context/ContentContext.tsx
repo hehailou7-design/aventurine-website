@@ -672,28 +672,9 @@ const defaultContent: SiteContent = {
   },
   countdown: { birthday: '05-05', debutDate: '04-17' },
   materialTable: {
-    year2024: [
-      { date: '02-14', title: '情人节特别电影宣传图', image: '', link: '', tag: '宣传图' },
-      { date: '02-28', title: '砂金官方立绘（横版）', image: '', link: '', tag: '立绘' },
-      { date: '02-28', title: '砂金官方立绘（竖版）', image: '', link: '', tag: '立绘' },
-      { date: '03-01', title: '砂金透明底立绘', image: '', link: '', tag: '立绘' },
-      { date: '03-15', title: '2.1版本PV「狂热奔向深渊」', image: '', link: '', tag: 'PV' },
-      { date: '03-20', title: '砂金anan杂志封面', image: '', link: '', tag: '杂志' },
-      { date: '04-26', title: '茶百道联动联名吊牌', image: '', link: '', tag: '联动' },
-      { date: '06-01', title: '叽米的会客室 · 迷你马口铁徽章', image: '', link: '', tag: '周边' },
-      { date: '09-01', title: '崩铁X中信联动借记卡（砂金卡面）', image: '', link: '', tag: '联动' },
-    ],
-    year2025: [
-      { date: '03-15', title: 'GSC砂金粘土人手办', image: '', link: '', tag: '手办' },
-      { date: '03-20', title: '主题印象系列 · 条纹衬衫', image: '', link: '', tag: '周边' },
-      { date: '03-20', title: '主题印象系列 · 手表', image: '', link: '', tag: '周边' },
-      { date: '06-09', title: '指尖键帽系列第二弹（砂金）', image: '', link: '', tag: '周边' },
-    ],
-    year2026: [
-      { date: '05-05', title: '二周年·百城万屏Live2d应援', image: '', link: '', tag: '应援' },
-      { date: '05-05', title: '二周年·双城摩天轮应援', image: '', link: '', tag: '特别' },
-      { date: '05-05', title: '二周年·宇宙深空传讯发射', image: '', link: '', tag: '特别' },
-    ],
+    year2024: [],
+    year2025: [],
+    year2026: [],
   },
   events: {
     mysteryDesc: { zh: '神秘企划正在建设中，敬请期待...', en: 'Mystery project under construction, stay tuned...', ja: 'ミステリープロジェクト建設中、お楽しみに...', ko: '미스터리 프로젝트 건설 중, 기대해주세요...' },

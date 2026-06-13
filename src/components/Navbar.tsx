@@ -23,7 +23,6 @@ const navItems: { key: PageType; tKey: string }[] = [
   { key: 'feedback', tKey: 'nav13' },
   { key: 'sponsorship', tKey: 'nav14' },
   { key: 'blessings', tKey: 'nav11' },
-  { key: 'custom', tKey: 'nav15' },
 ]
 
 const langOptions: { code: 'zh' | 'en' | 'ja' | 'ko'; label: string }[] = [

@@ -51,6 +51,13 @@ function DetailPage({ item, onClose, allItems, onSwitchItem }: { item: MaterialI
   const displayDesc = item.detailDesc || item.desc
   const relatedItems = allItems.filter(i => i.title !== item.title && i.tag === item.tag)
 
+  // 锁定 body 滚动，防止详情页打开时背景页面滚动
+  useEffect(() => {
+    const originalOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = originalOverflow }
+  }, [])
+
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 1000, overflow: 'auto' }}>
       <button onClick={onClose} style={{ position: 'fixed', top: '16px', right: '16px', zIndex: 1010, background: 'rgba(0,0,0,0.6)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '50%', width: '40px', height: '40px', color: '#f8f6f0', fontSize: '18px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(8px)' }}>✕</button>
