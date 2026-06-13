@@ -17,7 +17,7 @@ const navItems: { key: PageType; tKey: string }[] = [
   { key: 'sashaSay', tKey: 'nav16' },
   { key: 'collaboration', tKey: 'nav4' },
   { key: 'chronicle', tKey: 'nav5' },
-  { key: 'blackmud', tKey: 'nav7' },
+  { key: 'strength', tKey: 'nav6' },
   { key: 'submit', tKey: 'nav8' },
   { key: 'feedback', tKey: 'nav13' },
   { key: 'sponsorship', tKey: 'nav14' },

@@ -6,7 +6,7 @@ import CharacterPage from './pages/CharacterPage'
 import MaterialsPage from './pages/MaterialsPage'
 import CollaborationPage from './pages/CollaborationPage'
 import ChroniclePage from './pages/ChroniclePage'
-import BlackMudPage from './pages/BlackMudPage'
+import StrengthPage from './pages/StrengthPage'
 import SubmitPage from './pages/SubmitPage'
 import SashaSayPage from './pages/SashaSayPage'
 import BlessingsPage from './pages/BlessingsPage'
@@ -27,7 +27,7 @@ export type PageType =
   | 'materials'
   | 'collaboration'
   | 'chronicle'
-  | 'blackmud'
+  | 'strength'
   | 'submit'
   | 'supportRecord'
   | 'sashaSay'
@@ -124,7 +124,7 @@ function AppContent() {
         case 'materials': return <MaterialsPage />
         case 'collaboration': return <CollaborationPage />
         case 'chronicle': return <ChroniclePage />
-        case 'blackmud': return <BlackMudPage />
+        case 'strength': return <StrengthPage />
         case 'submit': return <SubmitPage />
         case 'supportRecord': return <SupportRecordPage />
         case 'sashaSay': return <SashaSayPage />
