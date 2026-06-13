@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
-import { createPortal } from 'react-dom'
 import { useContent } from '../context/ContentContext'
 import type { MaterialItem, CalendarEvent } from '../context/ContentContext'
 import { fetchCloudData, saveCloudData } from '../services/CloudDataService'
@@ -52,84 +51,67 @@ function DetailPage({ item, onClose, allItems, onSwitchItem }: { item: MaterialI
   const displayDesc = item.detailDesc || item.desc
   const relatedItems = allItems.filter(i => i.title !== item.title && i.tag === item.tag)
 
-  // 用 createPortal 渲染到 document.body，彻底脱离页面滚动容器
-  // 锁定 body 滚动，让详情页固定居中
+  // 打开详情页时，滚动到顶部让它可见
   useEffect(() => {
-    const body = document.body
-    const origOverflow = body.style.overflow
-    const origPaddingRight = body.style.paddingRight
-    // 计算滚动条宽度，防止页面抖动
-    const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth
-    body.style.overflow = 'hidden'
-    if (scrollBarWidth > 0) {
-      body.style.paddingRight = `${scrollBarWidth}px`
-    }
-    return () => {
-      body.style.overflow = origOverflow
-      body.style.paddingRight = origPaddingRight
-    }
-  }, [])
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [item])
 
-  const detailContent = (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 1000, overflow: 'auto' }}>
-      <button onClick={onClose} style={{ position: 'fixed', top: '16px', right: '16px', zIndex: 1010, background: 'rgba(0,0,0,0.6)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '50%', width: '40px', height: '40px', color: '#f8f6f0', fontSize: '18px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(8px)' }}>✕</button>
-      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '60px 20px 80px' }}>
-        <div style={{ width: '100%', borderRadius: '16px', overflow: 'hidden', marginBottom: '24px', background: 'linear-gradient(135deg, rgba(212,184,120,0.06), rgba(180,150,100,0.03))', border: '1px solid rgba(212,184,120,0.15)', minHeight: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
-          {item.image ? <img src={item.image} alt={item.title} style={{ width: '100%', maxHeight: '500px', objectFit: 'contain' }} /> : <div style={{ textAlign: 'center', opacity: 0.15 }}><span style={{ fontSize: '80px' }}>◆</span></div>}
-          {item.clickAction === 'video' && <div onClick={() => item.videoUrl && window.open(item.videoUrl, '_blank')} style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', background: 'rgba(0,0,0,0.7)', color: '#fff', fontSize: '40px', width: '80px', height: '80px', borderRadius: '50%', border: '2px solid rgba(212,184,120,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>▶</div>}
+  return (
+    <div style={{ background: 'rgba(0,0,0,0.6)', borderRadius: '16px', padding: '24px', marginBottom: '24px', border: '1px solid rgba(212,184,120,0.15)' }}>
+      <button onClick={onClose} style={{ float: 'right', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', padding: '6px 14px', color: '#f8f6f0', fontSize: '13px', cursor: 'pointer' }}>✕ 关闭</button>
+      <div style={{ width: '100%', borderRadius: '12px', overflow: 'hidden', marginBottom: '24px', background: 'linear-gradient(135deg, rgba(212,184,120,0.06), rgba(180,150,100,0.03))', border: '1px solid rgba(212,184,120,0.12)', minHeight: '250px', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+        {item.image ? <img src={item.image} alt={item.title} style={{ width: '100%', maxHeight: '450px', objectFit: 'contain' }} /> : <div style={{ textAlign: 'center', opacity: 0.12 }}><span style={{ fontSize: '64px' }}>◆</span></div>}
+        {item.clickAction === 'video' && <div onClick={() => item.videoUrl && window.open(item.videoUrl, '_blank')} style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', background: 'rgba(0,0,0,0.7)', color: '#fff', fontSize: '36px', width: '72px', height: '72px', borderRadius: '50%', border: '2px solid rgba(212,184,120,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>▶</div>}
+      </div>
+      <div style={{ marginBottom: '20px' }}>
+        <h2 style={{ color: '#d4b878', fontSize: '22px', fontWeight: 700, marginBottom: '10px' }}>{item.title}</h2>
+        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
+          {item.date && <span style={{ color: 'rgba(248,246,240,0.45)', fontSize: '13px' }}>📅 {item.date}</span>}
+          {item.tag && <span style={{ background: 'rgba(212,184,120,0.1)', color: '#d4b878', padding: '3px 12px', borderRadius: '8px', fontSize: '12px', border: '1px solid rgba(212,184,120,0.2)', fontWeight: 600 }}>{item.tag}</span>}
         </div>
-        <div style={{ marginBottom: '20px' }}>
-          <h2 style={{ color: '#d4b878', fontSize: '24px', fontWeight: 700, marginBottom: '10px' }}>{item.title}</h2>
-          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
-            {item.date && <span style={{ color: 'rgba(248,246,240,0.45)', fontSize: '13px' }}>📅 {item.date}</span>}
-            {item.tag && <span style={{ background: 'rgba(212,184,120,0.1)', color: '#d4b878', padding: '3px 12px', borderRadius: '8px', fontSize: '12px', border: '1px solid rgba(212,184,120,0.2)', fontWeight: 600 }}>{item.tag}</span>}
+      </div>
+      <div style={{ color: 'rgba(248,246,240,0.8)', fontSize: '15px', lineHeight: '2', marginBottom: '28px', padding: '20px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>{displayDesc}</div>
+      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '28px' }}>
+        {item.image && <button onClick={async () => { try { const resp = await fetch(item.image); const blob = await resp.blob(); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = item.title + '.png'; a.click(); URL.revokeObjectURL(url) } catch { window.open(item.image, '_blank') } }} style={{ padding: '12px 24px', borderRadius: '12px', background: 'linear-gradient(135deg, rgba(100,180,120,0.15), rgba(74,154,90,0.1))', border: '1px solid rgba(100,180,120,0.3)', color: '#8cba6a', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>⬇ 下载图片</button>}
+        {item.link && <a href={item.link} target="_blank" rel="noopener noreferrer" style={{ padding: '12px 24px', borderRadius: '12px', background: 'rgba(212,184,120,0.1)', border: '1px solid rgba(212,184,120,0.3)', color: '#d4b878', fontSize: '14px', fontWeight: 600, textDecoration: 'none' }}>🔗 查看链接</a>}
+      </div>
+
+      {relatedItems.length > 0 && (
+        <div style={{ marginBottom: '36px', padding: '16px', background: 'rgba(255,255,255,0.01)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.04)' }}>
+          <div style={{ color: 'rgba(248,246,240,0.45)', fontSize: '13px', fontWeight: 600, marginBottom: '12px' }}>📂 同分类更多（{relatedItems.length} 项）</div>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            {relatedItems.slice(0, 8).map((ri, idx) => (
+              <button key={idx} onClick={() => onSwitchItem?.(ri)} style={{ background: 'rgba(212,184,120,0.05)', border: '1px solid rgba(212,184,120,0.12)', borderRadius: '6px', padding: '4px 10px', color: 'rgba(248,246,240,0.55)', fontSize: '11px', cursor: 'pointer', textAlign: 'left' }}>{ri.title.length > 20 ? ri.title.slice(0,20)+'...' : ri.title}</button>
+            ))}
           </div>
         </div>
-        <div style={{ color: 'rgba(248,246,240,0.8)', fontSize: '15px', lineHeight: '2', marginBottom: '28px', padding: '20px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>{displayDesc}</div>
-        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '28px' }}>
-          {item.image && <button onClick={async () => { try { const resp = await fetch(item.image); const blob = await resp.blob(); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = item.title + '.png'; a.click(); URL.revokeObjectURL(url) } catch { window.open(item.image, '_blank') } }} style={{ padding: '12px 24px', borderRadius: '12px', background: 'linear-gradient(135deg, rgba(100,180,120,0.15), rgba(74,154,90,0.1))', border: '1px solid rgba(100,180,120,0.3)', color: '#8cba6a', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>⬇ 下载图片</button>}
-          {item.link && <a href={item.link} target="_blank" rel="noopener noreferrer" style={{ padding: '12px 24px', borderRadius: '12px', background: 'rgba(212,184,120,0.1)', border: '1px solid rgba(212,184,120,0.3)', color: '#d4b878', fontSize: '14px', fontWeight: 600, textDecoration: 'none' }}>🔗 查看链接</a>}
-        </div>
+      )}
 
-        {relatedItems.length > 0 && (
-          <div style={{ marginBottom: '36px', padding: '16px', background: 'rgba(255,255,255,0.01)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.04)' }}>
-            <div style={{ color: 'rgba(248,246,240,0.45)', fontSize: '13px', fontWeight: 600, marginBottom: '12px' }}>📂 同分类更多（{relatedItems.length} 项）</div>
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-              {relatedItems.slice(0, 8).map((ri, idx) => (
-                <button key={idx} onClick={() => onSwitchItem?.(ri)} style={{ background: 'rgba(212,184,120,0.05)', border: '1px solid rgba(212,184,120,0.12)', borderRadius: '6px', padding: '4px 10px', color: 'rgba(248,246,240,0.55)', fontSize: '11px', cursor: 'pointer', textAlign: 'left' }}>{ri.title.length > 20 ? ri.title.slice(0,20)+'...' : ri.title}</button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <div style={{ padding: '24px', background: 'rgba(20,20,30,0.5)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
-          <h3 style={{ color: '#d4b878', fontSize: '17px', fontWeight: 700, marginBottom: '6px' }}>💬 留言板</h3>
-          <input type="text" value={newName} onChange={e => setNewName(e.target.value)} placeholder="你的昵称" maxLength={20} style={{ flex: '1', minWidth: '100px', padding: '10px 14px', borderRadius: '10px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#f8f6f0', fontSize: '13px', outline: 'none', marginBottom: '10px', width: '100%', boxSizing: 'border-box' }} />
-          <textarea value={newText} onChange={e => setNewText(e.target.value)} placeholder="写下留言..." rows={3} maxLength={500} style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#f8f6f0', fontSize: '13px', outline: 'none', resize: 'vertical', fontFamily: 'inherit', marginBottom: '10px', boxSizing: 'border-box' }} />
-          <button onClick={handleAddComment} disabled={!newName.trim() || !newText.trim()} style={{ padding: '10px 24px', borderRadius: '10px', background: (!newName.trim() || !newText.trim()) ? 'rgba(255,255,255,0.04)' : 'linear-gradient(135deg, #d4b878, #c4a060)', border: 'none', color: (!newName.trim() || !newText.trim()) ? 'rgba(248,246,240,0.3)' : '#121212', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>{submitted ? '✅ 已发送' : '发送留言'}</button>
-          {comments.length === 0 ? <div style={{ textAlign: 'center', padding: '20px', color: 'rgba(248,246,240,0.25)', fontSize: '13px' }}>🌟 还没有留言</div> :
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px' }}>
-              {comments.map((c, idx) => (
-                <div key={idx} style={{ padding: '12px 14px', borderRadius: '10px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', position: 'relative' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <span style={{ width: '28px', height: '28px', borderRadius: '50%', background: `hsl(${(idx*55)%360}, 40%, 35%)`, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '12px', fontWeight: 700 }}>{c.name.charAt(0).toUpperCase()}</span>
-                      <span style={{ color: '#f8f6f0', fontSize: '13px', fontWeight: 600 }}>{c.name}</span>
-                      <span style={{ color: 'rgba(248,246,240,0.3)', fontSize: '11px' }}>{c.time}</span>
-                    </div>
-                    <button onClick={() => handleDeleteComment(idx)} style={{ background: 'transparent', border: 'none', color: 'rgba(248,246,240,0.2)', fontSize: '14px', cursor: 'pointer' }}>✕</button>
+      <div style={{ padding: '24px', background: 'rgba(20,20,30,0.5)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
+        <h3 style={{ color: '#d4b878', fontSize: '17px', fontWeight: 700, marginBottom: '6px' }}>💬 留言板</h3>
+        <input type="text" value={newName} onChange={e => setNewName(e.target.value)} placeholder="你的昵称" maxLength={20} style={{ flex: '1', minWidth: '100px', padding: '10px 14px', borderRadius: '10px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#f8f6f0', fontSize: '13px', outline: 'none', marginBottom: '10px', width: '100%', boxSizing: 'border-box' }} />
+        <textarea value={newText} onChange={e => setNewText(e.target.value)} placeholder="写下留言..." rows={3} maxLength={500} style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#f8f6f0', fontSize: '13px', outline: 'none', resize: 'vertical', fontFamily: 'inherit', marginBottom: '10px', boxSizing: 'border-box' }} />
+        <button onClick={handleAddComment} disabled={!newName.trim() || !newText.trim()} style={{ padding: '10px 24px', borderRadius: '10px', background: (!newName.trim() || !newText.trim()) ? 'rgba(255,255,255,0.04)' : 'linear-gradient(135deg, #d4b878, #c4a060)', border: 'none', color: (!newName.trim() || !newText.trim()) ? 'rgba(248,246,240,0.3)' : '#121212', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>{submitted ? '✅ 已发送' : '发送留言'}</button>
+        {comments.length === 0 ? <div style={{ textAlign: 'center', padding: '20px', color: 'rgba(248,246,240,0.25)', fontSize: '13px' }}>🌟 还没有留言</div> :
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px' }}>
+            {comments.map((c, idx) => (
+              <div key={idx} style={{ padding: '12px 14px', borderRadius: '10px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', position: 'relative' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <span style={{ width: '28px', height: '28px', borderRadius: '50%', background: `hsl(${(idx*55)%360}, 40%, 35%)`, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '12px', fontWeight: 700 }}>{c.name.charAt(0).toUpperCase()}</span>
+                    <span style={{ color: '#f8f6f0', fontSize: '13px', fontWeight: 600 }}>{c.name}</span>
+                    <span style={{ color: 'rgba(248,246,240,0.3)', fontSize: '11px' }}>{c.time}</span>
                   </div>
-                  <div style={{ color: 'rgba(248,246,240,0.7)', fontSize: '14px', lineHeight: '1.6', paddingLeft: '38px' }}>{c.text}</div>
+                  <button onClick={() => handleDeleteComment(idx)} style={{ background: 'transparent', border: 'none', color: 'rgba(248,246,240,0.2)', fontSize: '14px', cursor: 'pointer' }}>✕</button>
                 </div>
-              ))}
-            </div>
-          }
-        </div>
+                <div style={{ color: 'rgba(248,246,240,0.7)', fontSize: '14px', lineHeight: '1.6', paddingLeft: '38px' }}>{c.text}</div>
+              </div>
+            ))}
+          </div>
+        }
       </div>
     </div>
   )
-
-  return createPortal(detailContent, document.body)
 }
 
 // ============ Calendar ============
