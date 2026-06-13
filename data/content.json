@@ -1476,46 +1476,1174 @@
     "year2026Summary": "崩坏星穹铁道距今为止最大规模/最多城市数/最多活动数/最多屏数的民办单人应援企划，每项活动均为崩铁ip同人活动的最大规模。我们今年将在北上广深等114个城市展开线下活动并且投屏2w+的电子屏，更有灯光秀/喷泉秀/双城摩天轮/超跑应援/宇宙传讯发射/280+小时超长产出合绘/砂金二创电影节等庆生项目\n\n我们希望并期待着能在未来看到砂金的更多可能。\n\n●百城万屏单人大屏Live2d应援【100城20000+屏】\n●百城线下活动【114城】\n●30城咖啡应援【线下30城快闪+无料发放】\n●17城生咖【线下16城无料发放+线下聚会】\n●19城痛楼【线下19城痛楼+无料发放】\n●产出接龙270+小时持续30天\n●双城摩天轮应援\n●喷泉痛泉应援\n●超跑应援超前预告\n●宇宙深空传讯发射\n●砂金二创电影节\n●楼体灯光秀\n●武汉亲橙万象汇痛楼\n●烤匠麻辣烤鱼x砂金生贺组三城联动\n●集研会x砂金生贺组联动\n●次元汇x砂金生贺组联动\n●交易猫x砂金生贺组联动\n●交易猫x砂金同人主页防诈公益小短片\n●千岛特别联动\n●生贺头像+版头解锁\n更多内容敬请期待...\n\n主催/核管：二生\n主办：砂金右向同人主页/砂金生贺组/砂金同人主页\n策划：二生/幸陨/谢却荼蘼/停停/章鱼\n美工：我什么时候退休/阡陌momo/二生/奈川早月/这里已经没有正常人了\n免屏组：执花厨/二生/宝宝奴/鹊酒/花月/小喵砂/江柯/小春/all beauty/松鼠\n线上生日会主催：章鱼\n产出接龙主催：酒茨",
     "screens": [
       {
-        "address": "上海IFC商圈LED大屏",
-        "deadline": "2026-05-05",
-        "unlockCondition": "应援人数达500人",
-        "link": "https://example.com/sh-ifc",
-        "city": "上海"
+        "province": "北京",
+        "city": "北京",
+        "store": "北京双桥",
+        "address": "北京双桥万达广场",
+        "time": "4.18",
+        "screenTime": "10:00-20:00",
+        "frequency": "3min"
       },
       {
-        "address": "北京三里屯太古里",
-        "deadline": "2026-05-05",
-        "unlockCondition": "应援人数达300人",
-        "link": "https://example.com/bj-slt",
-        "city": "北京"
+        "province": "天津",
+        "city": "天津",
+        "store": "百脑汇",
+        "address": "3F 电竞地带",
+        "time": "4/18-4/19",
+        "screenTime": "10:30-17:00",
+        "frequency": ""
       },
       {
-        "address": "广州天河城",
-        "deadline": "2026-05-05",
-        "unlockCondition": "应援人数达200人",
-        "link": "https://example.com/gz-thc",
-        "city": "广州"
+        "province": "河北",
+        "city": "石家庄",
+        "store": "龙湖石家庄裕华星悦荟",
+        "address": "龙湖石家庄裕华星悦荟",
+        "time": "5.5",
+        "screenTime": "户外大屏18:30-21:00，电子屏10:00-22:00",
+        "frequency": "看当天上刊素材"
       },
       {
-        "address": "成都IFS熊猫屏",
-        "deadline": "2026-05-05",
-        "unlockCondition": "应援人数达400人",
-        "link": "https://example.com/cd-ifs",
-        "city": "成都"
+        "province": "河北",
+        "city": "廊坊",
+        "store": "廊坊安次万达",
+        "address": "1号门麦当劳上方",
+        "time": "5.5",
+        "screenTime": "10:00-22:00",
+        "frequency": "15min一次"
       },
       {
-        "address": "长沙IFS",
-        "deadline": "2026-05-05",
-        "unlockCondition": "应援人数达250人",
-        "link": "https://example.com/cs-ifs",
-        "city": "长沙"
+        "province": "山西",
+        "city": "太原",
+        "store": "太原龙城万达广场",
+        "address": "山西省太原市小店区龙城大街130号太原龙城万达广场",
+        "time": "5.5",
+        "screenTime": "",
+        "frequency": ""
       },
       {
-        "address": "双城摩天轮灯光秀",
-        "deadline": "2026-05-05",
-        "unlockCondition": "应援人数达1000人",
-        "link": "https://example.com/ferris-wheel",
-        "city": "长沙/南昌"
+        "province": "内蒙古",
+        "city": "乌海",
+        "store": "海勃湾万达广场",
+        "address": "内蒙古乌海海勃湾万达广场1号门外立面",
+        "time": "5.5",
+        "screenTime": "早10晚9",
+        "frequency": "30s"
+      },
+      {
+        "province": "辽宁",
+        "city": "沈阳",
+        "store": "百脑汇",
+        "address": "1F 电竞地带",
+        "time": "4/18-4/19",
+        "screenTime": "10:00-17:00",
+        "frequency": ""
+      },
+      {
+        "province": "辽宁",
+        "city": "鞍山",
+        "store": "鞍山万达",
+        "address": "鞍山万达广场1号门",
+        "time": "5.5",
+        "screenTime": "9:30",
+        "frequency": "15分钟左右一轮"
+      },
+      {
+        "province": "吉林",
+        "city": "长春",
+        "store": "百脑汇",
+        "address": "2F 滔滔堂",
+        "time": "4/18-4/19",
+        "screenTime": "10:30-17:00",
+        "frequency": ""
+      },
+      {
+        "province": "吉林",
+        "city": "延吉",
+        "store": "延吉万达",
+        "address": "一号门外广场 二号门入口处舞台",
+        "time": "5.5",
+        "screenTime": "9:30-21:00",
+        "frequency": "2min 5min-20min"
+      },
+      {
+        "province": "黑龙江",
+        "city": "大庆",
+        "store": "大庆让胡路",
+        "address": "大庆让胡路区大港路17号外广场大屏",
+        "time": "5.5",
+        "screenTime": "10:00-20:00",
+        "frequency": "65-80次"
+      },
+      {
+        "province": "黑龙江",
+        "city": "哈尔滨",
+        "store": "百脑汇",
+        "address": "1F服务中心*3台 2F北区*1台",
+        "time": "4/18-4/19",
+        "screenTime": "10:00-16:30",
+        "frequency": ""
+      },
+      {
+        "province": "黑龙江",
+        "city": "哈尔滨",
+        "store": "哈尔滨香坊万达",
+        "address": "1F星巴克门前",
+        "time": "5.5",
+        "screenTime": "10:00-21:00",
+        "frequency": "全天轮播"
+      },
+      {
+        "province": "黑龙江",
+        "city": "哈尔滨",
+        "store": "哈尔滨凯德",
+        "address": "商场一楼中庭",
+        "time": "4.18",
+        "screenTime": "9:30-21:30",
+        "frequency": "3-5分钟"
+      },
+      {
+        "province": "黑龙江",
+        "city": "牡丹江",
+        "store": "牡丹江万达",
+        "address": "牡丹江市西安区西新安街358号牡丹江西安万达广场1号门",
+        "time": "5.5",
+        "screenTime": "早9:30-晚9:00",
+        "frequency": "室外：十分钟/次"
+      },
+      {
+        "province": "黑龙江",
+        "city": "佳木斯",
+        "store": "佳木斯万达",
+        "address": "黑龙江省佳木斯市向阳区光复西路与万新街交汇处",
+        "time": "5.5",
+        "screenTime": "10:00-20:00",
+        "frequency": ""
+      },
+      {
+        "province": "上海",
+        "city": "上海",
+        "store": "集研社",
+        "address": "上海市长宁区天山路762号（娄山关路地铁4号口出口）",
+        "time": "5.5",
+        "screenTime": "10:00-22:00",
+        "frequency": "15分钟左右一轮"
+      },
+      {
+        "province": "上海",
+        "city": "上海",
+        "store": "百脑汇",
+        "address": "1F 外广场",
+        "time": "4月18日",
+        "screenTime": "10:00-21:00",
+        "frequency": ""
+      },
+      {
+        "province": "江苏",
+        "city": "南京",
+        "store": "集研社",
+        "address": "南京市建邺区燕山路与汉中门大街交叉口南80米建邺吾悦广场F3层集研社",
+        "time": "5.5",
+        "screenTime": "10:00-22:00",
+        "frequency": "15-30秒/次"
+      },
+      {
+        "province": "江苏",
+        "city": "南京",
+        "store": "百脑汇",
+        "address": "1F外大屏 1F电子屏",
+        "time": "4/18-4/19",
+        "screenTime": "10:00-21:00",
+        "frequency": ""
+      },
+      {
+        "province": "江苏",
+        "city": "张家港",
+        "store": "集研社",
+        "address": "江苏省苏州市张家港市河西路88号+曼巴特3楼次元街区",
+        "time": "5.5",
+        "screenTime": "9:30-21:30",
+        "frequency": "1-5分钟轮播"
+      },
+      {
+        "province": "江苏",
+        "city": "无锡",
+        "store": "百脑汇",
+        "address": "1F 中庭",
+        "time": "4/18-4/19",
+        "screenTime": "10:30-17:00",
+        "frequency": ""
+      },
+      {
+        "province": "江苏",
+        "city": "溧阳",
+        "store": "集研社",
+        "address": "常州市溧阳市平陵中路369号负一楼集研社店内+门口",
+        "time": "5.5",
+        "screenTime": "10:00-21:30",
+        "frequency": "15-30秒/次"
+      },
+      {
+        "province": "江苏",
+        "city": "常州",
+        "store": "武进",
+        "address": "常州市武进区湖塘镇新城吾悦F3东北侧集研社",
+        "time": "5.5",
+        "screenTime": "10:00-22:00",
+        "frequency": "15-30秒/次"
+      },
+      {
+        "province": "江苏",
+        "city": "徐州",
+        "store": "徐州铜山万达广场",
+        "address": "江苏省徐州市铜山区北京北路19号2号门上面",
+        "time": "5.5",
+        "screenTime": "早10晚9",
+        "frequency": "120s/轮"
+      },
+      {
+        "province": "江苏",
+        "city": "泰州",
+        "store": "百脑汇",
+        "address": "2F 2C01席位",
+        "time": "4/18-4/19",
+        "screenTime": "10:00-16:30",
+        "frequency": ""
+      },
+      {
+        "province": "浙江",
+        "city": "嘉兴",
+        "store": "嘉兴龙鼎万达",
+        "address": "嘉兴市南湖区龙凤路与新盛西路交叉口",
+        "time": "5.5",
+        "screenTime": "",
+        "frequency": ""
+      },
+      {
+        "province": "浙江",
+        "city": "杭州",
+        "store": "杭州富阳万达",
+        "address": "1号中庭",
+        "time": "5.5",
+        "screenTime": "10:00-22:00",
+        "frequency": ""
+      },
+      {
+        "province": "浙江",
+        "city": "杭州",
+        "store": "地铁屏",
+        "address": "地铁1+2+4+5号线电视屏",
+        "time": "4.17",
+        "screenTime": "",
+        "frequency": "轮播"
+      },
+      {
+        "province": "浙江",
+        "city": "杭州",
+        "store": "百脑汇",
+        "address": "1F 中厅",
+        "time": "4/18-4/19",
+        "screenTime": "9:30-17:30",
+        "frequency": ""
+      },
+      {
+        "province": "浙江",
+        "city": "台州",
+        "store": "次元汇",
+        "address": "浙江省台州市椒江区葭芷街道青悦城负一层一堆谷子",
+        "time": "5.5",
+        "screenTime": "",
+        "frequency": ""
+      },
+      {
+        "province": "浙江",
+        "city": "湖州",
+        "store": "长兴万达广场",
+        "address": "湖州长兴忻湖路1号二号门外广场大屏",
+        "time": "5.5",
+        "screenTime": "10:00-22:00",
+        "frequency": "最多240s一轮"
+      },
+      {
+        "province": "浙江",
+        "city": "湖州",
+        "store": "爱山银泰广场",
+        "address": "位于商场二号门上方",
+        "time": "5.5",
+        "screenTime": "10:00-22:00",
+        "frequency": ""
+      },
+      {
+        "province": "浙江",
+        "city": "金华",
+        "store": "永盛购物中心",
+        "address": "浙江省金华市婺城区新华街永盛购物中心一楼室内吊屏",
+        "time": "5.5",
+        "screenTime": "10:00-21:30",
+        "frequency": "十五分钟"
+      },
+      {
+        "province": "浙江",
+        "city": "绍兴",
+        "store": "绍兴柯桥万达",
+        "address": "绍兴市柯桥区钱陶公路绍兴柯桥万达广场西门外广场",
+        "time": "5.5",
+        "screenTime": "10:00-22:00",
+        "frequency": "频率不一"
+      },
+      {
+        "province": "安徽",
+        "city": "合肥",
+        "store": "滨湖童兜天地",
+        "address": "安徽省合肥市包河区徽州大道5558号合肥滨湖方圆荟B区3层小舞台",
+        "time": "5.5",
+        "screenTime": "9:30-21:30",
+        "frequency": "20-30分钟一轮"
+      },
+      {
+        "province": "安徽",
+        "city": "合肥",
+        "store": "百脑汇",
+        "address": "1F 西门活动区",
+        "time": "4/18-4/19",
+        "screenTime": "10:30-17:00",
+        "frequency": ""
+      },
+      {
+        "province": "安徽",
+        "city": "蚌埠",
+        "store": "蚌埠万达",
+        "address": "安徽省蚌埠市淮上区淮上大道2888号一号门外广场",
+        "time": "5.5",
+        "screenTime": "9:30-21:30",
+        "frequency": "约4min"
+      },
+      {
+        "province": "安徽",
+        "city": "六安",
+        "store": "金安万达",
+        "address": "2号门外大屏",
+        "time": "5.5",
+        "screenTime": "10:00-21:30",
+        "frequency": "12min一轮"
+      },
+      {
+        "province": "安徽",
+        "city": "六安",
+        "store": "舒城万达",
+        "address": "安徽省六安市舒城县龙津大道与桃溪路交叉口六安舒城万达广场1号门正上方",
+        "time": "5.5",
+        "screenTime": "9:30-21:30",
+        "frequency": "轮播，预计8-15分钟/次"
+      },
+      {
+        "province": "安徽",
+        "city": "芜湖",
+        "store": "芜湖弋江",
+        "address": "芜湖弋江万达广场芜湖市弋江区澛港街道九华南路800号2号门外广场",
+        "time": "5.5",
+        "screenTime": "早9:30到晚21:30",
+        "frequency": "约5分钟一轮"
+      },
+      {
+        "province": "安徽",
+        "city": "宿州",
+        "store": "宿州cbd万达",
+        "address": "安徽省宿州市埇桥区宿州CBD万达广场2号门大屏",
+        "time": "5.5",
+        "screenTime": "17:30-20:00",
+        "frequency": "3分钟一次"
+      },
+      {
+        "province": "福建",
+        "city": "厦门",
+        "store": "百脑汇",
+        "address": "1F 外广场",
+        "time": "4/18-4/19",
+        "screenTime": "10:30-17:00",
+        "frequency": ""
+      },
+      {
+        "province": "福建",
+        "city": "泉州",
+        "store": "泉州德化万达",
+        "address": "泉州德化万达广场福建泉州德化县瓷都大道万达广场1号门广场外",
+        "time": "5.5",
+        "screenTime": "早上10:00-晚上10:00",
+        "frequency": "480秒一次"
+      },
+      {
+        "province": "福建",
+        "city": "铜陵",
+        "store": "铜陵万达",
+        "address": "铜陵铜官万达广场铜陵市石城大道599号2号门外广场",
+        "time": "5.5",
+        "screenTime": "10:30-21:30",
+        "frequency": "轮播 1-15分钟"
+      },
+      {
+        "province": "福建",
+        "city": "漳州",
+        "store": "漳州天虹",
+        "address": "漳州市芗城区南昌中路39号中庭",
+        "time": "5.5",
+        "screenTime": "10:00-22:00 周末至22:30",
+        "frequency": "4-5分钟"
+      },
+      {
+        "province": "江西",
+        "city": "南昌",
+        "store": "和昌里",
+        "address": "地铁1号线卫东站4号口出来和昌里季季红门口",
+        "time": "4.18-4.20",
+        "screenTime": "10:00-22:00",
+        "frequency": "300次/日"
+      },
+      {
+        "province": "江西",
+        "city": "宜春",
+        "store": "袁州万达",
+        "address": "江西省宜春市袁州区宜阳大道6号广场3号门肯德基正上方",
+        "time": "5.3-5.5",
+        "screenTime": "11:00-14:00，17:00-21:00",
+        "frequency": "四分钟一轮"
+      },
+      {
+        "province": "山东",
+        "city": "青岛",
+        "store": "次元汇（乐客城）",
+        "address": "青岛乐客城B2次元汇门口",
+        "time": "5.5",
+        "screenTime": "",
+        "frequency": ""
+      },
+      {
+        "province": "山东",
+        "city": "青岛",
+        "store": "次元汇（伟东乐客城）",
+        "address": "山东省青岛市李沧区夏庄路1号伟东乐客城B2地铁C口次元汇",
+        "time": "5.5",
+        "screenTime": "",
+        "frequency": ""
+      },
+      {
+        "province": "山东",
+        "city": "青岛",
+        "store": "百脑汇",
+        "address": "2F 2A06",
+        "time": "4/18-4/19",
+        "screenTime": "10:30-17:00",
+        "frequency": ""
+      },
+      {
+        "province": "山东",
+        "city": "青岛",
+        "store": "西海岸吾悦广场",
+        "address": "青岛西海岸吾悦广场",
+        "time": "5.4-5.5",
+        "screenTime": "10:00-20:00",
+        "frequency": ""
+      },
+      {
+        "province": "山东",
+        "city": "济南",
+        "store": "济南高新",
+        "address": "济南市历下区工业南路57号济南高新万达广场中庭互动大屏",
+        "time": "5.5",
+        "screenTime": "10:00-22:00",
+        "frequency": "5-6分钟"
+      },
+      {
+        "province": "山东",
+        "city": "济宁",
+        "store": "龙贵购物广场",
+        "address": "山东省济宁市任城区金宇路66号外立面",
+        "time": "5.5",
+        "screenTime": "9:00-22:05",
+        "frequency": "频率不一"
+      },
+      {
+        "province": "山东",
+        "city": "威海",
+        "store": "次元汇",
+        "address": "山东省威海市环翠区威高广场a座脑洞社区2楼次元汇",
+        "time": "5.5",
+        "screenTime": "",
+        "frequency": ""
+      },
+      {
+        "province": "山东",
+        "city": "淄博",
+        "store": "百脑汇",
+        "address": "1F服务中心*3台 2F北区*1台",
+        "time": "4/18-4/19",
+        "screenTime": "10:00-17:00",
+        "frequency": ""
+      },
+      {
+        "province": "山东",
+        "city": "泰安",
+        "store": "泰安泰汶吾悦",
+        "address": "泰安泰汶吾悦广场",
+        "time": "5.5",
+        "screenTime": "10:00-20:00",
+        "frequency": "频率不一"
+      },
+      {
+        "province": "山东",
+        "city": "潍坊",
+        "store": "潍坊奎文万达广场",
+        "address": "潍坊万达广场三号门南中庭三面屏",
+        "time": "5.5",
+        "screenTime": "10:00-22:00",
+        "frequency": "5-10min"
+      },
+      {
+        "province": "山东",
+        "city": "枣庄",
+        "store": "枣庄薛城万达",
+        "address": "枣庄市薛城区永兴路与燕山南路交汇处",
+        "time": "5.5",
+        "screenTime": "10:30-21:30",
+        "frequency": "3-8分钟一波"
+      },
+      {
+        "province": "山东",
+        "city": "日照",
+        "store": "次元汇（万象汇）",
+        "address": "山东省日照市东港区烟台路176号日照万象汇B123",
+        "time": "5.5",
+        "screenTime": "",
+        "frequency": ""
+      },
+      {
+        "province": "山东",
+        "city": "烟台",
+        "store": "次元汇（大悦城）",
+        "address": "山东省烟台市芝罘区大悦城楼次元汇",
+        "time": "5.5",
+        "screenTime": "",
+        "frequency": ""
+      },
+      {
+        "province": "河南",
+        "city": "郑州",
+        "store": "中原锦艺城购物中心钟楼",
+        "address": "郑州中原锦艺城C区1层主屏",
+        "time": "5.5",
+        "screenTime": "10:00-21:30",
+        "frequency": "当日不低于80次"
+      },
+      {
+        "province": "河南",
+        "city": "郑州",
+        "store": "郑州无限城",
+        "address": "河南省郑州市二七区德化街36号",
+        "time": "5.5",
+        "screenTime": "10:00-22:00",
+        "frequency": "轮播"
+      },
+      {
+        "province": "河南",
+        "city": "郑州",
+        "store": "无限城600平天幕",
+        "address": "河南省郑州市二七区德化街36号",
+        "time": "5.5",
+        "screenTime": "10:00-22:00",
+        "frequency": "轮播"
+      },
+      {
+        "province": "河南",
+        "city": "郑州",
+        "store": "郑州无限城灯光秀",
+        "address": "河南省郑州市二七区德化街36号",
+        "time": "5.5",
+        "screenTime": "10:00-22:00",
+        "frequency": "轮播"
+      },
+      {
+        "province": "河南",
+        "city": "郑州",
+        "store": "百脑汇",
+        "address": "B1F滔滔堂 B1F西下沉步梯口 1F 2号门",
+        "time": "4/18-4/19",
+        "screenTime": "10:30-18:00",
+        "frequency": ""
+      },
+      {
+        "province": "河南",
+        "city": "信阳",
+        "store": "西亚丽宝广场(潢川店)",
+        "address": "潢川县世博国际西亚丽宝广场商场一楼",
+        "time": "5.5",
+        "screenTime": "9:30-21:30",
+        "frequency": "15-20分钟一轮"
+      },
+      {
+        "province": "河南",
+        "city": "信阳",
+        "store": "信阳音乐喷泉",
+        "address": "河南信阳市新七大道松园茶社湖边",
+        "time": "5.5",
+        "screenTime": "18:45-19:30",
+        "frequency": ""
+      },
+      {
+        "province": "河南",
+        "city": "漯河",
+        "store": "万达广场(漯河西城店)",
+        "address": "漯河市长江路与太白山路交叉口万达广场一号门上方",
+        "time": "5.5",
+        "screenTime": "10:00-22:00",
+        "frequency": "5分钟"
+      },
+      {
+        "province": "河南",
+        "city": "洛阳",
+        "store": "洛阳涧西",
+        "address": "洛阳市涧西区辽宁路与丽新路交叉口洛阳涧西万达南广场",
+        "time": "5.5",
+        "screenTime": "10:00-22:00",
+        "frequency": "8-10min/次"
+      },
+      {
+        "province": "河南",
+        "city": "焦作",
+        "store": "解放万达广场",
+        "address": "焦作市解放区丰收路口1号门外场",
+        "time": "5.4-5.5",
+        "screenTime": "10:00-22:00",
+        "frequency": "8-10分钟循环1-2次"
+      },
+      {
+        "province": "河南",
+        "city": "商丘",
+        "store": "商丘港汇万达广场",
+        "address": "商丘市梁园区陇海路与新建路交叉口一号门外广场",
+        "time": "5.5",
+        "screenTime": "10:00-22:00",
+        "frequency": "2-3分钟一次"
+      },
+      {
+        "province": "河南",
+        "city": "许昌",
+        "store": "许昌万达",
+        "address": "许昌市魏都区许都路一号门星巴克正上方",
+        "time": "5.5",
+        "screenTime": "早十到晚十",
+        "frequency": "十分钟"
+      },
+      {
+        "province": "河南",
+        "city": "南阳",
+        "store": "宛城万达",
+        "address": "河南省南阳市宛城区明山路与孔明大道交叉口3号门、5号门",
+        "time": "5.5",
+        "screenTime": "10:00-22:00",
+        "frequency": "4分钟/次"
+      },
+      {
+        "province": "河南",
+        "city": "安阳",
+        "store": "安阳文峰",
+        "address": "3号门3号厅中厅",
+        "time": "5.5",
+        "screenTime": "10:00-22:00",
+        "frequency": ""
+      },
+      {
+        "province": "河南",
+        "city": "新乡",
+        "store": "新乡万达",
+        "address": "牧野区宏力大道与学院街交汇处新乡牧野万达广场1号门",
+        "time": "5.5",
+        "screenTime": "10:00-22:00",
+        "frequency": "12分钟轮播"
+      },
+      {
+        "province": "河南",
+        "city": "濮阳",
+        "store": "濮阳经开",
+        "address": "濮阳市华龙区开州路濮阳万达广场2号门肯德基正上方",
+        "time": "5.5",
+        "screenTime": "早10:00到晚22:00",
+        "frequency": "每12分钟"
+      },
+      {
+        "province": "河南",
+        "city": "鹤壁",
+        "store": "鹤壁淇滨",
+        "address": "鹤壁淇滨万达广场",
+        "time": "5.5",
+        "screenTime": "",
+        "frequency": ""
+      },
+      {
+        "province": "湖北",
+        "city": "武汉",
+        "store": "武汉盘龙城万达",
+        "address": "武汉市黄陂区盘龙城经济开发区巨龙大道1号1楼中庭",
+        "time": "4.17-4.18",
+        "screenTime": "10:30-22:00",
+        "frequency": "4-8分钟"
+      },
+      {
+        "province": "湖北",
+        "city": "宜昌",
+        "store": "西陵星光天地",
+        "address": "西陵区胜利四路与夷陵大道交汇处（城心中轴）",
+        "time": "5.5",
+        "screenTime": "7:30-11:30/15:30-21:30",
+        "frequency": "每天不低于100-120次"
+      },
+      {
+        "province": "湖北",
+        "city": "宜昌",
+        "store": "夷陵万达广场",
+        "address": "湖北省宜昌市夷陵区发展大道170号外广场3号门附近",
+        "time": "5.5",
+        "screenTime": "9:00-21:00",
+        "frequency": "240s"
+      },
+      {
+        "province": "湖北",
+        "city": "黄石",
+        "store": "团城山万达广场",
+        "address": "黄石市下陆区广州路30号1号门",
+        "time": "5.5",
+        "screenTime": "10:00-22:00",
+        "frequency": "4-6分钟"
+      },
+      {
+        "province": "湖北",
+        "city": "大冶",
+        "store": "大冶雨润广场",
+        "address": "雨润国际广场湖北省大冶市新冶大道38号外广场大屏+中庭2楼屏幕",
+        "time": "5.5",
+        "screenTime": "17:00-21:30（广场屏）9:30-21:30（室内屏）",
+        "frequency": "5-10分钟"
+      },
+      {
+        "province": "湖南",
+        "city": "湘西吉首",
+        "store": "宏大广场",
+        "address": "吉首市高新区武陵大道与丰达路交汇处",
+        "time": "5.5",
+        "screenTime": "9:00-13:00 17:30-21:00",
+        "frequency": "随投放数量变动"
+      },
+      {
+        "province": "湖南",
+        "city": "怀化",
+        "store": "怀化万达",
+        "address": "怀化溆浦万达广场怀化溆浦县义陵大道溆浦万达广场中庭",
+        "time": "5.5",
+        "screenTime": "10:00-22:00",
+        "frequency": "5分钟"
+      },
+      {
+        "province": "湖南",
+        "city": "怀化",
+        "store": "集研社",
+        "address": "怀化万达金街悦麓里商铺3栋135-136集研社内",
+        "time": "5.5",
+        "screenTime": "15:30-21:30",
+        "frequency": "1-5分钟不等轮播"
+      },
+      {
+        "province": "湖南",
+        "city": "娄底",
+        "store": "娄底天虹",
+        "address": "娄底天虹中厅大屏万豪城市广场娄底天虹百货",
+        "time": "5.5",
+        "screenTime": "9:30-21:30",
+        "frequency": "5分钟左右一次"
+      },
+      {
+        "province": "湖南",
+        "city": "常德",
+        "store": "常德武陵万达",
+        "address": "2号门外",
+        "time": "5.5",
+        "screenTime": "10:30-21:30",
+        "frequency": ""
+      },
+      {
+        "province": "湖南",
+        "city": "衡阳",
+        "store": "衡阳蒸湘万达",
+        "address": "湖南省衡阳市蒸湘区幸福路22号2号门外",
+        "time": "5.5",
+        "screenTime": "10:00-21:30",
+        "frequency": "240秒轮播"
+      },
+      {
+        "province": "湖南",
+        "city": "衡阳",
+        "store": "衡阳摩天轮",
+        "address": "回雁峰景区大雁文创园",
+        "time": "5.5",
+        "screenTime": "",
+        "frequency": ""
+      },
+      {
+        "province": "广东",
+        "city": "广州",
+        "store": "新塘万达",
+        "address": "广州新塘万达广场广东省广州市增城区新塘镇顺欣社区新福路9号1号门大屏",
+        "time": "5.5",
+        "screenTime": "早10:00-晚21:30",
+        "frequency": "3~4min一次"
+      },
+      {
+        "province": "广东",
+        "city": "广州",
+        "store": "百脑汇",
+        "address": "1F正门 1F东门 1F西门",
+        "time": "4/18-4/19",
+        "screenTime": "11:00-18:00",
+        "frequency": ""
+      },
+      {
+        "province": "广东",
+        "city": "佛山",
+        "store": "佛山南海万达",
+        "address": "广东省佛山市南海区桂城街道桂澜北路28号佛山南海万达广场1号中庭（弧形屏）和2号中庭（三面屏）",
+        "time": "5.5",
+        "screenTime": "10:00-22:00",
+        "frequency": "240秒轮播一次"
+      },
+      {
+        "province": "广东",
+        "city": "茂名",
+        "store": "茂名化州万达",
+        "address": "茂名化州万达广场",
+        "time": "5.5",
+        "screenTime": "10:00-22:01",
+        "frequency": ""
+      },
+      {
+        "province": "广东",
+        "city": "肇庆",
+        "store": "肇庆鼎湖万达",
+        "address": "肇庆市鼎湖区坑口60区桃园路东16号肇庆万达广场1号门和3号门外",
+        "time": "5.5",
+        "screenTime": "早上10点到晚上10点",
+        "frequency": "240s一次"
+      },
+      {
+        "province": "广东",
+        "city": "深圳",
+        "store": "深圳车库屏",
+        "address": "皇庭广场车库屏",
+        "time": "5.5",
+        "screenTime": "8:00-22:00不等",
+        "frequency": ""
+      },
+      {
+        "province": "广东",
+        "city": "惠州",
+        "store": "天虹商场(三环瑞峰店)",
+        "address": "广东惠州天虹商场（三环瑞峰店）商场中庭",
+        "time": "5.5",
+        "screenTime": "",
+        "frequency": ""
+      },
+      {
+        "province": "广东",
+        "city": "东莞",
+        "store": "黄江天虹",
+        "address": "东莞黄江天虹1楼中庭",
+        "time": "5.5",
+        "screenTime": "10:00-22:00",
+        "frequency": "3/5mins一次"
+      },
+      {
+        "province": "广东",
+        "city": "河源",
+        "store": "河源东源",
+        "address": "河源市深业路和东江大道交汇处河源东源万达广场内场大中庭",
+        "time": "5.5",
+        "screenTime": "12:00-22:00",
+        "frequency": "8-10min/次"
+      },
+      {
+        "province": "广东",
+        "city": "清远",
+        "store": "清远万达",
+        "address": "清远清城万达广场清远市湖西路89号2号门外广场",
+        "time": "5.4-5.5",
+        "screenTime": "10点-22点",
+        "frequency": "6分钟一轮，一轮重复播3次"
+      },
+      {
+        "province": "广东",
+        "city": "深圳",
+        "store": "次元汇（欢乐海岸）",
+        "address": "广东省深圳市南山区沙河街道东方社区滨海大道欢乐海岸购物中心L2奇谷米·次元街区E204-次元汇",
+        "time": "5.5",
+        "screenTime": "",
+        "frequency": ""
+      },
+      {
+        "province": "广西",
+        "city": "南宁",
+        "store": "江南盛天地",
+        "address": "江南盛天地江南区壮锦大道27号大洋超市旁LED",
+        "time": "5.5",
+        "screenTime": "11:00-22:00",
+        "frequency": "根据应援视频多少而定"
+      },
+      {
+        "province": "广西",
+        "city": "桂林",
+        "store": "桂林高新万达",
+        "address": "桂林高新万达广场广西壮族自治区桂林市七星区穿山东路43号",
+        "time": "5.5",
+        "screenTime": "10:30-21:30",
+        "frequency": "轮次：600s左右"
+      },
+      {
+        "province": "海南",
+        "city": "海口",
+        "store": "海口电竞基地",
+        "address": "海口市凤翔西路1号（丁村路口加油站旁）舞台大屏和入口小屏",
+        "time": "5.4",
+        "screenTime": "舞台大屏18:00-23:00，入口小屏11:00-23:00",
+        "frequency": ""
+      },
+      {
+        "province": "重庆",
+        "city": "重庆",
+        "store": "重庆巴南万达广场",
+        "address": "重庆市巴南区渝南大道297号巴南万达广场1号中庭",
+        "time": "4.18",
+        "screenTime": "10:30-22:00",
+        "frequency": "4分钟一轮"
+      },
+      {
+        "province": "重庆",
+        "city": "重庆",
+        "store": "大渡口万达广场",
+        "address": "重庆大渡口万达广场建桥大道108号万达广场1号门外广场",
+        "time": "4.18",
+        "screenTime": "10:00-21:30",
+        "frequency": "8分钟一轮"
+      },
+      {
+        "province": "重庆",
+        "city": "重庆",
+        "store": "沙坪坝万达",
+        "address": "重庆沙坪坝万达广场（外场大屏）9号门外广场+（中庭舞台大屏）6号门",
+        "time": "5.5",
+        "screenTime": "外10:00-22:00；内12:00-21:00",
+        "frequency": "2-4min一次"
+      },
+      {
+        "province": "重庆",
+        "city": "重庆",
+        "store": "忠县万达广场",
+        "address": "重庆市忠县环城路55号1号门",
+        "time": "4.18",
+        "screenTime": "10:00-21:30",
+        "frequency": "4mins1次"
+      },
+      {
+        "province": "重庆",
+        "city": "重庆",
+        "store": "百脑汇",
+        "address": "2F 电竞地带",
+        "time": "4/18-4/19",
+        "screenTime": "10:00-17:30",
+        "frequency": ""
+      },
+      {
+        "province": "四川",
+        "city": "成都",
+        "store": "百脑汇",
+        "address": "1F 电竞地带",
+        "time": "4/18-4/19",
+        "screenTime": "10:30-17:00",
+        "frequency": ""
+      },
+      {
+        "province": "四川",
+        "city": "南充",
+        "store": "南充高坪万达",
+        "address": "四川省南充市高坪万达广场",
+        "time": "5.5",
+        "screenTime": "10:00-21:00",
+        "frequency": "4min/次"
+      },
+      {
+        "province": "四川",
+        "city": "遂宁",
+        "store": "射洪万达",
+        "address": "四川省遂宁市射洪市涪江大道与育才路交叉路口西200米三号中庭",
+        "time": "5.5",
+        "screenTime": "10:00-21:30",
+        "frequency": "7分钟一次"
+      },
+      {
+        "province": "四川",
+        "city": "西昌",
+        "store": "东城万达",
+        "address": "西昌市航天大道西昌万达广场一号门外",
+        "time": "5.5",
+        "screenTime": "10:00-22:00",
+        "frequency": "8分钟"
+      },
+      {
+        "province": "贵州",
+        "city": "贵阳",
+        "store": "龙湾万达",
+        "address": "贵阳龙湾万达广场贵阳市经开区黄河路2号小河转盘（2号门中庭舞台大屏）",
+        "time": "4.18",
+        "screenTime": "10:00-22:00",
+        "frequency": "15分钟轮播"
+      },
+      {
+        "province": "贵州",
+        "city": "遵义",
+        "store": "遵义习水万达",
+        "address": "贵州省遵义市习水县万达广场1号门外广场大屏",
+        "time": "5.5",
+        "screenTime": "10:30-22:00",
+        "frequency": "2分钟一轮，一轮30秒"
+      },
+      {
+        "province": "云南",
+        "city": "昆明",
+        "store": "呈贡万达",
+        "address": "呈贡区彩云南路1666号万达广场一二号门oppo门口电影院门口李宁门口",
+        "time": "5.5",
+        "screenTime": "10:00-21:30",
+        "frequency": "10-18分钟轮播"
+      },
+      {
+        "province": "云南",
+        "city": "保山",
+        "store": "保山吾悦广场",
+        "address": "保山吾悦广场",
+        "time": "5.5",
+        "screenTime": "10:00-21:30",
+        "frequency": "轮播"
+      },
+      {
+        "province": "西藏",
+        "city": "拉萨",
+        "store": "柳梧万达广场",
+        "address": "拉萨柳梧万达广场一号门",
+        "time": "4.17",
+        "screenTime": "10:00-20:00",
+        "frequency": ""
+      },
+      {
+        "province": "陕西",
+        "city": "西安",
+        "store": "钟楼集研社",
+        "address": "钟楼吾悦国际店钟楼区延陵西路123号",
+        "time": "5.5",
+        "screenTime": "10:00-22:00",
+        "frequency": "15-30秒/次"
+      },
+      {
+        "province": "陕西",
+        "city": "西安",
+        "store": "百脑汇",
+        "address": "1F 中庭",
+        "time": "4/18-4/19",
+        "screenTime": "10:30-17:00",
+        "frequency": ""
+      },
+      {
+        "province": "陕西",
+        "city": "咸阳",
+        "store": "三原万达",
+        "address": "咸阳市三原县池阳大街西段广场2号门",
+        "time": "5.5",
+        "screenTime": "10:00-22:00",
+        "frequency": "一天180-260次"
+      },
+      {
+        "province": "陕西",
+        "city": "宝鸡",
+        "store": "京东电器",
+        "address": "",
+        "time": "5.5",
+        "screenTime": "10:00-20:00",
+        "frequency": "10-15s和门店品宣一起播"
+      },
+      {
+        "province": "甘肃",
+        "city": "兰州",
+        "store": "南滨河万达",
+        "address": "南滨河东路5150号一号圆厅",
+        "time": "5.5",
+        "screenTime": "10:00-21:30",
+        "frequency": "5分钟1-2次"
+      },
+      {
+        "province": "甘肃",
+        "city": "天水",
+        "store": "秦州万达",
+        "address": "甘肃省天水市秦州区七里墩街道岷山路658号南广场室外大屏",
+        "time": "5.5",
+        "screenTime": "10:00-22:00",
+        "frequency": "5-6分钟/次"
+      },
+      {
+        "province": "甘肃",
+        "city": "陇南",
+        "store": "昌盛缤纷城",
+        "address": "甘肃省陇南市武都区青岛街11号路昌盛缤纷城南广场",
+        "time": "5.5",
+        "screenTime": "早上10:00-晚上21:30",
+        "frequency": "5-6分钟轮播一次"
+      },
+      {
+        "province": "青海",
+        "city": "西宁",
+        "store": "西宁北川万达",
+        "address": "青海省西宁市西宁北川万达广场外广场1号门",
+        "time": "5.5",
+        "screenTime": "早10-晚9点",
+        "frequency": "轮播"
+      },
+      {
+        "province": "青海",
+        "city": "西宁",
+        "store": "西宁海湖万达",
+        "address": "西宁海湖万达广场海湖新区西关大街2号圆厅kkv上方",
+        "time": "5.5",
+        "screenTime": "早十到晚十",
+        "frequency": "四分钟"
+      },
+      {
+        "province": "宁夏",
+        "city": "石嘴山",
+        "store": "石嘴山万达",
+        "address": "宁夏石嘴山市贺兰山南路118号1号门",
+        "time": "5.5",
+        "screenTime": "10:30~闭店",
+        "frequency": "5分钟左右"
+      },
+      {
+        "province": "新疆",
+        "city": "乌鲁木齐",
+        "store": "德港万达",
+        "address": "新疆维吾尔自治区乌鲁木齐市头屯河区中亚南路198号德港万达广场1楼中庭舞台",
+        "time": "5.5",
+        "screenTime": "12:00-19:30",
+        "frequency": "全天轮播"
+      },
+      {
+        "province": "新疆",
+        "city": "喀什",
+        "store": "古城万达",
+        "address": "喀什市克孜都维路41号室外屏一号门外立面，室内屏商场内负一层李宁专卖店门口",
+        "time": "5.5",
+        "screenTime": "11:00-23:00",
+        "frequency": "大约10分钟循环一次"
       }
     ],
     "mapMarkers2024": [
@@ -1638,20 +2766,364 @@
     ],
     "records": [
       {
-        "date": "2024.4.17",
-        "title": "砂金首发UP池应援-孔雀认养",
-        "location": "上海",
-        "desc": "砂金上海野生动物园孔雀认养",
+        "title": "NOWWA挪瓦咖啡（国际贸易中心店）",
+        "location": "广东省广州市天河区林和西路1号国际贸易中心首层一号铺NOWWA COFFEE",
+        "city": "广州市",
+        "tag": "咖啡应援",
+        "date": "2025.04",
+        "lat": 0,
+        "lng": 0,
+        "desc": "广东省 广州市 天河区",
         "image": "",
-        "tag": "线下"
+        "howToJoin": "到店消费即可参与应援"
       },
       {
-        "date": "2024.4.17",
-        "title": "砂金首发UP池应援",
-        "location": "",
-        "desc": "",
+        "title": "NOWWA挪瓦咖啡（南京鼓楼宜悦里店）",
+        "location": "江苏省南京市鼓楼区新模范马路38号1F-14b",
+        "city": "南京市",
+        "tag": "咖啡应援",
+        "date": "2025.04",
+        "lat": 0,
+        "lng": 0,
+        "desc": "江苏省 南京市 鼓楼区",
         "image": "",
-        "tag": ""
+        "howToJoin": "到店消费即可参与应援"
+      },
+      {
+        "title": "NOWWA挪瓦咖啡（深铁置业大厦店）",
+        "location": "深圳市福田区深南大道6011-8号深铁置业大厦负二层B216号挪瓦咖啡",
+        "city": "深圳市",
+        "tag": "咖啡应援",
+        "date": "2025.04",
+        "lat": 0,
+        "lng": 0,
+        "desc": "广东省 深圳市 福田区",
+        "image": "",
+        "howToJoin": "到店消费即可参与应援"
+      },
+      {
+        "title": "NOWWA挪瓦咖啡（昆明万象城店）",
+        "location": "云南省昆明市官渡区吴井街道办事处龙湖天地1幢1层113号商铺NOWWA咖啡",
+        "city": "昆明市",
+        "tag": "咖啡应援",
+        "date": "2025.04",
+        "lat": 0,
+        "lng": 0,
+        "desc": "云南省 昆明市 官渡区",
+        "image": "",
+        "howToJoin": "到店消费即可参与应援"
+      },
+      {
+        "title": "NOWWA挪瓦咖啡（沈阳金融中心店）",
+        "location": "辽宁省沈阳市沈河区哈尔滨路118号华府天地北门挪瓦咖啡",
+        "city": "沈阳市",
+        "tag": "咖啡应援",
+        "date": "2025.04",
+        "lat": 0,
+        "lng": 0,
+        "desc": "辽宁省 沈阳市 沈河区",
+        "image": "",
+        "howToJoin": "到店消费即可参与应援"
+      },
+      {
+        "title": "NOWWA挪瓦咖啡（西安启迪中心店）",
+        "location": "陕西省西安市雁塔区启迪中心三期108门面房挪瓦咖啡店",
+        "city": "西安市",
+        "tag": "咖啡应援",
+        "date": "2025.04",
+        "lat": 0,
+        "lng": 0,
+        "desc": "陕西省 西安市 雁塔区",
+        "image": "",
+        "howToJoin": "到店消费即可参与应援"
+      },
+      {
+        "title": "NOWWA挪瓦咖啡（厦门悦享中心店）",
+        "location": "福建省厦门市思明区悦享中心10-1号110-2室（悦享中心1楼京东之家隔壁）",
+        "city": "厦门市",
+        "tag": "咖啡应援",
+        "date": "2025.04",
+        "lat": 0,
+        "lng": 0,
+        "desc": "福建省 厦门市 思明区",
+        "image": "",
+        "howToJoin": "到店消费即可参与应援"
+      },
+      {
+        "title": "NOWWA挪瓦咖啡（济南CBD中央广场D座店）",
+        "location": "山东省济南市历下区解放东路6-17号，中央广场D座",
+        "city": "济南市",
+        "tag": "咖啡应援",
+        "date": "2025.04",
+        "lat": 0,
+        "lng": 0,
+        "desc": "山东省 济南市 历下区",
+        "image": "",
+        "howToJoin": "到店消费即可参与应援"
+      },
+      {
+        "title": "NOWWA挪瓦咖啡（成都环球汇IMP广场店）",
+        "location": "四川省成都市锦江区东大路318号附1号",
+        "city": "成都市",
+        "tag": "咖啡应援",
+        "date": "2025.04",
+        "lat": 0,
+        "lng": 0,
+        "desc": "四川省 成都市 锦江区",
+        "image": "",
+        "howToJoin": "到店消费即可参与应援"
+      },
+      {
+        "title": "NOWWA挪瓦咖啡（杭州工商大学教工路店）",
+        "location": "浙江省杭州市西湖区西溪街道教工路145号",
+        "city": "杭州市",
+        "tag": "咖啡应援",
+        "date": "2025.04",
+        "lat": 0,
+        "lng": 0,
+        "desc": "浙江省 杭州市 西湖区",
+        "image": "",
+        "howToJoin": "到店消费即可参与应援"
+      },
+      {
+        "title": "NOWWA挪瓦咖啡（华中科技大学店）",
+        "location": "湖北省武汉市洪山区华中科技大学集贸南门1-2号门店",
+        "city": "武汉市",
+        "tag": "咖啡应援",
+        "date": "2025.04",
+        "lat": 0,
+        "lng": 0,
+        "desc": "湖北省 武汉市 洪山区",
+        "image": "",
+        "howToJoin": "到店消费即可参与应援"
+      },
+      {
+        "title": "NOWWA挪瓦咖啡（天津海光Mall店）",
+        "location": "天津市南开区南京路302号海光MALL一层1F-03",
+        "city": "天津市",
+        "tag": "咖啡应援",
+        "date": "2025.04",
+        "lat": 0,
+        "lng": 0,
+        "desc": "天津市 天津市 南开区",
+        "image": "",
+        "howToJoin": "到店消费即可参与应援"
+      },
+      {
+        "title": "NOWWA挪瓦咖啡（泉州浦西万达店）",
+        "location": "福建省泉州市丰泽区万达公馆北区59号店面",
+        "city": "泉州市",
+        "tag": "咖啡应援",
+        "date": "2025.04",
+        "lat": 0,
+        "lng": 0,
+        "desc": "福建省 泉州市 丰泽区",
+        "image": "",
+        "howToJoin": "到店消费即可参与应援"
+      },
+      {
+        "title": "NOWWA挪瓦咖啡（洛阳市七里河地铁站店）",
+        "location": "河南省洛阳市涧西区长春路街道延安路37号街坊4号楼4门101号",
+        "city": "洛阳市",
+        "tag": "咖啡应援",
+        "date": "2025.04",
+        "lat": 0,
+        "lng": 0,
+        "desc": "河南省 洛阳市 涧西区",
+        "image": "",
+        "howToJoin": "到店消费即可参与应援"
+      },
+      {
+        "title": "NOWWA挪瓦咖啡（苏河湾店）",
+        "location": "上海市静安区北站街道北苏州路518号",
+        "city": "上海市",
+        "tag": "咖啡应援",
+        "date": "2025.04",
+        "lat": 0,
+        "lng": 0,
+        "desc": "上海市 上海市 静安区",
+        "image": "",
+        "howToJoin": "到店消费即可参与应援"
+      },
+      {
+        "title": "NOWWA挪瓦咖啡（嘉瑞宝广场店）",
+        "location": "江苏省连云港市连云区嘉瑞宝广场三楼挪瓦咖啡",
+        "city": "连云港市",
+        "tag": "咖啡应援",
+        "date": "2025.04",
+        "lat": 0,
+        "lng": 0,
+        "desc": "江苏省 连云港市 连云区",
+        "image": "",
+        "howToJoin": "到店消费即可参与应援"
+      },
+      {
+        "title": "NOWWA挪瓦咖啡（北京鼓楼园店）",
+        "location": "北京市东城区交道口街道鼓楼园A座A105",
+        "city": "北京市",
+        "tag": "咖啡应援",
+        "date": "2025.04",
+        "lat": 0,
+        "lng": 0,
+        "desc": "北京市 北京市 东城区",
+        "image": "",
+        "howToJoin": "到店消费即可参与应援"
+      },
+      {
+        "title": "NOWWA挪瓦咖啡（澳门金银岛店）",
+        "location": "澳门亞馬喇前地名勝世界購物中心1樓1033舖",
+        "city": "澳门",
+        "tag": "咖啡应援",
+        "date": "2025.04",
+        "lat": 0,
+        "lng": 0,
+        "desc": "澳门 澳门 澳门",
+        "image": "",
+        "howToJoin": "到店消费即可参与应援"
+      },
+      {
+        "title": "NOWWA挪瓦咖啡（温州恒隆广场店）",
+        "location": "浙江省温州市鹿城区南汇街道车站大道南洋新村10-11幢122号",
+        "city": "温州市",
+        "tag": "咖啡应援",
+        "date": "2025.04",
+        "lat": 0,
+        "lng": 0,
+        "desc": "浙江省 温州市 鹿城区",
+        "image": "",
+        "howToJoin": "到店消费即可参与应援"
+      },
+      {
+        "title": "NOWWA挪瓦咖啡（南昌新城吾悦广场店）",
+        "location": "江西省南昌市青山湖区新城吾悦广场悦街2楼挪瓦咖啡",
+        "city": "南昌市",
+        "tag": "咖啡应援",
+        "date": "2025.04",
+        "lat": 0,
+        "lng": 0,
+        "desc": "江西省 南昌市 青山湖区",
+        "image": "",
+        "howToJoin": "到店消费即可参与应援"
+      },
+      {
+        "title": "NOWWA挪瓦咖啡（三亚夏日站店）",
+        "location": "海南省三亚市吉阳区育秀路2号",
+        "city": "三亚市",
+        "tag": "咖啡应援",
+        "date": "2025.04",
+        "lat": 0,
+        "lng": 0,
+        "desc": "海南省 三亚市 吉阳区",
+        "image": "",
+        "howToJoin": "到店消费即可参与应援"
+      },
+      {
+        "title": "NOWWA挪瓦咖啡（珠海爱情邮局店）",
+        "location": "广东省珠海市香洲区情侣中路海滨泳场西侧热浪湾隔壁",
+        "city": "珠海市",
+        "tag": "咖啡应援",
+        "date": "2025.04",
+        "lat": 0,
+        "lng": 0,
+        "desc": "广东省 珠海市 香洲区",
+        "image": "",
+        "howToJoin": "到店消费即可参与应援"
+      },
+      {
+        "title": "NOWWA挪瓦咖啡（南城浪里汇店）",
+        "location": "广东省东莞市南城街道东莞轨道交通大厦浪里汇负一层112",
+        "city": "东莞市",
+        "tag": "咖啡应援",
+        "date": "2025.04",
+        "lat": 0,
+        "lng": 0,
+        "desc": "广东省 东莞市 南城街道",
+        "image": "",
+        "howToJoin": "到店消费即可参与应援"
+      },
+      {
+        "title": "NOWWA挪瓦咖啡（长春力旺广场店）",
+        "location": "吉林省长春市朝阳区前进大街与繁荣路交汇996号长春力旺广场D座写字间大堂",
+        "city": "长春市",
+        "tag": "咖啡应援",
+        "date": "2025.04",
+        "lat": 0,
+        "lng": 0,
+        "desc": "吉林省 长春市 朝阳区",
+        "image": "",
+        "howToJoin": "到店消费即可参与应援"
+      },
+      {
+        "title": "NOWWA挪瓦咖啡（华润大厦B座店）",
+        "location": "海南省海口市龙华区明珠路7号华润大厦B座一楼大堂挪瓦咖啡",
+        "city": "海口市",
+        "tag": "咖啡应援",
+        "date": "2025.04",
+        "lat": 0,
+        "lng": 0,
+        "desc": "海南省 海口市 龙华区",
+        "image": "",
+        "howToJoin": "到店消费即可参与应援"
+      },
+      {
+        "title": "NOWWA挪瓦咖啡（宜春万载古城店）",
+        "location": "江西省宜春市万载县宝塔路古城闻礼公祠广场NOWWA挪瓦咖啡(古城店)",
+        "city": "宜春市",
+        "tag": "咖啡应援",
+        "date": "2025.04",
+        "lat": 0,
+        "lng": 0,
+        "desc": "江西省 宜春市 万载县",
+        "image": "",
+        "howToJoin": "到店消费即可参与应援"
+      },
+      {
+        "title": "NOWWA挪瓦咖啡（德必岳麓WE店）",
+        "location": "湖南省长沙市岳麓区德必WE一楼大厅挪瓦咖啡，送到店里",
+        "city": "长沙市",
+        "tag": "咖啡应援",
+        "date": "2025.04",
+        "lat": 0,
+        "lng": 0,
+        "desc": "湖南省 长沙市 岳麓区",
+        "image": "",
+        "howToJoin": "到店消费即可参与应援"
+      },
+      {
+        "title": "NOWWA挪瓦咖啡（常德万达广场店）",
+        "location": "湖南省常德市武陵区南坪街道万达广场写字楼B-3-101挪瓦咖啡",
+        "city": "常德市",
+        "tag": "咖啡应援",
+        "date": "2025.04",
+        "lat": 0,
+        "lng": 0,
+        "desc": "湖南省 常德市 武陵区",
+        "image": "",
+        "howToJoin": "到店消费即可参与应援"
+      },
+      {
+        "title": "NOWWA挪瓦咖啡（金华铂瑞花园店）",
+        "location": "浙江省金华市婺城区铂瑞花园南区公园商铺3-111",
+        "city": "金华市",
+        "tag": "咖啡应援",
+        "date": "2025.04",
+        "lat": 0,
+        "lng": 0,
+        "desc": "浙江省 金华市 婺城区",
+        "image": "",
+        "howToJoin": "到店消费即可参与应援"
+      },
+      {
+        "title": "NOWWA挪瓦咖啡（兰州联创广场店）",
+        "location": "甘肃省兰州市城关区雁南路与飞雁街交叉口西180米联创广场C座一层西侧挪瓦咖啡",
+        "city": "兰州市",
+        "tag": "咖啡应援",
+        "date": "2025.04",
+        "lat": 0,
+        "lng": 0,
+        "desc": "甘肃省 兰州市 城关区",
+        "image": "",
+        "howToJoin": "到店消费即可参与应援"
       }
     ]
   },
