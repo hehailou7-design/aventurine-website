@@ -6,6 +6,7 @@ import CharacterPage from './pages/CharacterPage'
 import MaterialsPage from './pages/MaterialsPage'
 import CollaborationPage from './pages/CollaborationPage'
 import ChroniclePage from './pages/ChroniclePage'
+import EventPage from './pages/EventPage'
 import StrengthPage from './pages/StrengthPage'
 import SubmitPage from './pages/SubmitPage'
 import SashaSayPage from './pages/SashaSayPage'
@@ -27,6 +28,7 @@ export type PageType =
   | 'materials'
   | 'collaboration'
   | 'chronicle'
+  | 'event'
   | 'strength'
   | 'submit'
   | 'supportRecord'
@@ -124,6 +126,7 @@ function AppContent() {
         case 'materials': return <MaterialsPage />
         case 'collaboration': return <CollaborationPage />
         case 'chronicle': return <ChroniclePage />
+        case 'event': return <EventPage />
         case 'strength': return <StrengthPage />
         case 'submit': return <SubmitPage />
         case 'supportRecord': return <SupportRecordPage />

@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useLang } from '../context/LanguageContext'
 import { useContent } from '../context/ContentContext'
+import { fetchCloudData, saveCloudData, mergeArrays } from '../services/CloudDataService'
 
 // ============ 雷达图组件 ============
 function RadarChart({ data, size = 260 }: { data: { label: string; value: number; max: number }[]; size?: number }) {
@@ -22,9 +23,9 @@ function RadarChart({ data, size = 260 }: { data: { label: string; value: number
     return data.map((_, i) => getPoint(i, frac)).map((p, i, arr) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ') + 'Z'
   })
 
-  const axisLines = data.map((_, i) => {
+  const axisLinesData = data.map((_, i) => {
     const p = getPoint(i, 1)
-    return `M${cx},${cy} L${p.x},${p.y}`
+    return { x: p.x, y: p.y }
   })
 
   const dataPoints = data.map((d, i) => getPoint(i, d.value / d.max))
@@ -41,10 +42,9 @@ function RadarChart({ data, size = 260 }: { data: { label: string; value: number
       {gridPaths.map((d, i) => (
         <path key={i} d={d} fill="none" stroke="rgba(212,184,120,0.12)" strokeWidth="1" />
       ))}
-      {axisLines.map((_, i) => {
+      {axisLinesData.map((p, i) => {
         const p0 = { x: cx, y: cy }
-        const p1 = getPoint(i, 1)
-        return <line key={i} x1={p0.x} y1={p0.y} x2={p1.x} y2={p1.y} stroke="rgba(212,184,120,0.1)" strokeWidth="1" />
+        return <line key={i} x1={p0.x} y1={p0.y} x2={p.x} y2={p.y} stroke="rgba(212,184,120,0.1)" strokeWidth="1" />
       })}
       <path d={dataPath} fill="url(#radarGrad)" stroke="#d4b878" strokeWidth="2" />
       {dataPoints.map((p, i) => (
@@ -65,33 +65,82 @@ function RadarChart({ data, size = 260 }: { data: { label: string; value: number
 
 // ============ 主页面 ============
 export default function StrengthPage() {
-  const { t } = useLang()
+  const { t, lang } = useLang()
   const { content } = useContent()
   const strength = content.strength || {}
-  const zh = t('lang') === 'zh'
-  const ja = t('lang') === 'ja'
-  const ko = t('lang') === 'ko'
+  const zh = lang === 'zh'
+  const ja = lang === 'ja'
+  const ko = lang === 'ko'
 
   const eidolonData = strength.eidolonData || []
   const teamBuilds = strength.teamBuilds || []
   const relicSets = strength.relicSets || []
   const compareData = strength.compareData || []
-  const comments = strength.comments || []
 
   const [activeTab, setActiveTab] = useState<'overview' | 'build' | 'discuss'>('overview')
   const [selectedCharacter, setSelectedCharacter] = useState('')
   const [newComment, setNewComment] = useState('')
-  const [localComments, setLocalComments] = useState(comments)
+  const [cloudComments, setCloudComments] = useState<any[]>([])
+  const [syncStatus, setSyncStatus] = useState<'idle'|'syncing'|'saved'|'error'>('idle')
 
-  const handlePost = () => {
+  // 从云端加载讨论数据
+  const loadComments = useCallback(async () => {
+    try {
+      const cloud = await fetchCloudData()
+      const cloudStrengthComments = cloud.strengthComments || []
+      const localRaw = localStorage.getItem('aventurine_strength_comments')
+      let localComments: any[] = []
+      if (localRaw) {
+        try { localComments = JSON.parse(localRaw) } catch {}
+      }
+      const merged = mergeArrays(cloudStrengthComments, localComments)
+      setCloudComments(merged)
+      localStorage.setItem('aventurine_strength_comments', JSON.stringify(merged))
+    } catch (e) {
+      console.warn('[Strength] 加载云端讨论失败', e)
+    }
+  }, [])
+
+  useEffect(() => { loadComments() }, [loadComments])
+
+  // 每8秒自动同步
+  useEffect(() => {
+    const timer = setInterval(loadComments, 8000)
+    return () => clearInterval(timer)
+  }, [loadComments])
+
+  const handlePost = async () => {
     if (!newComment.trim()) return
-    setLocalComments(prev => [{
-      user: zh ? '访客' : ja ? 'ゲスト' : ko ? '게스트' : 'Guest',
+    const userLabel = zh ? '访客' : ja ? 'ゲスト' : ko ? '게스트' : 'Guest'
+    const timeLabel = zh ? '刚刚' : ja ? 'たった今' : ko ? '방금' : 'Just now'
+    const newItem = {
+      id: `sc_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+      user: userLabel,
       text: newComment.trim(),
-      time: zh ? '刚刚' : ja ? 'たった今' : ko ? '방금' : 'Just now',
+      time: timeLabel,
       likes: 0,
-    }, ...prev])
+      timestamp: Date.now(),
+    }
+    const updated = [newItem, ...cloudComments]
+    setCloudComments(updated)
+    localStorage.setItem('aventurine_strength_comments', JSON.stringify(updated))
     setNewComment('')
+    setSyncStatus('syncing')
+
+    // 保存到云端
+    try {
+      const cloud = await fetchCloudData()
+      const allComments = [newItem, ...(cloud.strengthComments || [])]
+      const unique = mergeArrays(allComments, [])
+      await saveCloudData({ ...cloud, strengthComments: unique })
+      setSyncStatus('saved')
+      setTimeout(() => setSyncStatus('idle'), 3000)
+      // 重新加载以确保同步
+      setTimeout(loadComments, 2000)
+    } catch (e) {
+      setSyncStatus('error')
+      setTimeout(() => setSyncStatus('idle'), 3000)
+    }
   }
 
   const filteredTeams = selectedCharacter
@@ -100,46 +149,45 @@ export default function StrengthPage() {
 
   // 角色基础属性
   const baseStats = [
-    { label: zh ? '生命值' : 'HP', value: 1161, icon: '❤️' },
-    { label: zh ? '攻击力' : 'ATK', value: 636, icon: '⚔️' },
-    { label: zh ? '防御力' : 'DEF', value: 663, icon: '🛡️' },
-    { label: zh ? '速度' : 'SPD', value: 101, icon: '💨' },
+    { label: t('strength_hp') || (zh ? '生命值' : 'HP'), value: 1161, icon: '❤️' },
+    { label: t('strength_atk') || (zh ? '攻击力' : 'ATK'), value: 636, icon: '⚔️' },
+    { label: t('strength_def') || (zh ? '防御力' : 'DEF'), value: 663, icon: '🛡️' },
+    { label: t('strength_spd') || (zh ? '速度' : 'SPD'), value: 101, icon: '💨' },
   ]
 
   // 战斗定位
   const roles = [
-    { name: zh ? '存护' : 'Preservation', desc: zh ? '团队护盾 / 承伤' : 'Team Shield / Tank', color: '#d4b878' },
-    { name: zh ? '虚数' : 'Imaginary', desc: zh ? '虚数属性伤害' : 'Imagary DMG', color: '#b0a0d8' },
-    { name: zh ? '生存辅助' : 'Sustain', desc: zh ? '护盾 + 减伤 + 回血' : 'Shield + DR + Heal', color: '#7ecba1' },
-    { name: zh ? '副C' : 'Sub-DPS', desc: zh ? '护盾反伤 + 追击' : 'Shield Reflect + Follow-up', color: '#ff8fad' },
+    { name: t('strength_role_pres') || (zh ? '存护' : 'Preservation'), desc: t('strength_role_pres_desc') || (zh ? '团队护盾 / 承伤' : 'Team Shield / Tank'), color: '#d4b878' },
+    { name: t('strength_role_img') || (zh ? '虚数' : 'Imaginary'), desc: t('strength_role_img_desc') || (zh ? '虚数属性伤害' : 'Imaginary DMG'), color: '#b0a0d8' },
+    { name: t('strength_role_sus') || (zh ? '生存辅助' : 'Sustain'), desc: t('strength_role_sus_desc') || (zh ? '护盾 + 减伤 + 回血' : 'Shield + DR + Heal'), color: '#7ecba1' },
+    { name: t('strength_role_sub') || (zh ? '副C' : 'Sub-DPS'), desc: t('strength_role_sub_desc') || (zh ? '护盾反伤 + 追击' : 'Shield Reflect + Follow-up'), color: '#ff8fad' },
   ]
 
   // 综合评分雷达数据
   const radarData = [
-    { label: zh ? '输出' : 'DPS', value: 78, max: 100 },
-    { label: zh ? '生存' : 'Sustain', value: 95, max: 100 },
-    { label: zh ? '辅助' : 'Support', value: 88, max: 100 },
-    { label: zh ? '易用' : 'Ease', value: 85, max: 100 },
-    { label: zh ? '泛用' : 'Flex', value: 92, max: 100 },
-    { label: zh ? '性价比' : 'Value', value: 96, max: 100 },
+    { label: t('strength_radar_dps') || (zh ? '输出' : 'DPS'), value: 78, max: 100 },
+    { label: t('strength_radar_sur') || (zh ? '生存' : 'Sustain'), value: 95, max: 100 },
+    { label: t('strength_radar_sup') || (zh ? '辅助' : 'Support'), value: 88, max: 100 },
+    { label: t('strength_radar_ease') || (zh ? '易用' : 'Ease'), value: 85, max: 100 },
+    { label: t('strength_radar_flex') || (zh ? '泛用' : 'Flex'), value: 92, max: 100 },
+    { label: t('strength_radar_val') || (zh ? '性价比' : 'Value'), value: 96, max: 100 },
   ]
 
-  // 综合评分
   const overallScore = Math.round(radarData.reduce((s, d) => s + d.value, 0) / radarData.length)
 
   // 技能列表
   const skills = [
-    { name: zh ? '普通攻击·命运筹码' : 'Basic·Fate Chip', type: zh ? '普攻' : 'Basic', desc: zh ? '对指定敌方单体造成等同于砂金攻击力100%的虚数属性伤害，并有概率为砂金自身叠加一层护盾。' : 'Deals Imaginary DMG equal to 100% of ATK to a single enemy, with a chance to stack shield on self.', multiplier: '100%' },
-    { name: zh ? '战技·直观投注' : 'Skill·All-In Wager', type: zh ? '战技' : 'Skill', desc: zh ? '消耗1点战技点，为我方全体提供等同于砂金防御力50%+若干护盾效果的护盾。砂金手持护盾时，获得额外的效果。' : 'Costs 1 Skill Point. Provides shield to all allies equal to 50% DEF + bonus. When Aventurine holds a shield, gains additional effects.', multiplier: '50%+DEF' },
-    { name: zh ? '终结技·命运轮盘' : 'Ult·Roulette Shutdown', type: zh ? '终结技' : 'Ult', desc: zh ? '对敌方全体造成虚数属性伤害，并有概率施加「易损」效果（受到伤害提高）。消耗7点能量后效果增强。' : 'Deals Imaginary DMG to all enemies, chance to apply Vulnerability (increased DMG taken). Enhanced after consuming 7 energy.', multiplier: '150%+AOE' },
-    { name: zh ? '天赋·命运筹码' : 'Talent·Fate\'s Voucher', type: zh ? '天赋' : 'Talent', desc: zh ? '当砂金持有护盾时，普攻对随机敌方造成一次追加攻击伤害。护盾层数越高，追加攻击越强。' : 'When holding a shield, Basic ATK triggers a follow-up attack on a random enemy. More shield stacks = stronger follow-up.', multiplier: 'Follow-up' },
-    { name: zh ? '秘技·命运加注' : 'Technique·Fortune Rising', type: zh ? '秘技' : 'Technique', desc: zh ? '进入战斗时，砂金获得一定层数的护盾。护盾层数根据消耗战技点的数量决定。' : 'Enters battle with shield stacks. Stack count determined by consumed Skill Points.', multiplier: 'Pre-combat' },
+    { name: t('strength_skill_ba') || (zh ? '普通攻击·命运筹码' : 'Basic·Fate Chip'), type: t('strength_type_ba') || (zh ? '普攻' : 'Basic'), desc: t('strength_desc_ba') || (zh ? '对指定敌方单体造成等同于砂金攻击力100%的虚数属性伤害，并有概率为砂金自身叠加一层护盾。' : 'Deals Imaginary DMG equal to 100% of ATK to a single enemy, with a chance to stack shield on self.'), multiplier: '100%' },
+    { name: t('strength_skill_sk') || (zh ? '战技·直观投注' : 'Skill·All-In Wager'), type: t('strength_type_sk') || (zh ? '战技' : 'Skill'), desc: t('strength_desc_sk') || (zh ? '消耗1点战技点，为我方全体提供等同于砂金防御力50%+若干护盾效果的护盾。砂金手持护盾时，获得额外的效果。' : 'Costs 1 Skill Point. Provides shield to all allies equal to 50% DEF + bonus.'), multiplier: '50%+DEF' },
+    { name: t('strength_skill_ul') || (zh ? '终结技·命运轮盘' : 'Ult·Roulette Shutdown'), type: t('strength_type_ul') || (zh ? '终结技' : 'Ult'), desc: t('strength_desc_ul') || (zh ? '对敌方全体造成虚数属性伤害，并有概率施加「易损」效果（受到伤害提高）。消耗7点能量后效果增强。' : 'Deals Imaginary DMG to all enemies, chance to apply Vulnerability.'), multiplier: '150%+AOE' },
+    { name: t('strength_skill_ta') || (zh ? '天赋·命运筹码' : 'Talent·Fate\'s Voucher'), type: t('strength_type_ta') || (zh ? '天赋' : 'Talent'), desc: t('strength_desc_ta') || (zh ? '当砂金持有护盾时，普攻对随机敌方造成一次追加攻击伤害。护盾层数越高，追加攻击越强。' : 'When holding a shield, Basic ATK triggers a follow-up attack.'), multiplier: t('strength_multi_follow') || 'Follow-up' },
+    { name: t('strength_skill_te') || (zh ? '秘技·命运加注' : 'Technique·Fortune Rising'), type: t('strength_type_te') || (zh ? '秘技' : 'Technique'), desc: t('strength_desc_te') || (zh ? '进入战斗时，砂金获得一定层数的护盾。护盾层数根据消耗战技点的数量决定。' : 'Enters battle with shield stacks determined by consumed Skill Points.'), multiplier: t('strength_multi_pre') || 'Pre-combat' },
   ]
 
   const tabs = [
-    { id: 'overview' as const, label: zh ? '总览' : ja ? '概要' : ko ? '개요' : 'Overview' },
-    { id: 'build' as const, label: zh ? '配装攻略' : ja ? 'ビルド' : ko ? '빌드' : 'Builds' },
-    { id: 'discuss' as const, label: zh ? '讨论' : ja ? '掲示板' : ko ? '토론' : 'Discuss' },
+    { id: 'overview' as const, label: t('strength_overview') },
+    { id: 'build' as const, label: t('strength_build') },
+    { id: 'discuss' as const, label: t('strength_discuss') },
   ]
 
   return (
@@ -150,14 +198,13 @@ export default function StrengthPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '24px', flexWrap: 'wrap' }}>
           <div>
             <h1 className="section-title" style={{ marginBottom: '4px', borderLeft: 'none', paddingLeft: 0 }}>
-              <span style={{ color: '#d4b878' }}>{zh ? '砂金·卡卡瓦夏' : 'Aventurine'}</span>
+              <span style={{ color: '#d4b878' }}>{t('strength_char_name') || (zh ? '砂金·卡卡瓦夏' : 'Aventurine')}</span>
               <span style={{ color: 'rgba(248,246,240,0.5)', fontSize: '14px', marginLeft: '12px', fontWeight: 400 }}>
-                ★★★★★ 5{zh ? '★' : ''}
+                ★★★★★
               </span>
             </h1>
             <p style={{ color: 'rgba(248,246,240,0.5)', fontSize: '13px' }}>
-              {zh ? '「石心十人」· IPC战略投资部 · 存护 · 虚数'
-                : '「Stoneheart」· IPC Strategic Investment · Preservation · Imaginary'}
+              {t('strength_char_title') || (zh ? '「石心十人」· IPC战略投资部 · 存护 · 虚数' : '「Stoneheart」· IPC Strategic Investment · Preservation · Imaginary')}
             </p>
           </div>
           <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -197,7 +244,7 @@ export default function StrengthPage() {
               {/* 综合评分 */}
               <div className="card-glass" style={{ padding: '24px', textAlign: 'center' }}>
                 <div style={{ fontSize: '11px', color: 'rgba(248,246,240,0.4)', marginBottom: '8px', letterSpacing: '0.15em' }}>
-                  {zh ? '综合评分' : 'OVERALL SCORE'}
+                  {t('strength_score')}
                 </div>
                 <div style={{
                   fontSize: '48px', fontWeight: 800, lineHeight: 1,
@@ -216,7 +263,7 @@ export default function StrengthPage() {
               {/* 基础属性 */}
               <div className="card-glass" style={{ padding: '20px' }}>
                 <div style={{ fontSize: '12px', color: 'rgba(248,246,240,0.4)', marginBottom: '12px', letterSpacing: '0.1em' }}>
-                  {zh ? '基础属性（Lv.80 突破后）' : 'BASE STATS (Lv.80 Ascended)'}
+                  {t('strength_base_stats')}
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {baseStats.map(s => (
@@ -244,7 +291,7 @@ export default function StrengthPage() {
 
               {/* 命座提升 E0-E6 */}
               <div>
-                <h2 className="section-title">{zh ? '命座提升 · E0-E6' : 'Eidolon Improvements · E0-E6'}</h2>
+                <h2 className="section-title">{t('strength_eidolon')}</h2>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px' }}>
                   {eidolonData.map((e: any, i: number) => (
                     <div key={i} className="card-glass card-hover" style={{ padding: '16px 20px' }}>
@@ -301,20 +348,20 @@ export default function StrengthPage() {
 
               {/* 技能列表 */}
               <div>
-                <h2 className="section-title">{zh ? '技能详解' : 'Skill Details'}</h2>
+                <h2 className="section-title">{t('strength_skills')}</h2>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   {skills.map((s, i) => (
                     <div key={i} className="card-glass" style={{ padding: '16px 20px' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                           <span style={{
-                            background: s.type === (zh ? '终结技' : 'Ult') ? 'rgba(255,215,0,0.15)' :
-                              s.type === (zh ? '战技' : 'Skill') ? 'rgba(212,184,120,0.15)' :
-                              s.type === (zh ? '天赋' : 'Talent') ? 'rgba(176,160,216,0.12)' :
+                            background: s.type === (t('strength_type_ul') || 'Ult') ? 'rgba(255,215,0,0.15)' :
+                              s.type === (t('strength_type_sk') || 'Skill') ? 'rgba(212,184,120,0.15)' :
+                              s.type === (t('strength_type_ta') || 'Talent') ? 'rgba(176,160,216,0.12)' :
                               'rgba(126,203,161,0.1)',
-                            color: s.type === (zh ? '终结技' : 'Ult') ? '#ffd700' :
-                              s.type === (zh ? '战技' : 'Skill') ? '#d4b878' :
-                              s.type === (zh ? '天赋' : 'Talent') ? '#b0a0d8' :
+                            color: s.type === (t('strength_type_ul') || 'Ult') ? '#ffd700' :
+                              s.type === (t('strength_type_sk') || 'Skill') ? '#d4b878' :
+                              s.type === (t('strength_type_ta') || 'Talent') ? '#b0a0d8' :
                               '#7ecba1',
                             fontSize: '10px', padding: '2px 8px', borderRadius: '3px', fontWeight: 700,
                           }}>
@@ -333,7 +380,7 @@ export default function StrengthPage() {
               {/* 强度对比 */}
               {compareData.length > 0 && (
                 <div>
-                  <h2 className="section-title">{zh ? '强度对比' : 'Strength Comparison'}</h2>
+                  <h2 className="section-title">{t('strength_compare')}</h2>
                   <div className="card-glass" style={{ padding: '20px' }}>
                     <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
                       {compareData.map((c: any) => (
@@ -346,7 +393,7 @@ export default function StrengthPage() {
                     {(['dps', 'survival', 'support', 'ease'] as const).map(stat => (
                       <div key={stat} style={{ marginBottom: '12px' }}>
                         <div style={{ color: 'rgba(248,246,240,0.5)', fontSize: '11px', marginBottom: '6px' }}>
-                          {stat === 'dps' ? (zh ? '输出' : 'DPS') : stat === 'survival' ? (zh ? '生存' : 'Survival') : stat === 'support' ? (zh ? '辅助' : 'Support') : (zh ? '易用性' : 'Ease')}
+                          {stat === 'dps' ? t('strength_radar_dps') : stat === 'survival' ? t('strength_radar_sur') : stat === 'support' ? t('strength_radar_sup') : t('strength_radar_ease')}
                         </div>
                         {compareData.map((c: any) => (
                           <div key={c.char} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
@@ -377,7 +424,7 @@ export default function StrengthPage() {
 
             {/* 配队推荐 */}
             <div>
-              <h2 className="section-title">{zh ? '配队推荐' : 'Team Builds'}</h2>
+              <h2 className="section-title">{t('strength_team')}</h2>
               <div style={{ marginBottom: '16px' }}>
                 <select
                   value={selectedCharacter}
@@ -388,7 +435,7 @@ export default function StrengthPage() {
                     borderRadius: '8px', color: '#f2e8d0', fontSize: '12px',
                   }}
                 >
-                  <option value="">{zh ? '全部配队' : 'All Teams'}</option>
+                  <option value="">{t('strength_all_teams')}</option>
                   {(strength.characterList || []).map((char: string, i: number) => (
                     <option key={i} value={char}>{char}</option>
                   ))}
@@ -397,7 +444,7 @@ export default function StrengthPage() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {filteredTeams.length === 0 ? (
                   <div className="card-glass" style={{ padding: '40px', textAlign: 'center', color: 'rgba(248,246,240,0.3)', fontSize: '13px' }}>
-                    {zh ? '暂无配队数据，请在管理后台添加。' : 'No team data. Please add from admin panel.'}
+                    {t('strength_no_team')}
                   </div>
                 ) : filteredTeams.map((build: any, i: number) => (
                   <div key={i} className="card-glass card-hover" style={{ padding: '18px' }}>
@@ -424,7 +471,7 @@ export default function StrengthPage() {
                     <p style={{ color: 'rgba(242,232,208,0.6)', fontSize: '12px', lineHeight: '1.8', margin: '0 0 8px' }}>{build.desc}</p>
                     {build.lc && (
                       <div style={{ color: 'rgba(212,184,120,0.6)', fontSize: '11px' }}>
-                        🔦 {zh ? '推荐光锥：' : 'Light Cone: '}{build.lc}
+                        🔦 {t('strength_lc_recommend') || (zh ? '推荐光锥：' : 'Light Cone: ')}{build.lc}
                       </div>
                     )}
                   </div>
@@ -434,11 +481,11 @@ export default function StrengthPage() {
 
             {/* 遗器推荐 */}
             <div>
-              <h2 className="section-title">{zh ? '遗器推荐' : 'Relic Recommendations'}</h2>
+              <h2 className="section-title">{t('strength_relic')}</h2>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 {relicSets.length === 0 ? (
                   <div className="card-glass" style={{ padding: '40px', textAlign: 'center', color: 'rgba(248,246,240,0.3)', fontSize: '13px' }}>
-                    {zh ? '暂无遗器数据，请在管理后台添加。' : 'No relic data. Please add from admin panel.'}
+                    {t('strength_no_relic')}
                   </div>
                 ) : relicSets.map((relic: any, i: number) => (
                   <div key={i} className="card-glass card-hover" style={{ padding: '14px 18px' }}>
@@ -461,18 +508,30 @@ export default function StrengthPage() {
           </div>
         )}
 
-        {/* ===== 讨论 Tab ===== */}
+        {/* ===== 讨论 Tab（云端同步）===== */}
         {activeTab === 'discuss' && (
           <div style={{ maxWidth: '700px' }}>
-            <h2 className="section-title">{zh ? '讨论区' : 'Discussion'}</h2>
+            <h2 className="section-title">{t('strength_discuss')}</h2>
             <p style={{ color: 'rgba(248,246,240,0.4)', fontSize: '12px', marginBottom: '20px', marginTop: '-8px' }}>
-              {zh ? '分享你对砂金强度、配装、使用体验的看法' : 'Share your thoughts on Aventurine\'s builds and gameplay'}
+              {t('strength_discuss_hint')}
             </p>
+
+            {/* 同步状态 */}
+            {syncStatus !== 'idle' && (
+              <div style={{
+                padding: '6px 12px', borderRadius: '6px', marginBottom: '12px', fontSize: '11px',
+                background: syncStatus === 'syncing' ? 'rgba(212,184,120,0.1)' : syncStatus === 'saved' ? 'rgba(126,203,161,0.1)' : 'rgba(255,50,50,0.1)',
+                color: syncStatus === 'syncing' ? '#d4b878' : syncStatus === 'saved' ? '#7ecba1' : '#ff5555',
+              }}>
+                {syncStatus === 'syncing' ? (zh ? '🔄 同步中...' : '🔄 Syncing...') : syncStatus === 'saved' ? (zh ? '✅ 已同步到云端' : '✅ Saved to cloud') : (zh ? '❌ 同步失败' : '❌ Sync failed')}
+              </div>
+            )}
+
             <div className="card-glass" style={{ padding: '20px', marginBottom: '24px' }}>
               <textarea
                 value={newComment}
                 onChange={e => setNewComment(e.target.value)}
-                placeholder={zh ? '写下你的看法...' : 'Share your thoughts...'}
+                placeholder={t('strength_discuss_placeholder') || (zh ? '写下你的看法...' : 'Share your thoughts...')}
                 style={{
                   width: '100%', minHeight: '80px',
                   background: 'rgba(26,26,26,0.8)', border: '1px solid rgba(212,184,120,0.3)',
@@ -483,23 +542,25 @@ export default function StrengthPage() {
               />
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '8px' }}>
                 <button className="btn-gold" onClick={handlePost} style={{ fontSize: '12px' }}>
-                  {zh ? '发布' : 'Post'}
+                  {t('strength_post')}
                 </button>
               </div>
             </div>
+
+            {/* 讨论列表 */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {localComments.length === 0 ? (
+              {cloudComments.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '40px 0', color: 'rgba(248,246,240,0.3)', fontSize: '13px' }}>
-                  {zh ? '还没有讨论，来说说你的看法吧！' : 'No discussions yet. Be the first to share!'}
+                  {t('strength_no_discuss')}
                 </div>
-              ) : localComments.map((c: any, i: number) => (
-                <div key={i} className="card-glass" style={{ padding: '12px 16px' }}>
+              ) : cloudComments.map((c: any, i: number) => (
+                <div key={c.id || i} className="card-glass" style={{ padding: '12px 16px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
                     <span style={{ color: '#d4b878', fontSize: '12px', fontWeight: 500 }}>{c.user}</span>
                     <span style={{ color: 'rgba(248,246,240,0.3)', fontSize: '11px' }}>{c.time}</span>
                   </div>
                   <p style={{ color: 'rgba(242,232,208,0.75)', fontSize: '13px', margin: 0, lineHeight: '1.6' }}>{c.text}</p>
-                  <div style={{ marginTop: '8px', color: 'rgba(212,184,120,0.5)', fontSize: '11px' }}>♡ {c.likes}</div>
+                  <div style={{ marginTop: '8px', color: 'rgba(212,184,120,0.5)', fontSize: '11px' }}>♡ {c.likes || 0}</div>
                 </div>
               ))}
             </div>
@@ -511,11 +572,9 @@ export default function StrengthPage() {
           marginTop: '48px', paddingTop: '24px', borderTop: '1px solid rgba(212,184,120,0.1)',
           textAlign: 'center', color: 'rgba(248,246,240,0.25)', fontSize: '11px', lineHeight: '1.8',
         }}>
-          {zh ? '数据来源：Project Yatta · HoneyHunterWorld · SRTools · 社区实测' :
-            'Data Sources: Project Yatta · HoneyHunterWorld · SRTools · Community Testing'}
+          {t('strength_data_source') || (zh ? '数据来源：Project Yatta · HoneyHunterWorld · SRTools · 社区实测' : 'Data Sources: Project Yatta · HoneyHunterWorld · SRTools · Community Testing')}
           <br />
-          {zh ? '崩坏：星穹铁道 © HoYoverse / COGNOSPHERE PTE. LTD.' :
-            'Honkai: Star Rail © HoYoverse / COGNOSPHERE PTE. LTD.'}
+          {zh ? '崩坏：星穹铁道 © HoYoverse / COGNOSPHERE PTE. LTD.' : 'Honkai: Star Rail © HoYoverse / COGNOSPHERE PTE. LTD.'}
         </div>
       </div>
     </div>

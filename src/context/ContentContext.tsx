@@ -344,6 +344,17 @@ export type SiteContent = {
     mapMarkers2025: SupportMapMarker[];
     mapMarkers2026: SupportMapMarker[];
   };
+  events: {
+    mysteryDesc: Record<string, string>;
+    hangzhouDesc: Record<string, string>;
+    groups: {
+      weibo: string;
+      douyin: string;
+      qq: string;
+      xiaohongshu: string;
+      wechat: string;
+    };
+  };
   sashaSay: {
     pageTitle: string;
     subtitle: string;
@@ -684,7 +695,18 @@ const defaultContent: SiteContent = {
       { date: '05-05', title: '二周年·宇宙深空传讯发射', image: '', link: '', tag: '特别' },
     ],
   },
-  theme: { primaryColor: '#d4b878', secondaryColor: '#c4a868', backgroundColor: '#0a0a0a', cardStyle: 'glass', fontSize: 'medium', borderRadius: 12 },
+  events: {
+    mysteryDesc: { zh: '神秘企划正在建设中，敬请期待...', en: 'Mystery project under construction, stay tuned...', ja: 'ミステリープロジェクト建設中、お楽しみに...', ko: '미스터리 프로젝트 건설 중, 기대해주세요...' },
+    hangzhouDesc: { zh: '预计2027年落地，筹备中', en: 'Expected to launch in 2027, in preparation', ja: '2027年落地予定、準備中', ko: '2027년 락지 예정, 준비 중' },
+    groups: {
+      weibo: '',
+      douyin: '',
+      qq: '',
+      xiaohongshu: '',
+      wechat: '',
+    },
+  },
+    theme: { primaryColor: '#d4b878', secondaryColor: '#c4a868', backgroundColor: '#0a0a0a', cardStyle: 'glass', fontSize: 'medium', borderRadius: 12 },
 };
 
 function deepMerge<T extends Record<string, unknown>>(base: T, override: Partial<T>): T {

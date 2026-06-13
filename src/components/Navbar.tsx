@@ -18,6 +18,7 @@ const navItems: { key: PageType; tKey: string }[] = [
   { key: 'collaboration', tKey: 'nav4' },
   { key: 'chronicle', tKey: 'nav5' },
   { key: 'strength', tKey: 'nav6' },
+  { key: 'event', tKey: 'nav17' },
   { key: 'submit', tKey: 'nav8' },
   { key: 'feedback', tKey: 'nav13' },
   { key: 'sponsorship', tKey: 'nav14' },
@@ -143,6 +144,11 @@ export default function Navbar({ currentPage, onNavigate, mobileMenuOpen, setMob
           >
             ⚙
           </button>
+
+          {/* 搭建by二生 */}
+          <span style={{ color: 'rgba(212,184,120,0.5)', fontSize: '11px', whiteSpace: 'nowrap' }} className="hidden md:inline">
+            搭建by二生
+          </span>
 
           {/* Language Switcher */}
           <div className="relative hidden md:block">

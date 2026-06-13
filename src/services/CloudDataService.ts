@@ -26,6 +26,7 @@ export interface CloudData {
   sponsorshipApps: any[]     // 生贺组应聘/赞助申请
   knowledge: any[]        // 砂砂想说冷知识（已发布）
   knowledgePending: any[]    // 砂砂想说冷知识投稿（待审核，保留兼容）
+  strengthComments: any[]  // 强度专区讨论区评论
   materialComments: Record<string, any[]> // 角色物料评论
   lastUpdated: string
 }
@@ -42,6 +43,7 @@ const DEFAULT_DATA: CloudData = {
   sponsorshipApps: [],
   knowledge: [],
   knowledgePending: [],
+  strengthComments: [],
   materialComments: {},
   lastUpdated: new Date().toISOString(),
 }

@@ -27,6 +27,7 @@ type PageSection =
   | 'pageBuilder'
   | 'calendar' | 'sashaSay' | 'materialTable' | 'countdown'
   | 'cloudConfig'
+  | 'events' | 'strength'
 
 // —— 通用组件 ———
 export function FormGroup({ label, children }: { label: string; children: React.ReactNode }) {
@@ -38,16 +39,18 @@ export function FormGroup({ label, children }: { label: string; children: React.
   )
 }
 
-export function TextInput({ value, onChange, multiline, rows }: {
-  value: string; onChange: (v: string) => void; multiline?: boolean; rows?: number
+export function TextInput({ value, onChange, multiline, rows, placeholder }: {
+  value: string; onChange: (v: string) => void; multiline?: boolean; rows?: number; placeholder?: string
 }) {
   return multiline ? (
     <textarea value={value} onChange={e => onChange(e.target.value)}
       rows={rows || 3}
+      placeholder={placeholder}
       style={{ width: '100%', background: '#121212', border: '1px solid rgba(212,184,120,0.3)', borderRadius: '6px', padding: '8px 10px', color: '#f2e8d0', fontSize: '13px', resize: 'vertical', fontFamily: 'inherit' }}
     />
   ) : (
     <input value={value} onChange={e => onChange(e.target.value)}
+      placeholder={placeholder}
       style={{ width: '100%', background: '#121212', border: '1px solid rgba(212,184,120,0.3)', borderRadius: '6px', padding: '6px 10px', color: '#f2e8d0', fontSize: '13px' }}
     />
   )
@@ -537,6 +540,74 @@ function CountdownEditor({ content, onUpdate }: { content: any; onUpdate: (path:
   )
 }
 
+
+// —— 活动专区编辑器 ———
+function EventsEditor({ content, onUpdate }: { content: any; onUpdate: (path: string, v: any) => void }) {
+  const events = content.events || {};
+  const langKeys = ['zh', 'en', 'ja', 'ko'];
+
+  const updateLangField = (field: string, lang: string, value: string) => {
+    const current = events[field] || {};
+    const next = { ...current, [lang]: value };
+    onUpdate('events.' + field, next);
+  };
+
+  const updateGroup = (key: string, value: string) => {
+    onUpdate('events.groups.' + key, value);
+  };
+
+  return (
+    <div>
+      <p style={{ color: 'rgba(248,246,240,0.4)', fontSize: '12px', marginBottom: '16px', lineHeight: '1.6' }}>
+        编辑活动专区内容。群号/二维码由这里填写，前台自动显示。<br/>
+        <span style={{ color: '#d4b878' }}>提示：</span>修改后点底部「保存并发布到全站」，所有设备同步更新。
+      </p>
+
+      {/* 神秘企划描述 */}
+      <h3 style={{ color: '#d4b878', fontSize: '14px', marginTop: '20px', marginBottom: '12px' }}>🎭 神秘企划描述</h3>
+      {langKeys.map(lk => (
+        <FormGroup key={lk} label={'描述 · ' + lk}>
+          <TextInput
+            value={(events.mysteryDesc || {})[lk] || ''}
+            onChange={v => updateLangField('mysteryDesc', lk, v)}
+            multiline rows={2}
+          />
+        </FormGroup>
+      ))}
+
+      {/* 杭州ONLY描述 */}
+      <h3 style={{ color: '#d4b878', fontSize: '14px', marginTop: '20px', marginBottom: '12px' }}>🏙️ 杭州ONLY描述</h3>
+      {langKeys.map(lk => (
+        <FormGroup key={lk} label={'描述 · ' + lk}>
+          <TextInput
+            value={(events.hangzhouDesc || {})[lk] || ''}
+            onChange={v => updateLangField('hangzhouDesc', lk, v)}
+            multiline rows={2}
+          />
+        </FormGroup>
+      ))}
+
+      {/* 群聊信息 */}
+      <h3 style={{ color: '#d4b878', fontSize: '14px', marginTop: '20px', marginBottom: '12px' }}>💬 应援群聊</h3>
+      {[
+        { key: 'weibo', label: '微博应援群（群号或链接）' },
+        { key: 'douyin', label: '抖音应援群（群号或链接）' },
+        { key: 'qq', label: 'QQ游客群（群号）' },
+        { key: 'xiaohongshu', label: '小红书游客群（群号或链接）' },
+        { key: 'wechat', label: '微信游客群（群号或二维码链接）' },
+      ].map(g => (
+        <FormGroup key={g.key} label={g.label}>
+          <TextInput
+            value={(events.groups || {})[g.key] || ''}
+            onChange={v => updateGroup(g.key, v)}
+            placeholder={g.key === 'wechat' ? '群号 或 图片URL（二维码）' : '群号 或 链接'}
+          />
+        </FormGroup>
+      ))}
+    </div>
+  );
+}
+
 // —— 主组件 ———
 export default function AdminPage({ onLogout }: { onLogout?: () => void }) {
   const { content, updateContent, resetContent, isDirty, publishContent, isPublishing, syncToSite, lastPublishResult } = useContent()
@@ -740,6 +811,7 @@ export default function AdminPage({ onLogout }: { onLogout?: () => void }) {
           initialData={content.pageBuilder || null}
         />
       )
+      case 'events': return <EventsEditor content={content} onUpdate={handleUpdate} />
       default: return <HomeEditor content={content.home} onUpdate={handleUpdate} />
     }
   }
