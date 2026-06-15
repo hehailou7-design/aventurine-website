@@ -529,13 +529,14 @@
         "clickAction": "none"
       },
       {
-        "title": "砂金-星旅一瞬",
+        "title": "砂金-星旅一瞬：「命运从未公平，但……」",
         "desc": "",
         "tag": "",
         "image": "https://upload-bbs.miyoushe.com/upload/2025/10/10/225769374/561c1d2cfd8bf68732199aff2e9e1768_4165099620375583661.png?x-oss-process=image//resize,s_600/quality,q_80/auto-orient,0/interlace,1/format,png",
         "date": "",
         "link": "https://www.bilibili.com/video/BV1VH4y1M7t5?spm_id_from=333.788.recommend_more_video.0&trackid=web_related_0.router-related-2479604-qrth5.1781056218207.828&vd_source=c0be3f5289ef97bec644fc638fa56b6e",
-        "clickAction": "none"
+        "clickAction": "none",
+        "detailDesc": "要扼住命运的咽喉，除了押上一切，我们别无选择。"
       },
       {
         "title": "砂金与星期日对峙",
@@ -556,7 +557,7 @@
         "clickAction": "none"
       },
       {
-        "title": "砂金35时期",
+        "title": "砂金被捕时期",
         "desc": "",
         "tag": "",
         "image": "https://upload-bbs.miyoushe.com/upload/2025/10/10/225769374/e545ff8a02ab7d745d43df284b003bac_8416536016206667588.png?x-oss-process=image//resize,s_600/quality,q_80/auto-orient,0/interlace,1/format,png",
@@ -677,7 +678,7 @@
         "desc": "",
         "tag": "",
         "image": "https://upload-bbs.miyoushe.com/upload/2025/10/11/225769374/c8a38f7390c91888a3f9a26796d2123c_2145254299840081370.png?x-oss-process=image//resize,s_600/quality,q_80/auto-orient,0/interlace,1/format,png",
-        "date": "",
+        "date": "https://www.bilibili.com/video/BV1Dr421u7fQ?t=51.8",
         "link": "",
         "clickAction": "none"
       },
@@ -718,13 +719,14 @@
         "clickAction": "none"
       },
       {
-        "title": "虚一直构",
+        "title": "「帕姆展览馆」 ",
         "desc": "",
         "tag": "",
         "image": "https://upload-bbs.miyoushe.com/upload/2025/10/11/225769374/9a919a3ddd0bf6a7e682c42413d09270_4408733596949210128.png?x-oss-process=image//resize,s_600/quality,q_80/auto-orient,0/interlace,1/format,png",
         "date": "",
         "link": "",
-        "clickAction": "none"
+        "clickAction": "none",
+        "detailDesc": "「女士们，先生们，接下来登场表演的是——」\n「砂金先生！与他的出道成名作《不眠之夜》」\n\n「砂…砂金？这也是计划的一环吗？」 "
       },
       {
         "title": "新年贺图",
@@ -763,22 +765,24 @@
         "clickAction": "none"
       },
       {
-        "title": "前瞻QQ小人1",
+        "title": "虚一直构 |《鸣火财富经》特别篇",
         "desc": "",
         "tag": "",
         "image": "https://upload-bbs.miyoushe.com/upload/2025/10/11/225769374/771f705c137a957b3ecff88c49d17a8f_7989613064100304071.png?x-oss-process=image//resize,s_600/quality,q_80/auto-orient,0/interlace,1/format,png",
         "date": "",
         "link": "https://www.bilibili.com/video/BV1cfCPYwEMX/?spm_id_from=333.337.search-card.all.click&vd_source=c0be3f5289ef97bec644fc638fa56b6e",
-        "clickAction": "none"
+        "clickAction": "none",
+        "detailDesc": "本节目由“国民凉茶”加多宝独家赞助播出，一切人物、故事、设定仅为节目包装，均与《崩坏：星穹铁道》原作无关。"
       },
       {
         "title": "砂金加多宝联动",
-        "desc": "",
+        "desc": "宝，祝你新年接星运，招财又进宝！",
         "tag": "",
         "image": "https://upload-bbs.miyoushe.com/upload/2025/10/11/225769374/438b75d38971959768f50edaa8194cb8_7861924763619326592.png?x-oss-process=image//resize,s_600/quality,q_80/auto-orient,0/interlace,1/format,png",
         "date": "",
         "link": "https://www.bilibili.com/video/BV1rUf6YBEAW/?spm_id_from=333.337.search-card.all.click",
-        "clickAction": "none"
+        "clickAction": "none",
+        "detailDesc": "新春在即，快来查收砂金和停云的新年祝福，接取新年星运帕~"
       },
       {
         "title": "砂金音乐会商稿",
@@ -916,13 +920,14 @@
         "clickAction": "none"
       },
       {
-        "title": "砂金-石心十人千星",
+        "title": "砂金-石心十人千星：「石心誓环•天平两端」",
         "desc": "",
         "tag": "",
         "image": "https://upload-bbs.miyoushe.com/upload/2025/10/11/225769374/a03ca34739bd42cb549e1fa86d6bd5c6_4664397246445844634.png?x-oss-process=image//resize,s_600/quality,q_80/auto-orient,0/interlace,1/format,png",
         "date": "",
-        "link": "",
-        "clickAction": "none"
+        "link": "https://www.bilibili.com/video/BV1xE4m1R78a?t=191.9",
+        "clickAction": "none",
+        "detailDesc": "战略投资部的主管「钻石」极少公开露面，代替其人站在台前的是名为「石心十人」的团体。\n而在关乎团队生存的重大议题上，「钻石」则允许十位精英以独立、平等的方式完成决策，即投票表决。\n琥珀、玛瑙、托帕、舒俱、砂金、真珠、苍刚、翡翠、龙晶、欧泊——\n而今，一枚基石破碎，砝码仅余其九。下一个被摆上台桌的问题，只能以「倾倒」作结……"
       },
       {
         "title": "砂金非零和博弈",
@@ -931,7 +936,8 @@
         "image": "https://upload-bbs.miyoushe.com/upload/2025/10/11/225769374/3f3151ba63f4f085e5739795d56f93b7_4321899670770504060.png?x-oss-process=image//resize,s_600/quality,q_80/auto-orient,0/interlace,1/format,png",
         "date": "",
         "link": "https://www.bilibili.com/video/BV1oH4y1K7qh/?spm_id_from=333.337.search-card.all.click",
-        "clickAction": "none"
+        "clickAction": "none",
+        "detailDesc": "「不才『砂金』，隶属星际和平公司战略投资部，不良资产清算专家之一…当然，也可以是你的朋友。」\n「你可以随意利用我，也可以在恰当的时机背叛我，但我从不做赔本买卖，也希望你…不要让我失望。」"
       },
       {
         "title": "砂金角色PV金手指",
@@ -940,7 +946,8 @@
         "image": "https://upload-bbs.miyoushe.com/upload/2025/10/11/225769374/c6728fa71e9e0e305322ed634e3ce277_8746343540045949806.png?x-oss-process=image//resize,s_600/quality,q_80/auto-orient,0/interlace,1/format,png",
         "date": "",
         "link": "https://www.bilibili.com/video/BV12x421m7K9/?spm_id_from=333.337.search-card.all.click",
-        "clickAction": "none"
+        "clickAction": "none",
+        "detailDesc": "「在矫揉造作的背后最终大多都隐藏着什么，即便它在开始并不存在。」"
       },
       {
         "title": "砂金-不眠之夜",
@@ -948,8 +955,9 @@
         "tag": "",
         "image": "https://upload-bbs.miyoushe.com/upload/2025/10/11/225769374/5394e49d7c329f45b6ed92237bb36136_4161120229459367929.png?x-oss-process=image//resize,s_600/quality,q_80/auto-orient,0/interlace,1/format,png",
         "date": "",
-        "link": "",
-        "clickAction": "none"
+        "link": "https://www.bilibili.com/video/BV1me411n7eu?t=0.8",
+        "clickAction": "none",
+        "detailDesc": "梦境里那个声音笑着说：「带我离开。」\n但我却亲手杀死了睡眠、忘记了时间。"
       },
       {
         "title": "砂金-Fate联动",
