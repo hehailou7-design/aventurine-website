@@ -526,7 +526,8 @@
         "image": "https://upload-bbs.miyoushe.com/upload/2025/10/10/225769374/fa5fc5624e17d7ab1296d98a8cfe1751_6426921608701085219.png?x-oss-process=image//resize,s_600/quality,q_80/auto-orient,0/interlace,1/format,png",
         "date": "",
         "link": "",
-        "clickAction": "none"
+        "clickAction": "none",
+        "detailDesc": "「天鹅绒里的恶魔」开拓任务说明  \n你见证了砂金口中那足以颠覆匹诺康尼的事实，而接下来，又会有怎样的戏剧上演呢……\n"
       },
       {
         "title": "砂金-星旅一瞬：「命运从未公平，但……」",
@@ -679,8 +680,8 @@
         "desc": "",
         "tag": "",
         "image": "https://upload-bbs.miyoushe.com/upload/2025/10/11/225769374/c8a38f7390c91888a3f9a26796d2123c_2145254299840081370.png?x-oss-process=image//resize,s_600/quality,q_80/auto-orient,0/interlace,1/format,png",
-        "date": "https://www.bilibili.com/video/BV1Dr421u7fQ?t=51.8",
-        "link": "",
+        "date": "",
+        "link": "https://www.bilibili.com/video/BV1Dr421u7fQ?t=51.8",
         "clickAction": "none"
       },
       {
@@ -931,7 +932,7 @@
         "detailDesc": "战略投资部的主管「钻石」极少公开露面，代替其人站在台前的是名为「石心十人」的团体。\n而在关乎团队生存的重大议题上，「钻石」则允许十位精英以独立、平等的方式完成决策，即投票表决。\n琥珀、玛瑙、托帕、舒俱、砂金、真珠、苍刚、翡翠、龙晶、欧泊——\n而今，一枚基石破碎，砝码仅余其九。下一个被摆上台桌的问题，只能以「倾倒」作结……"
       },
       {
-        "title": "砂金非零和博弈",
+        "title": "砂金-星旅一瞬：「非零和博弈」",
         "desc": "",
         "tag": "",
         "image": "https://upload-bbs.miyoushe.com/upload/2025/10/11/225769374/3f3151ba63f4f085e5739795d56f93b7_4321899670770504060.png?x-oss-process=image//resize,s_600/quality,q_80/auto-orient,0/interlace,1/format,png",
@@ -985,16 +986,6 @@
         "image": "https://upload-bbs.miyoushe.com/upload/2025/10/11/225769374/22a3e627dc94f99f51f9415dcabd7fdd_2165315442260181402.png?x-oss-process=image//resize,s_600/quality,q_80/auto-orient,0/interlace,1/format,png",
         "date": "",
         "link": "https://upload-bbs.miyoushe.com/upload/2025/10/11/225769374/b442204eb26255217eaaa7f44b7861a9_2966626995911367073.png?x-oss-process=image//resize,s_600/quality,q_80/auto-orient,0/interlace,1/format,png",
-        "clickAction": "none"
-      },
-      {
-        "title": "",
-        "desc": "",
-        "detailDesc": "",
-        "tag": "",
-        "image": "",
-        "date": "",
-        "link": "",
         "clickAction": "none"
       }
     ],
